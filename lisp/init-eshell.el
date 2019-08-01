@@ -104,7 +104,7 @@
                   (remq (assoc 'ivy-completion-in-region ivy-display-functions-alist)
                         ivy-display-functions-alist)))
     :bind (:map eshell-mode-map
-                ([remap eshell-pcomplete] . completion-at-point))
+           ([remap eshell-pcomplete] . completion-at-point))
     :hook ((eshell-mode . esh-autosuggest-mode)
            (eshell-mode . setup-eshell-ivy-completion)))
 
@@ -120,5 +120,5 @@
 
 (provide 'init-eshell)
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; init-eshell.el ends here

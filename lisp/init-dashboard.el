@@ -58,14 +58,14 @@
            ("H" . browse-homepage)
            ("R" . restore-session)
            ("L" . persp-load-state-from-file)
-           ("S" . open-custom-file)           
+           ("S" . open-custom-file)
            ("q" . quit-dashboard)
            ("h" . dashboard-hydra/body)
            ("?" . dashboard-hydra/body))
     :hook (dashboard-mode . (lambda () (setq-local frame-title-format "")))
     :init (dashboard-setup-startup-hook)
     :config
-    (setq dashboard-banner-logo-title "T_Fighting EMACS - Enjoy Programming & Writing"
+    (setq dashboard-banner-logo-title "T_Fighting EMACS - STAY HUNGRY & STAY FOOLISH"
           dashboard-startup-banner (or t_fighting-logo 'official)
           dashboard-center-content t
           dashboard-show-shortcuts nil
@@ -105,7 +105,7 @@
              (,(when (display-graphic-p)
                  (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
               "Settings" "Open custom file"
-              (lambda (&rest _) (find-file custom-file)))             
+              (lambda (&rest _) (find-file custom-file)))
              (,(if (display-graphic-p)
                    (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
                  "?")
