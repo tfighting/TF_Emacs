@@ -106,6 +106,28 @@
 ;;
 ;;Operate files
 ;;
+(defun t_fighting--file-path ()
+  "Retrieve the file path of the current buffer.
+Returns:
+  - A string containing the file path in case of success.
+  - `nil' in case the current buffer does not have a directory."
+  (when-let (file-path (buffer-file-name))
+    (file-truename file-path)))
+
+
+(defun t_fighting/copy-file-path ()
+  "Copy and show the file path of the current buffer."
+  (interactive)
+  (if-let (file-path (t_fighting--file-path))
+      (message "%s" (kill-new file-path))
+    (message "WARNING: Current buffer is not attached to a file!")))
+
+(defun t_fighting/copy-file-name ()
+  "Copy and show the file name of the current buffer."
+  (interactive)
+  (if-let (file-name (file-name-nondirectory (t_fighting--file-path)))
+      (message "%s" (kill-new file-name))
+    (message "WARNING: Current buffer is not attached to a file!")))
 
 
 ;;
