@@ -65,13 +65,13 @@
               (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t)))
 
   ;; For eshell
-  (with-eval-after-load 'eshell
-    (add-hook 'eshell-before-prompt-hook
-              (lambda ()
-                (setq xterm-color-preserve-properties t)))
-    (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-    (setq eshell-output-filter-functions
-          (remove 'eshell-handle-ansi-color eshell-output-filter-functions)))
+  ;; (with-eval-after-load 'eshell
+  ;;   (add-hook 'eshell-before-prompt-hook
+  ;;             (lambda ()
+  ;;               (setq xterm-color-preserve-properties t)))
+  ;;   (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  ;;   (setq eshell-output-filter-functions
+  ;;         (remove 'eshell-handle-ansi-color eshell-output-filter-functions)))
 
   ;; For compilation buffers
   (setq compilation-environment '("TERM=xterm-256color"))
@@ -104,6 +104,7 @@
                   (lambda () (ansi-term shell-pop-term-shell)))))))
 
 (provide 'init-shell)
+
 
 
 ;;; init-shell.el ends here
