@@ -29,7 +29,7 @@
     :custom-face (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
     :pretty-hydra
     ((:title (pretty-hydra-title "Dashboard" 'material "dashboard" :height 1.1 :v-adjust -0.225)
-             :color pink :quit-key "q")
+      :color pink :quit-key "q")
      ("Navigator"
       (
        ("H" browse-homepage "homepage" :exit t)
@@ -110,7 +110,7 @@
                    (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
                  "?")
               "" "Help (?/h)"
-              (lambda (&rest _) (hydra-dashboard/body))
+              (lambda (&rest _) (dashboard-hydra/body))
               font-lock-string-face))))
 
     (defun my-banner-path (&rest _)
