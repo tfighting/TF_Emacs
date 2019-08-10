@@ -174,27 +174,53 @@ Returns:
   (car custom-enabled-themes))
 
 ;;
-;;Execute python file in the minibuffer
+;;python
 ;;
 
-(defun python/run-current-file (&optional directory)
-  "Execute the current python file."
-  (interactive
-   (list (or (and current-prefix-arg
-                  (read-directory-name "Run in directory: " nil nil t))
-             default-directory)))
-  (when (buffer-file-name)
-    (let* ((command (or (and (boundp 'executable-command) executable-command)
-                        (concat "python3 " (buffer-file-name))))
-           (default-directory directory)
-           (compilation-ask-about-save nil))
-      (executable-interpret (read-shell-command "Run: " command)))))
+;; (defun python/run-current-file (&optional directory)
+;;   "Execute the current python file."
+;;   (interactive
+;;    (list (or (and current-prefix-arg
+;;                   (read-directory-name "Run in directory: " nil nil t))
+;;              default-directory)))
+;;   (when (buffer-file-name)
+;;     (let* ((command (or (and (boundp 'executable-command) executable-command)
+;;                         (concat "python3 " (buffer-file-name))))
+;;            (default-directory directory)
+;;            (compilation-ask-about-save nil))
+;;       (executable-interpret (read-shell-command "Run: " command)))))
 
+;; (with-eval-after-load 'python
+;;   (define-key python-mode-map [f4] 'python/run-current-file))
+
+;;display python buffer
+(defun display-python-buffer ()
+  (interactive)
+  (split-window-right)
+  (other-window 1)
+  (switch-to-buffer "*Python*")
+  (other-window -1))
 (with-eval-after-load 'python
-  (define-key python-mode-map [f4] 'python/run-current-file))
+  (define-key python-mode-map [f4] 'display-python-buffer))
+
+;;interupt routine
+(defun python-interrupt ()
+  (interactive)
+  (switch-to-buffer "*Python*")
+  (comint-interrupt-subjob)
+  (switch-to-prev-buffer))
+
+
+
+
+;;interrupt routine and quit
+(defun python-quit ()
+  (interactive)
+  (switch-to-buffer "*Python*")
+  (comint-quit-subjob)
+  (kill-buffer-and-window))
+
 
 
 
 (provide 'init-funcs)
-
-;;init-function.el ends here
