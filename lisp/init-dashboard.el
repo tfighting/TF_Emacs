@@ -40,8 +40,8 @@
       (("}" dashboard-next-section "next")
        ("{" dashboard-previous-section "previous")
        ("r" dashboard-goto-recent-files "recent files")
-       ("m" dashboard-goto-bookmarks "projects")
-       ("p" dashboard-goto-projects "bookmarks"))
+       ("p" dashboard-goto-bookmarks "projects")
+       ("m" dashboard-goto-projects "bookmarks"))
       "Item"
       (("RET" widget-button-press "open" :exit t)
        ("<tab>" widget-forward "next")
