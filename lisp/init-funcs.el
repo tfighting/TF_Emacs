@@ -129,6 +129,66 @@ Returns:
       (message "%s" (kill-new file-name))
     (message "WARNING: Current buffer is not attached to a file!")))
 
+(defun rename-current-filename (&optional arg)
+  "Rename the current buffer and the file it is visiting.
+If the buffer isn't visiting a file, ask if it should
+be saved to a file, or just renamed.
+If called without a prefix argument, the prompt is
+initialized with the current filename."
+  (interactive "P")
+  (let* ((name (buffer-name))
+         (filename (buffer-file-name)))
+    (if (and filename (file-exists-p filename))
+        ;; the buffer is visiting a file
+        (let* ((dir (file-name-directory filename))
+               (new-name (read-file-name "New name: " (if arg dir filename))))
+          (cond ((get-buffer new-name)
+                 (error "A buffer named '%s' already exists!" new-name))
+                (t
+                 (let ((dir (file-name-directory new-name)))
+                   (when (and (not (file-exists-p dir))
+                              (yes-or-no-p
+                               (format "Create directory '%s'?" dir)))
+                     (make-directory dir t)))
+                 (rename-file filename new-name 1)
+                 (rename-buffer new-name)
+                 (set-visited-file-name new-name)
+                 (set-buffer-modified-p nil)
+                 (when (fboundp 'recentf-add-file)
+                   (recentf-add-file new-name)
+                   (recentf-remove-if-non-kept filename))
+                 (when (projectile-project-p)
+                   (call-interactively #'projectile-invalidate-cache))
+                 (message "File '%s' successfully renamed to '%s'"
+                          name (file-name-nondirectory new-name)))))
+      ;; the buffer is not visiting a file
+      (let ((key))
+        (while (not (memq key '(?s ?r)))
+          (setq key (read-key (propertize
+                               (format
+                                (concat "Buffer '%s' is not visiting a file: "
+                                        "[s]ave to file or [r]ename buffer?")
+                                name)
+                               'face 'minibuffer-prompt)))
+          (cond ((eq key ?s)            ; save to file
+                 ;; this allows for saving a new empty (unmodified) buffer
+                 (unless (buffer-modified-p) (set-buffer-modified-p t))
+                 (save-buffer))
+                ((eq key ?r)            ; rename buffer
+                 (let ((new-name (read-string "New buffer name: ")))
+                   (while (get-buffer new-name)
+                     ;; ask to rename again, if the new buffer name exists
+                     (if (yes-or-no-p
+                          (format (concat "A buffer named '%s' already exists: "
+                                          "Rename again?")
+                                  new-name))
+                         (setq new-name (read-string "New buffer name: "))
+                       (keyboard-quit)))
+                   (rename-buffer new-name)
+                   (message "Buffer '%s' successfully renamed to '%s'"
+                            name new-name)))
+                ;; ?\a = C-g, ?\e = Esc and C-[
+                ((memq key '(?\a ?\e)) (keyboard-quit))))))))
 
 ;;
 ;; UI
@@ -191,7 +251,7 @@ Returns:
       (executable-interpret (read-shell-command "Run: " command)))))
 
 (with-eval-after-load 'python
-  (define-key python-mode-map [f5] 'python/run-current-file))
+  (define-key python-mode-map [f4] 'python/run-current-file))
 
 ;;display python buffer
 (defun display-python-buffer ()
@@ -200,8 +260,6 @@ Returns:
   (other-window 1)
   (switch-to-buffer "*Python*")
   (other-window -1))
-(with-eval-after-load 'python
-  (define-key python-mode-map [f4] 'display-python-buffer))
 
 ;;interupt routine
 (defun python-interrupt ()
@@ -212,10 +270,6 @@ Returns:
 (with-eval-after-load 'python
   (define-key python-mode-map (kbd "C-c q") 'python-interrupt))
 
-
-
-
-
 ;;interrupt routine and quit
 (defun python-quit ()
   (interactive)
@@ -223,7 +277,11 @@ Returns:
   (comint-quit-subjob)
   (kill-buffer-and-window))
 
+;; uncomment line
 
+(global-set-key (kbd "C-<f4>" ) 'comment-line)
 
 
 (provide 'init-funcs)
+
+;;the init-funcs.el ends here.

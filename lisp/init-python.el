@@ -18,9 +18,19 @@
 (use-package python
   :ensure nil
   :defines gud-pdb-command-name pdb-path
+  :hook
+  (python-mode . (lambda ()
+                   (setq-local flycheck-checkers '(python-pylint))))
   :config
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil)
+
+  (define-key inferior-python-mode-map (kbd "C-j") 'comint-next-input)
+  (define-key inferior-python-mode-map (kbd "<up>") 'comint-next-input)
+  (define-key inferior-python-mode-map (kbd "C-k") 'comint-previous-input)
+  (define-key inferior-python-mode-map (kbd "<down>") 'comint-previous-input)
+  (define-key inferior-python-mode-map
+    (kbd "C-r") 'comint-history-isearch-backward)
 
   (add-hook 'inferior-python-mode-hook
             (lambda ()
@@ -34,8 +44,8 @@
   ;; Install: pip install yapf
   (use-package yapfify
     :diminish yapf-mode
-    :hook (python-mode . yapf-mode))
-  )
+    :hook (python-mode . yapf-mode)))
+
 
 ;;pipenv
 (use-package pipenv

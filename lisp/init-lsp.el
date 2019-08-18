@@ -20,9 +20,9 @@
    ;; https://github.com/emacs-lsp/lsp-mode#supported-languages
    (use-package lsp-mode
      :diminish lsp-mode
-     :hook (python-mode . lsp)
+     :hook (prog-mode . lsp)
      :bind (:map lsp-mode-map
-            ("C-c C-d" . lsp-describe-thing-at-point))
+                 ("C-c C-d" . lsp-describe-thing-at-point))
      :init
      (setq lsp-auto-guess-root t)       ; Detect project root
      (setq lsp-prefer-flymake nil)      ; Use lsp-ui and flycheck
@@ -35,19 +35,17 @@
        (setq lsp-clients-python-library-directories '("/usr/local/" "/usr/"))))
 
    (use-package lsp-ui
+     :functions my-lsp-ui-imenu-hide-mode-line
      :commands lsp-ui-doc-hide
      :custom-face (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
-     :hook (after-load-theme . (lambda ()
-                                 (set-face-attribute 'lsp-ui-doc-background nil
-                                                     :background (face-background 'tooltip))))
      :bind (:map lsp-ui-mode-map
-            ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-            ([remap xref-find-references] . lsp-ui-peek-find-references)
-            ("C-c u" . lsp-ui-imenu))
+                 ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+                 ([remap xref-find-references] . lsp-ui-peek-find-references)
+                 ("C-c u" . lsp-ui-imenu))
      :init (setq lsp-ui-doc-enable t
                  ;; lsp-ui-doc-header t
                  lsp-ui-doc-use-webkit nil
-                 lsp-ui-doc-delay 0.5
+                 lsp-ui-doc-delay 1.0
                  lsp-ui-doc-include-signature t
                  lsp-ui-doc-position 'top
                  lsp-ui-doc-border (face-foreground 'default)
@@ -61,34 +59,46 @@
      ;; `C-g'to close doc
      (advice-add #'keyboard-quit :before #'lsp-ui-doc-hide)
 
+     ;; Reset `lsp-ui-doc-background' after loading theme
+     (add-hook 'after-load-theme-hook
+               (lambda ()
+                 (setq lsp-ui-doc-border (face-foreground 'default))
+                 (set-face-background 'lsp-ui-doc-background
+                                      (face-background 'tooltip))))
+
 
      ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
      ;; @see https://github.com/emacs-lsp/lsp-ui/issues/243
-     (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
-       (setq mode-line-format nil)))
+     (defun my-lsp-ui-imenu-hide-mode-line ()
+       "Hide the mode-line in lsp-ui-imenu."
+       (setq mode-line-format nil))
+     (advice-add #'lsp-ui-imenu :after #'my-lsp-ui-imenu-hide-mode-line))
 
    (use-package company-lsp
      :init
      (setq company-lsp-cache-candidates 'auto))
 
+
    ;; Debug
    (use-package dap-mode
-     :after lsp-mode
      :diminish
+     :functions dap-hydra/nil
+     :bind (:map lsp-mode-map
+                 ("<f5>" . dap-debug)
+                 ("M-<f5>" . dap-hydra))
      :hook ((after-init . dap-mode)
             (dap-mode . dap-ui-mode)
+            (dap-session-created . (lambda (&_rest) (dap-hydra)))
+            (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))
 
-            (python-mode . (lambda () (require 'dap-python)))
-            (go-mode . (lambda () (require 'dap-go)))
-            (java-mode . (lambda () (require 'dap-java)))
-            ((c-mode c++-mode objc-mode swift) . (lambda () (require 'dap-lldb)))
-            (php-mode . (lambda () (require 'dap-php)))))
+            (python-mode . (lambda () (require 'dap-python)))))
+
 
    ;; `lsp-mode' and `treemacs' integration.
    (when emacs/>=25.2p
      (use-package lsp-treemacs
        :bind (:map lsp-mode-map
-              ("M-9" . lsp-treemacs-errors-list))))
+                   ("M-9" . lsp-treemacs-errors-list))))
 
    ;; Microsoft python-language-server support
    (use-package lsp-python-ms
