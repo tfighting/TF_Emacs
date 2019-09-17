@@ -18,13 +18,10 @@
          ("C-x M-g" . magit-dispatch)
          ("C-c M-g" . magit-file-popup))
   :config
-  (when sys/win32p
-    (setenv "GIT_ASKPASS" "git-gui--askpass"))
-
   (if (fboundp 'transient-append-suffix)
       ;; Add switch: --tags
       (transient-append-suffix 'magit-fetch
-                               "-p" '("-t" "Fetch all tags" ("-t" "--tags"))))
+        "-p" '("-t" "Fetch all tags" ("-t" "--tags"))))
 
   ;; Access Git forges from Magit
   (when (executable-find "cc")
@@ -108,5 +105,5 @@
 
 (provide 'init-vcs)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; init-vcs.el ends here

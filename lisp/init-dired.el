@@ -15,19 +15,11 @@
 (use-package dired
   :ensure nil
   :bind (:map dired-mode-map
-              ("C-c C-p" . wdired-change-to-wdired-mode))
+         ("C-c C-p" . wdired-change-to-wdired-mode))
   :config
   ;; Always delete and copy recursively
   (setq dired-recursive-deletes 'always
         dired-recursive-copies 'always)
-
-  (when sys/macp
-    ;; Suppress the warning: `ls does not support --dired'.
-    (setq dired-use-ls-dired nil)
-
-    (when (executable-find "gls")
-      ;; Use GNU ls as `gls' from `coreutils' if available.
-      (setq insert-directory-program "gls")))
 
   (when (or (and sys/macp (executable-find "gls"))
             (and (not sys/macp) (executable-find "ls")))
@@ -40,12 +32,12 @@
     ;; Quick sort dired buffers via hydra
     (use-package dired-quick-sort
       :bind (:map dired-mode-map
-                  ("S" . hydra-dired-quick-sort/body))))
+             ("S" . hydra-dired-quick-sort/body))))
 
   ;; Allow rsync from dired buffers
   (use-package dired-rsync
     :bind (:map dired-mode-map
-                ("C-c C-r" . dired-rsync)))
+           ("C-c C-r" . dired-rsync)))
 
   ;; Colourful dired
   (use-package diredfl
@@ -54,9 +46,16 @@
   ;; Shows icons
   (use-package all-the-icons-dired
     :diminish
+    :functions (dired-move-to-filename
+                dired-get-filename
+                my-all-the-icons-dired--display)
+    :commands all-the-icons-dired--display
     :custom-face (all-the-icons-dired-dir-face ((t (:foreground nil))))
     :hook (dired-mode . all-the-icons-dired-mode)
     :config
+    (declare-function all-the-icons-octicon 'all-the-icons)
+    (declare-function all-the-icons-match-to-alist 'all-the-icons)
+    (declare-function all-the-icons-dir-is-submodule 'all-the-icons)
     (defun my-all-the-icons-dired--display ()
       "Display the icons of files without colors in a dired buffer."
       (when dired-subdir-alist
@@ -103,7 +102,6 @@
                     (insert "\t "))))   ; Align and keep one space for refeshing after operations
               (forward-line 1))))))
     (advice-add #'all-the-icons-dired--display :override #'my-all-the-icons-dired--display))
-
   ;; Extra Dired functionality
   (use-package dired-aux :ensure nil)
   (use-package dired-x

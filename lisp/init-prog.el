@@ -74,6 +74,7 @@
 (use-package csharp-mode)
 (use-package dockerfile-mode)
 (use-package lua-mode)
+(use-package csv-mode)
 (use-package powershell)
 (use-package rmsbolt)                   ; A compiler output viewer
 (use-package swift-mode)

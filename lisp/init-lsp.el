@@ -19,14 +19,13 @@
    ;; Emacs client for the Language Server Protocol
    ;; https://github.com/emacs-lsp/lsp-mode#supported-languages
    (use-package lsp-mode
-     :diminish lsp-mode
-     :hook (prog-mode . lsp)
+     :commands lsp
+     :custom
+     (lsp-auto-guess-root nil)
+     (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
      :bind (:map lsp-mode-map
-                 ("C-c C-d" . lsp-describe-thing-at-point))
-     :init
-     (setq lsp-auto-guess-root t)       ; Detect project root
-     (setq lsp-prefer-flymake nil)      ; Use lsp-ui and flycheck
-     (setq flymake-fringe-indicator-position 'right-fringe)
+            ("C-c C-d" . lsp-describe-thing-at-point))
+     :hook (python-mode . lsp)
      :config
      ;;Configure LSP clients
      (use-package lsp-clients
@@ -35,26 +34,32 @@
        (setq lsp-clients-python-library-directories '("/usr/local/" "/usr/"))))
 
    (use-package lsp-ui
+     :after lsp-mode
      :functions my-lsp-ui-imenu-hide-mode-line
      :commands lsp-ui-doc-hide
-     :custom-face (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
+     :custom-face
+     (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
+     (lsp-ui-sideline-code-action ((t (:inherit warning))))
      :bind (:map lsp-ui-mode-map
-                 ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-                 ([remap xref-find-references] . lsp-ui-peek-find-references)
-                 ("C-c u" . lsp-ui-imenu))
+            ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+            ([remap xref-find-references] . lsp-ui-peek-find-references)
+            ("C-c u" . lsp-ui-imenu))
+
      :init (setq lsp-ui-doc-enable t
-                 ;; lsp-ui-doc-header t
                  lsp-ui-doc-use-webkit nil
                  lsp-ui-doc-delay 1.0
                  lsp-ui-doc-include-signature t
                  lsp-ui-doc-position 'top
                  lsp-ui-doc-border (face-foreground 'default)
 
-                 lsp-ui-sideline-enable nil
-                 lsp-ui-sideline-ignore-duplicate t)
-     :config
-     (add-to-list 'lsp-ui-doc-frame-parameters '(left-fringe . 8))
+                 lsp-ui-sideline-enable t
+                 lsp-ui-sideline-show-hover nil
+                 lsp-ui-sideline-show-diagnostics nil
+                 lsp-ui-sideline-ignore-duplicate t
 
+                 lsp-eldoc-enable-hover nil)
+     :config
+     (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
 
      ;; `C-g'to close doc
      (advice-add #'keyboard-quit :before #'lsp-ui-doc-hide)
@@ -66,7 +71,6 @@
                  (set-face-background 'lsp-ui-doc-background
                                       (face-background 'tooltip))))
 
-
      ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
      ;; @see https://github.com/emacs-lsp/lsp-ui/issues/243
      (defun my-lsp-ui-imenu-hide-mode-line ()
@@ -74,18 +78,14 @@
        (setq mode-line-format nil))
      (advice-add #'lsp-ui-imenu :after #'my-lsp-ui-imenu-hide-mode-line))
 
-   (use-package company-lsp
-     :init
-     (setq company-lsp-cache-candidates 'auto))
-
 
    ;; Debug
    (use-package dap-mode
      :diminish
      :functions dap-hydra/nil
      :bind (:map lsp-mode-map
-                 ("<f5>" . dap-debug)
-                 ("M-<f5>" . dap-hydra))
+            ("<f5>" . dap-debug)
+            ("M-<f5>" . dap-hydra))
      :hook ((after-init . dap-mode)
             (dap-mode . dap-ui-mode)
             (dap-session-created . (lambda (&_rest) (dap-hydra)))
@@ -98,13 +98,13 @@
    (when emacs/>=25.2p
      (use-package lsp-treemacs
        :bind (:map lsp-mode-map
-                   ("M-9" . lsp-treemacs-errors-list))))
+              ("M-9" . lsp-treemacs-errors-list))))
 
    ;; Microsoft python-language-server support
    (use-package lsp-python-ms
      :hook (python-mode . (lambda ()
                             (require 'lsp-python-ms)
-                            (lsp-deferred))))))
+                            (lsp))))))
 
 
 

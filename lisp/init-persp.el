@@ -30,9 +30,10 @@
                   (or (string-prefix-p " " (buffer-name b))
                       (and (string-prefix-p "*" (buffer-name b))
                            (not (string-equal "*scratch*" (buffer-name b))))
-                      (eq major-mode 'nov-mode)
-                      (eq major-mode 'vterm-mode)
-                      (string-prefix-p "magit" (buffer-name b))))))
+                      (string-prefix-p "magit" (buffer-name b))
+                      (string-prefix-p "Pfuture-Callback" (buffer-name b))
+                      (eq (buffer-local-value 'major-mode b) 'nov-mode)
+                      (eq (buffer-local-value 'major-mode b) 'vterm-mode)))))
   :config
   ;; Integrate IVY
   (with-eval-after-load "ivy"
@@ -42,23 +43,16 @@
                     (let ((persp (get-current-persp)))
                       (if persp
                           (not (persp-contain-buffer-p b persp))
-                        nil)))))
-
-    (setq ivy-sort-functions-alist
-          (append ivy-sort-functions-alist
-                  '((persp-kill-buffer   . nil)
-                    (persp-remove-buffer . nil)
-                    (persp-add-buffer    . nil)
-                    (persp-switch        . nil)
-                    (persp-window-switch . nil)
-                    (persp-frame-switch  . nil))))))
+                        nil)))))))
 
 ;; Integrate `projectile'
 (use-package persp-mode-projectile-bridge
+  :after projectile
   :functions (persp-get-by-name
               persp-add-new
               set-persp-parameter
-              persp-add-buffer)
+              persp-add-buffer
+              my-persp-mode-projectile-bridge-add-new-persp)
   :commands (persp-mode-projectile-bridge-find-perspectives-for-all-buffers
              persp-mode-projectile-bridge-kill-perspectives
              persp-mode-projectile-bridge-add-new-persp

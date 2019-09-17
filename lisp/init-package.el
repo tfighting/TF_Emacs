@@ -25,14 +25,14 @@
   "Set specific package ARCHIVES repository."
   (interactive
    (list (intern (completing-read "Choose package archives: "
-                                  '(melpa melpa-mirror emacs-china netease tuna)))))
+                                  '(tuna melpa melpa-mirror emacs-china netease tencen)))))
 
   (setq package-archives
         (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                             (not (gnutls-available-p))))
                (proto (if no-ssl "http" "https")))
           (pcase archives
-	     ('tuna
+            ('tuna
              `(,(cons "gnu"   (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/"))
                ,(cons "melpa" (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))))
             ('melpa
@@ -105,8 +105,10 @@
   (defalias 'upgrade-packages #'paradox-upgrade-packages)
 
   ;; Replace default `list-packages'
-  (defadvice list-packages (before my-list-packages activate)
+  (defun my-paradox-enable (&rest _)
+    "Enable paradox, overriding the default package-menu."
     (paradox-enable))
+  (advice-add #'list-packages :before #'my-paradox-enable)
   :config
   (when (fboundp 'page-break-lines-mode)
     (add-hook 'paradox-after-execute-functions

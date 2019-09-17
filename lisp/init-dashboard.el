@@ -13,7 +13,6 @@
   (require 'init-custom))
 
 ;; Dashboard
-(unless emacs/>=25.3p (setq t_fighting-dashboard nil))
 (when t_fighting-dashboard
   (use-package dashboard
     :diminish (dashboard-mode page-break-lines-mode)
@@ -69,7 +68,7 @@
           dashboard-startup-banner (or t_fighting-logo 'official)
           dashboard-center-content t
           dashboard-show-shortcuts nil
-          dashboard-items '((recents  . 10)
+          dashboard-items '((recents  . 5)
                             (bookmarks . 5)
                             (projects . 5))
 

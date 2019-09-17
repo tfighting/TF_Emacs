@@ -7,6 +7,7 @@
 
 ;;; Code:
 
+
 (eval-when-compile
   (require 'init-custom))
 
@@ -45,7 +46,7 @@
   :bind (("<C-return>" . rect-hydra/body))
   :pretty-hydra
   ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
-    :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key "q")
+           :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key "q")
    ("Move"
     (("h" backward-char "←")
      ("j" next-line "↓")
@@ -315,13 +316,13 @@
   :ensure nil
   :diminish hs-minor-mode
   :bind (:map hs-minor-mode-map
-         ("C-`" . hs-toggle-hiding)))
+              ("C-`" . hs-toggle-hiding)))
 
 ;; Flexible text folding
 (use-package origami
   :pretty-hydra
   ((:title (pretty-hydra-title "Origami" 'octicon "fold")
-    :color blue :quit-key "q")
+           :color blue :quit-key "q")
    ("Node"
     ((":" origami-recursively-toggle-node "toggle recursively")
      ("a" origami-toggle-all-nodes "toggle all")
@@ -332,7 +333,7 @@
      ("d" origami-redo "redo")
      ("r" origami-reset "reset"))))
   :bind (:map origami-mode-map
-         ("C-`" . origami-hydra/body))
+              ("C-`" . origami-hydra/body))
   :hook (prog-mode . origami-mode)
   :init (setq origami-show-fold-header t)
   :config

@@ -15,29 +15,8 @@
 (setq user-full-name t_fighting-full-name)
 (setq user-mail-address t_fighting-mail-address)
 
-;; Key Modifiers
-(with-no-warnings
-  (cond
-   (sys/win32p
-    ;; make PC keyboard's Win key or other to type Super or Hyper
-    ;; (setq w32-pass-lwindow-to-system nil)
-    (setq w32-lwindow-modifier 'super     ; Left Windows key
-          w32-apps-modifier 'hyper)       ; Menu/App key
-    (w32-register-hot-key [s-t]))
-   ((and sys/macp (eq window-system 'mac))
-    ;; Compatible with Emacs Mac port
-    (setq mac-option-modifier 'meta
-          mac-command-modifier 'super)
-    (bind-keys ([(super a)] . mark-whole-buffer)
-               ([(super c)] . kill-ring-save)
-               ([(super l)] . goto-line)
-               ([(super q)] . save-buffers-kill-emacs)
-               ([(super s)] . save-buffer)
-               ([(super v)] . yank)
-               ([(super w)] . delete-frame)
-               ([(super z)] . undo)))))
 
-;; Environment
+;;add system environment
 (when (or sys/mac-x-p sys/linux-x-p)
   (use-package exec-path-from-shell
     :init
@@ -94,13 +73,22 @@
 
 (use-package simple
   :ensure nil
-  :hook (window-setup . size-indication-mode)
+  :hook ((window-setup . size-indication-mode)
+         ((prog-mode markdown-mode conf-mode) . enable-trailing-whitespace))
   :init (setq column-number-mode t
               line-number-mode t
               kill-whole-line t               ; Kill line including '\n'
               line-move-visual nil
               track-eol t                     ; Keep cursor at end of lines. Require line-move-visual is nil.
-              set-mark-command-repeat-pop t)) ; Repeating C-SPC after popping mark pops it again
+              set-mark-command-repeat-pop t) ; Repeating C-SPC after popping mark pops it again
+
+  ;; Visualize TAB, (HARD) SPACE, NEWLINE
+  (setq-default show-trailing-whitespace nil) ; Don't show trailing whitespace by default
+  (defun enable-trailing-whitespace ()
+    "Show trailing spaces and delete on saving."
+    (setq show-trailing-whitespace t)
+    (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)))
+
 
 ;; Mouse & Smooth Scroll
 ;; Scroll one line at a time (less "jumpy" than defaults)
@@ -116,15 +104,6 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq visible-bell t
       inhibit-compacting-font-caches t) ; Don’t compact font caches during GC.
-
-;; Fullscreen
-;; WORKAROUND: To address blank screen issue with child-frame in fullscreen
-(when (and sys/mac-x-p emacs/>=26p)
-  (setq ns-use-native-fullscreen nil))
-(bind-keys ("C-<f11>" . toggle-frame-fullscreen)
-           ("C-s-f" . toggle-frame-fullscreen) ; Compatible with macOS
-           ("S-s-<return>" . toggle-frame-fullscreen)
-           ("M-S-<return>" . toggle-frame-fullscreen))
 
 (provide 'init-base)
 

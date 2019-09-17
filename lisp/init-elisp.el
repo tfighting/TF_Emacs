@@ -240,5 +240,5 @@ Lisp function does not specify a special indentation."
 
 (provide 'init-elisp)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; init-elisp.el ends here

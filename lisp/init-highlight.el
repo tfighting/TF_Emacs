@@ -56,25 +56,47 @@
   :init (setq symbol-overlay-idle-time 0.1)
   :config
   ;; Disable symbol highlighting while selecting
-  (defadvice set-mark (after disable-symbol-overlay activate)
+  (defun turn-off-symbol-overlay (&rest _)
+    "Turn off symbol highlighting."
+    (interactive)
     (symbol-overlay-mode -1))
-  (defadvice deactivate-mark (after enable-symbol-overlay activate)
-    (symbol-overlay-mode 1)))
+  (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+  (defun turn-on-symbol-overlay (&rest _)
+    "Turn on symbol highlighting."
+    (interactive)
+    (when (derived-mode-p 'prog-mode)
+      (symbol-overlay-mode 1)))
+  (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay))
 
 ;; Highlight indentions
 (use-package highlight-indent-guides
-  :custom-face
-  (highlight-indent-guides-top-character-face ((t (:inherit (font-lock-keyword-face bold)))))
-  (highlight-indent-guides-character-face ((t (:inherit (font-lock-comment-face)))))
+  :diminish
+  :functions (ivy-cleanup-string
+              my-ivy-cleanup-indentation)
+  :commands highlight-indent-guides--highlighter-default
+  :functions  my-indent-guides-for-all-but-first-column
   :hook (prog-mode . highlight-indent-guides-mode)
+  :init (setq highlight-indent-guides-method 'character
+              highlight-indent-guides-character ?\┆ ;; candidates: , ⋮, ┆, ┊, ┋, ┇
+              highlight-indent-guides-responsive 'top
+              highlight-indent-guides-auto-enabled nil
+              highlight-indent-guides-auto-character-face-perc 10
+              highlight-indent-guides-auto-top-character-face-perc 20)
   :config
-  (progn
-    (setq highlight-indent-guides-method 'character
-          highlight-indent-guides-character ?\┇ ;; candidates: , ⋮, ┆, ┊, ┋, ┇
-          highlight-indent-guides-responsive 'top
-          highlight-indent-guides-auto-enabled nil
-          highlight-indent-guides-auto-character-face-perc 10
-          highlight-indent-guides-auto-top-character-face-perc 20))
+  ;; Don't display indentations while editing with `company'
+  (with-eval-after-load 'company
+    (add-hook 'company-completion-started-hook
+              (lambda (&rest _)
+                "Trun off indentation highlighting."
+                (when highlight-indent-guides-mode
+                  (highlight-indent-guides-mode -1))))
+    (add-hook 'company-after-completion-hook
+              (lambda (&rest _)
+                "Trun on indentation highlighting."
+                (when (and (derived-mode-p 'prog-mode)
+                           (not highlight-indent-guides-mode))
+                  (highlight-indent-guides-mode 1)))))
 
   ;; Don't display first level of indentation
   (defun my-indent-guides-for-all-but-first-column (level responsive display)
@@ -85,25 +107,28 @@
   ;; Disable `highlight-indent-guides-mode' in `swiper'
   ;; https://github.com/DarthFennec/highlight-indent-guides/issues/40
   (with-eval-after-load 'ivy
-    (defadvice ivy-cleanup-string (after my-ivy-cleanup-hig activate)
-      (let ((pos 0) (next 0) (limit (length str)) (prop 'highlight-indent-guides-prop))
+    (defun my-ivy-cleanup-indentation (str)
+      "Clean up indentation highlighting in ivy minibuffer."
+      (let ((pos 0)
+            (next 0)
+            (limit (length str))
+            (prop 'highlight-indent-guides-prop))
         (while (and pos next)
           (setq next (text-property-not-all pos limit prop nil str))
           (when next
             (setq pos (text-property-any next limit prop nil str))
             (ignore-errors
-              (remove-text-properties next pos '(display nil face nil) str))))))))
+              (remove-text-properties next pos '(display nil face nil) str))))))
+    (advice-add #'ivy-cleanup-string :after #'my-ivy-cleanup-indentation)))
 
 ;; Colorize color names in buffers
 (use-package rainbow-mode
   :diminish
-  :hook ((css-mode js-mode js2-mode html-mode web-mode) . rainbow-mode)
-  :init
-  (defun toggle-rainbow ()
-    "Colorize color names in buffers or not."
-    (interactive)
-    (rainbow-mode (or (and rainbow-mode -1) 1)))
-  (defalias #'t_fighting-toggle-rainbow #'toggle-rainbow)
+  :functions (my-rainbow-colorize-match my-rainbow-clear-overlays)
+  :commands(rainbow-x-color-luminance rainbow-colorize-match rainbow-turn-off)
+  :bind (:map help-mode-map
+         ("w" . rainbow-mode))
+  :hook ((css-mode scss-mode less-css-mode) . rainbow-mode)
   :config
   ;; HACK: Use overlay instead of text properties to override `hl-line' faces.
   ;; @see https://emacs.stackexchange.com/questions/36420
@@ -142,9 +167,10 @@
 (use-package diff-hl
   :defines (diff-hl-margin-symbols-alist desktop-minor-mode-table)
   :commands diff-hl-magit-post-refresh
-  
+  :functions my-diff-hl-fringe-bmp-function
+  :custom-face (diff-hl-change ((t (:foreground ,(face-background 'highlight)))))
   :bind (:map diff-hl-command-map
-              ("SPC" . diff-hl-mark-hunk))
+         ("SPC" . diff-hl-mark-hunk))
   :hook ((after-init . global-diff-hl-mode)
          (dired-mode . diff-hl-dired-mode))
   :config
@@ -153,7 +179,7 @@
 
   ;; Set fringe style
   (setq-default fringes-outside-margins t)
-  
+
   (defun my-diff-hl-fringe-bmp-function (_type _pos)
     "Fringe bitmap function for use as `diff-hl-fringe-bmp-function'."
     (define-fringe-bitmap 'my-diff-hl-bmp

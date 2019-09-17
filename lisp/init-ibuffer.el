@@ -73,3 +73,5 @@
             "Project: "))))
 
 (provide 'init-ibuffer)
+
+;;; init-buffer.el ends here

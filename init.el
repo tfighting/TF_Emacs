@@ -17,6 +17,9 @@ decrease this. If you experience stuttering, increase this.")
 (defvar t_fighting-gc-cons-upper-limit (if (display-graphic-p) 400000000 100000000)
   "The temporary value for `gc-cons-threshold' to defer it.")
 
+(defvar t_fighting-gc-timer (run-with-idle-timer 10 t #'garbage-collect)
+  "Run garbarge collection when idle 10s.")
+
 (defvar default-file-name-handler-alist file-name-handler-alist)
 
 (setq file-name-handler-alist nil)
@@ -88,7 +91,6 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-company)
 (require 'init-yasnippet)
 
-(require 'init-calendar)
 (require 'init-dashboard)
 (require 'init-dired)
 
@@ -113,8 +115,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-projectile)
 (require 'init-lsp)
 
-;;sctipt language
+;;script language
 (require 'init-elisp)
 (require 'init-python)
 (require 'init-prog)
-(put 'erase-buffer 'disabled nil)
