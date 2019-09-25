@@ -22,12 +22,6 @@
 (setq frame-title-format '("T_Finghting Emacs - %b")
       icon-title-format frame-title-format)
 
-;; Menu/Tool/Scroll bars
-;; (unless emacs/>=27p        ; Move to early init-file in 27
-;;   (unless sys/mac-x-p
-;;     (push '(menu-bar-lines . 0) default-frame-alist))
-;;   (push '(tool-bar-lines . 0) default-frame-alist)
-;;   (push '(vertical-scroll-bars) default-frame-alist))
 
 (if (t_fighting-compatible-theme-p t_fighting-theme)
     (progn

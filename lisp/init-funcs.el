@@ -114,21 +114,24 @@ Returns:
   (when-let (file-path (buffer-file-name))
     (file-truename file-path)))
 
-
-(defun t_fighting/copy-file-path ()
+;; copy file path
+(defun copy-file-path ()
   "Copy and show the file path of the current buffer."
   (interactive)
   (if-let (file-path (t_fighting--file-path))
       (message "%s" (kill-new file-path))
     (message "WARNING: Current buffer is not attached to a file!")))
 
-(defun t_fighting/copy-file-name ()
+
+;; Copy file name
+(defun copy-file-name ()
   "Copy and show the file name of the current buffer."
   (interactive)
   (if-let (file-name (file-name-nondirectory (t_fighting--file-path)))
       (message "%s" (kill-new file-name))
     (message "WARNING: Current buffer is not attached to a file!")))
 
+;; rename the current filename
 (defun rename-current-filename (&optional arg)
   "Rename the current buffer and the file it is visiting.
 If the buffer isn't visiting a file, ask if it should

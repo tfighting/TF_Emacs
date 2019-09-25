@@ -108,6 +108,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-org)
 (require 'init-elfeed)
 (require 'init-utils)
+(require 'init-pyim)
 
 ;; Programming
 (require 'init-vcs)
@@ -118,4 +119,5 @@ decrease this. If you experience stuttering, increase this.")
 ;;script language
 (require 'init-elisp)
 (require 'init-python)
+;;(require 'init-c)
 (require 'init-prog)
