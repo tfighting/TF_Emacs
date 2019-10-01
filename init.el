@@ -83,6 +83,7 @@ decrease this. If you experience stuttering, increase this.")
 ;; Preferences
 (require 'init-base)
 (require 'init-funcs)
+(require 'init-fonts)
 (require 'init-hydra)
 
 (require 'init-ui)
