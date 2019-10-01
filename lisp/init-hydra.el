@@ -82,27 +82,7 @@
       ("y" (t_fighting-load-theme 'daylight) "daylight"
        :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'daylight)))
       ("M" doom-modeline-mode "modern mode-line" :toggle t)
-      ("T" (counsel-load-theme) "others"))
-     "Package Archive"
-     (
-      ("k u" (progn (setq t_fighting-package-archives 'tuna)
-                    (set-package-archives t_fighting-package-archives))
-       "tuna" :toggle (eq t_fighting-package-archives 'tuna))
-      ("k i" (progn (setq t_fighting-package-archives 'melpa-mirror)
-                    (set-package-archives t_fighting-package-archives))
-       "melpa mirror" :toggle (eq t_fighting-package-archives 'melpa-mirror))
-      ("k c" (progn (setq t_fighting-package-archives 'emacs-china)
-                    (set-package-archives t_fighting-package-archives))
-       "emacs china" :toggle (eq t_fighting-package-archives 'emacs-china))
-      ("k n" (progn (setq t_fighting-package-archives 'netease)
-                    (set-package-archives t_fighting-package-archives))
-       "netease" :toggle (eq t_fighting-package-archives 'netease))
-      ("k t" (progn (setq t_fighting-package-archives 'tencent)
-                    (set-package-archives t_fighting-package-archives))
-       "tencent" :toggle (eq t_fighting-package-archives 'tencent))
-      ("k m" (progn (setq t_fighting-package-archives 'melpa)
-                    (set-package-archives t_fighting-package-archives))
-       "melpa" :toggle (eq t_fighting-package-archives 'melpa))))))
+      ("T" (counsel-load-theme) "others")))))
 
 (provide 'init-hydra)
 

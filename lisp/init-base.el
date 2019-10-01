@@ -66,7 +66,6 @@
 
 (use-package time
   :ensure nil
-  :unless (display-graphic-p)
   :hook (after-init . display-time-mode)
   :init (setq display-time-24hr-format t
               display-time-day-and-date t))
@@ -95,25 +94,13 @@
 ;; SmoothScroll
 ;; Vertical Scroll
 
-;; (when (display-graphic-p)
-;;   (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
-;;         mouse-wheel-progressive-speed nil))
-;; (setq scroll-step 1
-;;       scroll-margin 0
-;;       scroll-conservatively 100000)
+(when (display-graphic-p)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+        mouse-wheel-progressive-speed nil))
+(setq scroll-step 1
+      scroll-margin 0
+      scroll-conservatively 100000)
 
-(setq scroll-step 1)
-(setq scroll-margin 1)
-(setq scroll-conservatively 101)
-(setq scroll-up-aggressively 0.01)
-(setq scroll-down-aggressively 0.01)
-(setq auto-window-vscroll nil)
-(setq fast-but-imprecise-scrolling nil)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-(setq mouse-wheel-progressive-speed nil)
-;; Horizontal Scroll
-(setq hscroll-step 1)
-(setq hscroll-margin 1)
 
 ;; Misc
 (setq-default fill-column 100)

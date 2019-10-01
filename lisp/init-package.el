@@ -18,44 +18,11 @@
     (setq package-selected-packages value)))
 (advice-add 'package--save-selected-packages :override #'my-save-selected-packages)
 
-;;
-;; ELPA: refer to https://github.com/melpa/melpa and https://elpa.emacs-china.org/.
-;;
-(defun set-package-archives (archives)
-  "Set specific package ARCHIVES repository."
-  (interactive
-   (list (intern (completing-read "Choose package archives: "
-                                  '(tuna melpa melpa-mirror emacs-china netease tencen)))))
-
-  (setq package-archives
-        (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                            (not (gnutls-available-p))))
-               (proto (if no-ssl "http" "https")))
-          (pcase archives
-            ('tuna
-             `(,(cons "gnu"   (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/"))
-               ,(cons "melpa" (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))))
-            ('melpa
-             `(,(cons "gnu"   (concat proto "://elpa.gnu.org/packages/"))
-               ,(cons "melpa" (concat proto "://melpa.org/packages/"))))
-            ('melpa-mirror
-             `(,(cons "gnu"   (concat proto "://elpa.gnu.org/packages/"))
-               ,(cons "melpa" (concat proto "://www.mirrorservice.org/sites/melpa.org/packages/"))))
-            ('emacs-china
-             `(,(cons "gnu"   (concat proto "://elpa.emacs-china.org/gnu/"))
-               ,(cons "melpa" (concat proto "://elpa.emacs-china.org/melpa/"))))
-            ('netease
-             `(,(cons "gnu"   (concat proto "://mirrors.163.com/elpa/gnu/"))
-               ,(cons "melpa" (concat proto "://mirrors.163.com/elpa/melpa/"))))
-            ('tencent
-             `(,(cons "gnu"   (concat proto "://mirrors.cloud.tencent.com/elpa//gnu/"))
-               ,(cons "melpa" (concat proto "://mirrors.cloud.tencent.com/elpa/melpa/"))))
-            (archives
-             (error "Unknown archives: `%s'" archives)))))
-
-  (message "Set package archives to `%s'." archives))
-
-(set-package-archives t_fighting-package-archives)
+;; Use mirror
+(setq package-archives '(("gnu"          . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+			 ("melpa"        . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+			 ("org"          . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+			 ("melpa-stable" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa-stable/")))
 
 ;; Initialize packages
 (unless (bound-and-true-p package--initialized) ; To avoid warnings in 27
@@ -84,16 +51,6 @@
 ;; Update GPG keyring for GNU ELPA
 (use-package gnu-elpa-keyring-update)
 
-;; Initialization benchmark
-(when t_fighting-benchmark
-  (use-package benchmark-init
-    :defines swiper-font-lock-exclude
-    :commands (benchmark-init/activate)
-    :hook (after-init . benchmark-init/deactivate)
-    :init (benchmark-init/activate)
-    :config
-    (with-eval-after-load 'swiper
-      (add-to-list 'swiper-font-lock-exclude 'benchmark-init/tree-mode))))
 
 ;; A modern Packages Menu
 (use-package paradox

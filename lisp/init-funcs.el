@@ -257,33 +257,6 @@ initialized with the current filename."
 (with-eval-after-load 'python
   (define-key python-mode-map [f4] 'python/run-current-file))
 
-;;display python buffer
-(defun display-python-buffer ()
-  (interactive)
-  (split-window-right)
-  (other-window 1)
-  (switch-to-buffer "*Python*")
-  (other-window -1))
-
-;;interupt routine
-(defun python-interrupt ()
-  (interactive)
-  (switch-to-buffer "*Python*")
-  (comint-interrupt-subjob)
-  (switch-to-prev-buffer))
-(with-eval-after-load 'python
-  (define-key python-mode-map (kbd "C-c q") 'python-interrupt))
-
-;;interrupt routine and quit
-(defun python-quit ()
-  (interactive)
-  (switch-to-buffer "*Python*")
-  (comint-quit-subjob)
-  (kill-buffer-and-window))
-
-;; uncomment line
-
-(global-set-key (kbd "C-<f4>" ) 'comment-line)
 
 
 (provide 'init-funcs)

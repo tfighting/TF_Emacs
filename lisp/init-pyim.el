@@ -5,7 +5,6 @@
 ;;; Code
 
 (use-package pyim
-  :ensure nil
   :demand t
   :config
   ;; 激活 basedict 拼音词库，五笔用户请继续阅读 README
@@ -39,7 +38,7 @@
   ;; 使用 pupup-el 来绘制选词框, 如果用 emacs26, 建议设置
   ;; 为 'posframe, 速度很快并且菜单不会变形，不过需要用户
   ;; 手动安装 posframe 包。
-  (setq pyim-page-tooltip 'popup)
+  (setq pyim-page-tooltip 'posframe)
 
   ;; 选词框显示5个候选词
   (setq pyim-page-length 5)
@@ -48,6 +47,6 @@
   (("M-j" . pyim-convert-string-at-point)))
 
 
-  (provide 'init-pyim)
+(provide 'init-pyim)
 
 ;; init-pyim.el ends here.

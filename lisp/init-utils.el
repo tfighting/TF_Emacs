@@ -105,26 +105,7 @@
   :bind (("C-h M-m" . discover-my-major)
          ("C-h M-M" . discover-my-mode)))
 
-;; A Simmple and cool pomodoro timer
-(use-package pomidor
-  :bind ("<f12>" . pomidor)
-  :init
-  (setq alert-default-style 'mode-line)
-  (when sys/macp
-    (setq pomidor-play-sound-file
-          (lambda (file)
-            (start-process "pomidor-play-sound"
-                           nil
-                           "afplay"
-                           file))))
-  :config
-  (setq alert-severity-colors
-        `((urgent   . ,(face-foreground 'error))
-          (high     . ,(face-foreground 'all-the-icons-orange))
-          (moderate . ,(face-foreground 'warning))
-          (normal   . ,(face-foreground 'success))
-          (low      . ,(face-foreground 'all-the-icons-blue))
-          (trivial  . ,(face-foreground 'all-the-icons-purple)))))
+
 
 ;; Persistent the scratch buffer
 (use-package persistent-scratch
@@ -205,10 +186,10 @@
                (hotspots (pdf-view-apply-hotspot-functions
                           window page size)))
           (pdf-view-create-image data
-                                 :width width
-                                 :scale (if (pdf-view-use-scaling-p) 0.5 1)
-                                 :map hotspots
-                                 :pointer 'arrow))))
+            :width width
+            :scale (if (pdf-view-use-scaling-p) 0.5 1)
+            :map hotspots
+            :pointer 'arrow))))
 
     ;; Recover last viewed position
     (when emacs/>=26p
@@ -218,11 +199,6 @@
                     (locate-user-emacs-file ".pdf-view-restore"))))))
 
 
-;; Nice writing
-(use-package olivetti
-  :diminish
-  :bind ("<f7>" . olivetti-mode)
-  :init (setq olivetti-body-width 0.618))
 
 ;; Music player
 (use-package bongo
@@ -251,15 +227,7 @@
     (bind-key "b" #'bongo-add-dired-files dired-mode-map)))
 
 ;; Misc
-(use-package copyit)                    ; copy path, url, etc.
-(use-package daemons)                   ; system services/daemons
-(use-package diffview)                  ; side-by-side diff view
-(use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
-(use-package htmlize)                   ; covert to html
-(use-package list-environment)
-(use-package memory-usage)
-(use-package tldr)
 (use-package ztree)                     ; text mode directory tree
 
 (provide 'init-utils)

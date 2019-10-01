@@ -9,6 +9,11 @@
 (eval-when-compile
   (require 'init-const))
 
+
+(defvar t_fighting-font-size 13.5
+  "the default font size")
+
+
 (defgroup t_fighting nil
   "Centaur Emacs customizations."
   :group 'convenience
@@ -30,16 +35,6 @@
   :type 'string)
 
 
-(defcustom t_fighting-package-archives 'tuna
-  "Set package archives from which to fetch."
-  :group 't_fighting
-  :type '(choice
-          (const :tag "Melpa" melpa)
-          (const :tag "Melpa Mirror" melpa-mirror)
-          (const :tag "Emacs-China" emacs-china)
-          (const :tag "Netease" netease)
-          (const :tag "Tencent" tencent)
-          (const :tag "Tuna" tuna)))
 
 (defcustom t_fighting-theme 'default
   "Set color theme."
@@ -66,15 +61,6 @@ If Non-nil, use dashboard, otherwise will restore previous session."
           (const :tag "eglot" 'eglot)
           nil))
 
-(defcustom t_fighting-chinese-calendar t
-  "Use Chinese calendar or not."
-  :group 't_fighting
-  :type 'boolean)
-
-(defcustom t_fighting-benchmark nil
-  "Enable the init benchmark or not."
-  :group 't_fighting
-  :type 'boolean)
 
 ;; Load `custom-file'
 ;; If it doesn't exist, copy from the template, then load it.

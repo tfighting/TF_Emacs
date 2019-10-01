@@ -7,33 +7,6 @@
 
 ;;; Code:
 
-;; Prettify Symbols
-;; e.g. display “lambda” as “λ”
-(use-package prog-mode
-  :ensure nil
-  :hook (prog-mode . prettify-symbols-mode)
-  :init
-  (setq-default prettify-symbols-alist
-                '(("lambda" . ?λ)
-                  ("<-" . ?←)
-                  ("->" . ?→)
-                  ("->>" . ?↠)
-                  ("=>" . ?⇒)
-                  ("map" . ?↦)
-                  ("/=" . ?≠)
-                  ("!=" . ?≠)
-                  ("==" . ?≡)
-                  ("<=" . ?≤)
-                  (">=" . ?≥)
-                  ("=<<" . (?= (Br . Bl) ?≪))
-                  (">>=" . (?≫ (Br . Bl) ?=))
-                  ("<=<" . ?↢)
-                  (">=>" . ?↣)
-                  ("&&" . ?∧)
-                  ("||" . ?∨)
-                  ("not" . ?¬)))
-  (setq prettify-symbols-unprettify-at-point 'right-edge))
-
 ;; Jump to definition
 (use-package dumb-jump
   :pretty-hydra
@@ -70,29 +43,14 @@
   :bind (("C-<f5>" . quickrun)
          ("C-c x" . quickrun)))
 
-(use-package cask-mode)
-(use-package csharp-mode)
-(use-package dockerfile-mode)
-(use-package lua-mode)
-(use-package csv-mode)
-(use-package powershell)
-(use-package rmsbolt)                   ; A compiler output viewer
-(use-package swift-mode)
-(use-package vimrc-mode)
 
-(use-package nxml-mode
-  :ensure nil
-  :mode (("\\.xaml$" . xml-mode)))
+
+;; misc
+(use-package csv-mode)  ;; adjust csv file
 
 ;; New `conf-toml-mode' in Emacs 26
 (unless (fboundp 'conf-toml-mode)
   (use-package toml-mode))
-
-;; Batch Mode eXtras
-(use-package bmx-mode
-  :after company
-  :diminish bmx-mode
-  :hook (after-init . bmx-mode-setup-defaults))
 
 ;; Fish shell
 (use-package fish-mode

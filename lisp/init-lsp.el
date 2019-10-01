@@ -22,7 +22,7 @@
      :diminish lsp-mode
      :hook (prog-mode . lsp-deferred)
      :bind (:map lsp-mode-map
-                 ("C-c C-d" . lsp-describe-thing-at-point))
+            ("C-c C-d" . lsp-describe-thing-at-point))
      :init (setq lsp-auto-guess-root t       ; Detect project root
                  lsp-prefer-flymake nil      ; Use lsp-ui and flycheck
                  flymake-fringe-indicator-position 'right-fringe)
@@ -39,14 +39,14 @@
      (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
      (lsp-ui-sideline-code-action ((t (:inherit warning))))
      :bind (:map lsp-ui-mode-map
-                 ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-                 ([remap xref-find-references] . lsp-ui-peek-find-references)
-                 ("C-c u" . lsp-ui-imenu))
+            ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+            ([remap xref-find-references] . lsp-ui-peek-find-references)
+            ("C-c u" . lsp-ui-imenu))
      :init (setq lsp-ui-doc-enable t
                  lsp-ui-doc-use-webkit nil
-                 lsp-ui-doc-delay 1.0
+                 lsp-ui-doc-delay 0.5
                  lsp-ui-doc-include-signature t
-                 lsp-ui-doc-position 'at-point
+                 lsp-ui-doc-position 'top
                  lsp-ui-doc-border (face-foreground 'default)
 
                  lsp-ui-sideline-enable t
@@ -83,8 +83,8 @@
      :diminish
      :functions dap-hydra/nil
      :bind (:map lsp-mode-map
-                 ("<f5>" . dap-debug)
-                 ("M-<f5>" . dap-hydra))
+            ("<f5>" . dap-debug)
+            ("M-<f5>" . dap-hydra))
      :hook ((after-init . dap-mode)
             (dap-mode . dap-ui-mode)
             (dap-session-created . (lambda (&_rest) (dap-hydra)))
@@ -97,29 +97,13 @@
    (when emacs/>=25.2p
      (use-package lsp-treemacs
        :bind (:map lsp-mode-map
-                   ("M-9" . lsp-treemacs-errors-list))))
+              ("M-9" . lsp-treemacs-errors-list))))
 
    ;; Microsoft python-language-server support
    (use-package lsp-python-ms
      :hook (python-mode . (lambda ()
                             (require 'lsp-python-ms)
-                            (lsp-deferred))))
-
-   ;; ;; C/C++/Objective-C support
-   ;; (use-package ccls
-   ;;   :defines projectile-project-root-files-top-down-recurring
-   ;;   :hook ((c-mode c++-mode objc-mode) . (lambda ()
-   ;;                                          (require 'ccls)
-   ;;                                          (lsp-deferred)))
-   ;;   :custom
-   ;;   (setq ccls-executable  "~/ccls/Release/ccls")
-   ;;   :config
-   ;;   (with-eval-after-load 'projectile
-   ;;     (setq projectile-project-root-files-top-down-recurring
-   ;;           (append '("compile_commands.json"
-   ;;                     ".ccls")
-   ;;                   projectile-project-root-files-top-down-recurring))))
-   ))
+                            (lsp-deferred))))))
 
 (when t_fighting-lsp
   ;; Enable LSP in org babel
