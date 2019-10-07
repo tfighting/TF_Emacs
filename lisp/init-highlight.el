@@ -78,7 +78,7 @@
   :functions  my-indent-guides-for-all-but-first-column
   :hook (prog-mode . highlight-indent-guides-mode)
   :init (setq highlight-indent-guides-method 'character
-              highlight-indent-guides-character ?\┆ ;; candidates: , ⋮, ┆, ┊, ┋, ┇
+              highlight-indent-guides-character ?\| ;; candidates: , ⋮, ┆, ┊, ┋, ┇
               highlight-indent-guides-responsive 'top
               highlight-indent-guides-auto-enabled nil
               highlight-indent-guides-auto-character-face-perc 10

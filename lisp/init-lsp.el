@@ -20,7 +20,7 @@
    ;; https://github.com/emacs-lsp/lsp-mode#supported-languages
    (use-package lsp-mode
      :diminish lsp-mode
-     :hook (prog-mode . lsp-deferred)
+     :hook (python-mode . lsp-deferred)
      :bind (:map lsp-mode-map
             ("C-c C-d" . lsp-describe-thing-at-point))
      :init (setq lsp-auto-guess-root t       ; Detect project root

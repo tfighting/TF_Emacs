@@ -38,12 +38,6 @@
   :diminish editorconfig-mode
   :hook (after-init . editorconfig-mode))
 
-;; Run commands quickly
-(use-package quickrun
-  :bind (("C-<f5>" . quickrun)
-         ("C-c x" . quickrun)))
-
-
 
 ;; misc
 (use-package csv-mode)  ;; adjust csv file
