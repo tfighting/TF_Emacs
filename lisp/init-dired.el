@@ -19,7 +19,8 @@
   :config
   ;; Always delete and copy recursively
   (setq dired-recursive-deletes 'always
-        dired-recursive-copies 'always)
+        dired-recursive-copies 'always
+        dired-dwim-target t)
 
   (when (or (and sys/macp (executable-find "gls"))
             (and (not sys/macp) (executable-find "ls")))

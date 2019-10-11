@@ -7,8 +7,8 @@
 (eval-when-compile
   (require 'init-custom))
 
-;; (set-default-font "Fira Code Retina 14.5" nil t)
-(set-face-attribute 'default nil :font (format "Fira Code Retina-%S" t_fighting-font-size))
+;; (set-default-font "Source Code Pro Semibold 14.5" nil t)
+(set-face-attribute 'default nil :font (format "Source Code Pro Semibold-%S" t_fighting-font-size))
 
 (use-package fontify-face)
 
