@@ -108,7 +108,6 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-markdown)
 (require 'init-org)
 (require 'init-utils)
-(require 'init-pyim)
 
 ;; Programming
 (require 'init-vcs)
