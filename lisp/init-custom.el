@@ -10,7 +10,7 @@
   (require 'init-const))
 
 
-(defvar t_fighting-font-size 14.5
+(defvar t_fighting-font-size 13.5
   "the default font size")
 
 

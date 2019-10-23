@@ -116,9 +116,9 @@
 
   ;; Prettify UI
   (use-package org-bullets
-    :if (char-displayable-p ?◉)
+    :if (char-displayable-p ?✎)
     :hook (org-mode . org-bullets-mode)
-    :init  (setq org-bullets-bullet-list '("•" "●" "◉" "⚫")))
+    :init  (setq org-bullets-bullet-list '("✎" "✎" "✎" "✎")))
 
   (use-package org-fancy-priorities
     :diminish

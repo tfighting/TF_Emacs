@@ -23,7 +23,7 @@
      :hook (python-mode . lsp-deferred)
      :bind (:map lsp-mode-map
             ("C-c C-d" . lsp-describe-thing-at-point))
-     :init (setq lsp-auto-guess-root nil       ; Detect project root
+     :init (setq lsp-auto-guess-root t       ; Detect project root
                  lsp-prefer-flymake nil      ; Use lsp-ui and flycheck
                  flymake-fringe-indicator-position 'right-fringe)
      :config
@@ -90,8 +90,7 @@
             (dap-session-created . (lambda (&_rest) (dap-hydra)))
             (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))
 
-            (python-mode . (lambda () (require 'dap-python)))
-            ((c-mode c++-mode objc-mode swift) . (lambda () (require 'dap-lldb)))))
+            (python-mode . (lambda () (require 'dap-python)))))
 
    ;; `lsp-mode' and `treemacs' integration.
    (when emacs/>=25.2p
