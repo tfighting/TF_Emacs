@@ -11,38 +11,68 @@
 (eval-when-compile
   (require 'init-const))
 
-;; Visualize TAB, (HARD) SPACE, NEWLINE
-(setq-default show-trailing-whitespace nil)
-(dolist (hook '(prog-mode-hook outline-mode-hook conf-mode-hook))
-  (add-hook hook (lambda ()
-                   (setq show-trailing-whitespace t)
-                   (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))))
 
 ;; Highlight the current line
 (use-package hl-line
   :ensure nil
+  :custom-face (hl-line ((t (:extend t)))) ; FIXME: compatible with 27
   :hook (after-init . global-hl-line-mode))
 
 ;; Highlight matching parens
 (use-package paren
   :ensure nil
   :hook (after-init . show-paren-mode)
-  :config (setq show-paren-when-point-inside-paren t
-                show-paren-when-point-in-periphery t))
+  :init (setq show-paren-when-point-inside-paren t
+              show-paren-when-point-in-periphery t)
+  :config
+  (with-no-warnings
+    (defun display-line-overlay (pos str &optional face)
+      "Display line at POS as STR with FACE.
+FACE defaults to inheriting from default and highlight."
+      (let ((ol (save-excursion
+                  (goto-char pos)
+                  (make-overlay (line-beginning-position)
+                                (line-end-position)))))
+        (overlay-put ol 'display str)
+        (overlay-put ol 'face
+                     (or face '(:inherit highlight)))
+        ol))
+
+    (defvar-local show-paren--off-screen-overlay nil)
+    (defun show-paren-off-screen (&rest _args)
+      "Display matching line for off-screen paren."
+      (when (overlayp show-paren--off-screen-overlay)
+        (delete-overlay show-paren--off-screen-overlay))
+      ;; check if it's appropriate to show match info,
+      (when (and (overlay-buffer show-paren--overlay)
+                 (not (or cursor-in-echo-area
+                          executing-kbd-macro
+                          noninteractive
+                          (minibufferp)
+                          this-command))
+                 (and (not (bobp))
+                      (memq (char-syntax (char-before)) '(?\) ?\$)))
+                 (= 1 (logand 1 (- (point)
+                                   (save-excursion
+                                     (forward-char -1)
+                                     (skip-syntax-backward "/\\")
+                                     (point))))))
+        ;; rebind `minibuffer-message' called by
+        ;; `blink-matching-open' to handle the overlay display
+        (cl-letf (((symbol-function #'minibuffer-message)
+                   (lambda (msg &rest args)
+                     (let ((msg (apply #'format-message msg args)))
+                       (setq show-paren--off-screen-overlay
+                             (display-line-overlay
+                              (window-start) msg ))))))
+          (blink-matching-open))))
+    (advice-add #'show-paren-function :after #'show-paren-off-screen)))
 
 ;; Highlight symbols
 (use-package symbol-overlay
   :diminish
-  :custom-face
-  (symbol-overlay-default-face ((t (:inherit 'region))))
-  (symbol-overlay-face-1 ((t (:inherit 'highlight))))
-  (symbol-overlay-face-2 ((t (:inherit 'font-lock-builtin-face :inverse-video t))))
-  (symbol-overlay-face-3 ((t (:inherit 'warning :inverse-video t))))
-  (symbol-overlay-face-4 ((t (:inherit 'font-lock-constant-face :inverse-video t))))
-  (symbol-overlay-face-5 ((t (:inherit 'error :inverse-video t))))
-  (symbol-overlay-face-6 ((t (:inherit 'dired-mark :inverse-video t :bold nil))))
-  (symbol-overlay-face-7 ((t (:inherit 'success :inverse-video t))))
-  (symbol-overlay-face-8 ((t (:inherit 'dired-symlink :inverse-video t :bold nil))))
+  :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
+  :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
   :bind (("M-i" . symbol-overlay-put)
          ("M-n" . symbol-overlay-jump-next)
          ("M-p" . symbol-overlay-jump-prev)
@@ -51,9 +81,18 @@
          ("M-C" . symbol-overlay-remove-all)
          ([M-f3] . symbol-overlay-remove-all))
   :hook ((prog-mode . symbol-overlay-mode)
-         (iedit-mode . (lambda () (symbol-overlay-mode -1)))
-         (iedit-mode-end . symbol-overlay-mode))
-  :init (setq symbol-overlay-idle-time 0.1)
+         (iedit-mode . turn-off-symbol-overlay)
+         (iedit-mode-end . turn-on-symbol-overlay))
+  :init (setq symbol-overlay-idle-time 0.1
+              symbol-overlay-faces
+              '((:inherit (highlight bold))
+                (:inherit (font-lock-builtin-face bold) :inverse-video t)
+                (:inherit (warning bold) :inverse-video t)
+                (:inherit (font-lock-constant-face bold) :inverse-video t)
+                (:inherit (error bold) :inverse-video t)
+                (:inherit (dired-mark bold) :inverse-video t)
+                (:inherit (success bold) :inverse-video t)
+                (:inherit (font-lock-keyword-face bold) :inverse-video t)))
   :config
   ;; Disable symbol highlighting while selecting
   (defun turn-off-symbol-overlay (&rest _)

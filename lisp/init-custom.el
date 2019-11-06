@@ -36,15 +36,17 @@
 
 
 
-(defcustom t_fighting-theme 'default
+(defcustom t_fighting-theme 'colorful
   "Set color theme."
   :group 't_fighting
   :type '(choice
+          (const :tag "colorful theme" colorful)
           (const :tag "Default theme" default)
           (const :tag "Classic theme" classic)
           (const :tag "Dark theme" dark)
           (const :tag "Light theme" light)
-          (const :tag "Daylight theme" daylight)
+          (const :tag "Day theme" day)
+          (const :tag "night theme" night)
           symbol))
 
 (defcustom t_fighting-dashboard t

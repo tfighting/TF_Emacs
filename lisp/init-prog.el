@@ -8,6 +8,35 @@
 ;;; Code:
 
 ;; Jump to definition
+
+;; Prettify Symbols
+;; e.g. display “lambda” as “λ”
+(use-package prog-mode
+  :ensure nil
+  :hook (prog-mode . prettify-symbols-mode)
+  :init
+  (setq-default prettify-symbols-alist
+                '(("lambda" . ?λ)
+                  ("<-" . ?←)
+                  ("->" . ?→)
+                  ("->>" . ?↠)
+                  ("=>" . ?⇒)
+                  ("map" . ?↦)
+                  ("/=" . ?≠)
+                  ("!=" . ?≠)
+                  ("==" . ?≡)
+                  ("<=" . ?≤)
+                  (">=" . ?≥)
+                  ("=<<" . (?= (Br . Bl) ?≪))
+                  (">>=" . (?≫ (Br . Bl) ?=))
+                  ("<=<" . ?↢)
+                  (">=>" . ?↣)
+                  ("&&" . ?∧)
+                  ("||" . ?∨)
+                  ("not" . ?¬)))
+  (setq prettify-symbols-unprettify-at-point 'right-edge))
+
+;; Jump to definition
 (use-package dumb-jump
   :pretty-hydra
   ((:title (pretty-hydra-title "Dump Jump" 'faicon "anchor")
@@ -38,6 +67,10 @@
   :diminish editorconfig-mode
   :hook (after-init . editorconfig-mode))
 
+;; Run commands quickly
+(use-package quickrun
+  :bind (("C-<f5>" . quickrun)
+         ("C-c x" . quickrun)))
 
 ;; misc
 (use-package csv-mode)  ;; adjust csv file
@@ -47,10 +80,10 @@
   (use-package toml-mode))
 
 ;; Fish shell
-(use-package fish-mode
-  :hook (fish-mode . (lambda ()
-                       (add-hook 'before-save-hook
-                                 #'fish_indent-before-save))))
+;; (use-package fish-mode
+;;   :hook (fish-mode . (lambda ()
+;;                        (add-hook 'before-save-hook
+;;                                  #'fish_indent-before-save))))
 
 (provide 'init-prog)
 

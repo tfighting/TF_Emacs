@@ -19,7 +19,8 @@
              hydra-set-transient-map))
 
 (use-package pretty-hydra
-  :functions set-package-archives t_fighting-load-theme
+  :defines (display-line-numbers-mode linum-mode)
+  :functions t_fighting-load-theme
   :bind ("<f6>" . toggles-hydra/body)
   :init
   (cl-defun pretty-hydra-title (title &optional icon-type icon-name
@@ -56,33 +57,44 @@
       ("r" rainbow-mode "rainbow" :toggle t)
       ("w" (setq show-trailing-whitespace (not show-trailing-whitespace))
        "whitespace" :toggle show-trailing-whitespace)
-      ("R" rainbow-delimiters-mode "delimiter" :toggle t)
+      ("d" rainbow-delimiters-mode "delimiter" :toggle t)
       ("i" highlight-indent-guides-mode "indent" :toggle t)
-      ("t" hl-todo-mode "todo" :toggle t))
+      ("T" hl-todo-mode "todo" :toggle t))
      "Coding"
      (("f" flycheck-mode "flycheck" :toggle t)
       ("F" flymake-mode "flymake" :toggle t)
       ("o" origami-mode "folding" :toggle t)
       ("O" hs-minor-mode "hideshow" :toggle t)
-      ("w" subword-mode "subword" :toggle t)
-      ("D" toggle-debug-on-error "debug on error" :toggle (default-value 'debug-on-error))
-      ("X" toggle-debug-on-quit "debug on quit" :toggle (default-value 'debug-on-quit)))
+      ("u" subword-mode "subword" :toggle t)
+      ("W" which-function-mode "which function" :toggle t)
+      ("E" toggle-debug-on-error "debug on error" :toggle (default-value 'debug-on-error))
+      ("Q" toggle-debug-on-quit "debug on quit" :toggle (default-value 'debug-on-quit)))
      "Version Control"
      (("v" diff-hl-mode "gutter" :toggle t)
       ("V" diff-hl-flydiff-mode "live gutter" :toggle t)
       ("m" diff-hl-margin-mode "margin gutter" :toggle t)
-      ("E" diff-hl-dired-mode "dired gutter" :toggle t))
+      ("D" diff-hl-dired-mode "dired gutter" :toggle t))
      "Theme"
-     (("d" (t_fighting-load-theme 'default) "default"
+     (("t d" (t_fighting-load-theme 'default) "default"
        :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'default)))
-      ("c" (t_fighting-load-theme 'classic) "classic"
+      ("t c" (t_fighting-load-theme 'classic) "classic"
        :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'classic)))
-      ("g" (t_fighting-load-theme 'light) "light"
+      ("t r" (t_fighting-load-theme 'colorful) "colorful"
+       :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'colorful)))
+      ("t k" (t_fighting-load-theme 'dark) "dark"
+       :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'dark)))
+      ("t l" (t_fighting-load-theme 'light) "light"
        :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'light)))
-      ("y" (t_fighting-load-theme 'daylight) "daylight"
-       :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'daylight)))
-      ("M" doom-modeline-mode "modern mode-line" :toggle t)
-      ("T" (counsel-load-theme) "others")))))
+      ("t y" (t_fighting-load-theme 'day) "day"
+       :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'day)))
+      ("t n" (t_fighting-load-theme 'night) "night"
+       :toggle (eq (t_fighting-current-theme) (t_fighting--standardize-theme 'night)))
+      ("t o" (let ((ivy-initial-inputs-alist '((counsel-load-theme . "doom-"))))
+               (ignore ivy-initial-inputs-alist)
+               (counsel-load-theme))
+       "others"))
+
+     )))
 
 (provide 'init-hydra)
 

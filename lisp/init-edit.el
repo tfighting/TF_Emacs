@@ -11,10 +11,6 @@
 (eval-when-compile
   (require 'init-custom))
 
-;; Explicitly set the prefered coding systems to avoid annoying prompt
-;; from emacs (especially on Microsoft Windows)
-(prefer-coding-system 'utf-8)
-
 ;; Miscs
 ;; (setq initial-scratch-message nil)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets) ; Show path if names are same
@@ -46,7 +42,7 @@
   :bind (("<C-return>" . rect-hydra/body))
   :pretty-hydra
   ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
-           :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key "q")
+    :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key "q")
    ("Move"
     (("h" backward-char "←")
      ("j" next-line "↓")
@@ -147,17 +143,21 @@
                             (aggressive-indent-mode -1)))))
   :config
   ;; Disable in some modes
-  (dolist (mode '(asm-mode web-mode html-mode css-mode robot-mode go-mode))
+  (dolist (mode '(asm-mode web-mode html-mode css-mode go-mode prolog-inferior-mode))
     (push mode aggressive-indent-excluded-modes))
 
   ;; Disable in some commands
   (add-to-list 'aggressive-indent-protected-commands #'delete-trailing-whitespace t)
 
-  ;; Be slightly less aggressive in C/C++/
+  ;; Be slightly less aggressive in C/C++/C#/Java/Go/Swift
   (add-to-list
    'aggressive-indent-dont-indent-if
    '(and (or (derived-mode-p 'c-mode)
-             (derived-mode-p 'c++-mode))
+             (derived-mode-p 'c++-mode)
+             (derived-mode-p 'csharp-mode)
+             (derived-mode-p 'java-mode)
+             (derived-mode-p 'go-mode)
+             (derived-mode-p 'swift-mode))
          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
                              (thing-at-point 'line))))))
 
@@ -284,13 +284,16 @@
 (make-variable-buffer-local 'undo-tree-visualizer-diff)
 (use-package undo-tree
   :diminish
+  :defines recentf-exclude
   :hook (after-init . global-undo-tree-mode)
   :init (setq undo-tree-visualizer-timestamps t
               undo-tree-visualizer-diff t
               undo-tree-enable-undo-in-region nil
               undo-tree-auto-save-history nil
               undo-tree-history-directory-alist
-              `(("." . ,(locate-user-emacs-file "undo-tree-hist/")))))
+              `(("." . ,(locate-user-emacs-file "undo-tree-hist/"))))
+  :config (dolist (dir undo-tree-history-directory-alist)
+            (push (expand-file-name (cdr dir)) recentf-exclude)))
 
 ;; Goto last change
 (use-package goto-chg
@@ -312,13 +315,13 @@
   :ensure nil
   :diminish hs-minor-mode
   :bind (:map hs-minor-mode-map
-              ("C-`" . hs-toggle-hiding)))
+         ("C-`" . hs-toggle-hiding)))
 
 ;; Flexible text folding
 (use-package origami
   :pretty-hydra
   ((:title (pretty-hydra-title "Origami" 'octicon "fold")
-           :color blue :quit-key "q")
+    :color blue :quit-key "q")
    ("Node"
     ((":" origami-recursively-toggle-node "toggle recursively")
      ("a" origami-toggle-all-nodes "toggle all")
@@ -329,7 +332,7 @@
      ("d" origami-redo "redo")
      ("r" origami-reset "reset"))))
   :bind (:map origami-mode-map
-              ("C-`" . origami-hydra/body))
+         ("C-`" . origami-hydra/body))
   :hook (prog-mode . origami-mode)
   :init (setq origami-show-fold-header t)
   :config
@@ -360,6 +363,8 @@
   (if (fboundp 'gfm-mode)
       (setq atomic-chrome-url-major-mode-alist
             '(("github\\.com" . gfm-mode)))))
+
+
 
 (provide 'init-edit)
 

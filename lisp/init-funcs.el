@@ -76,6 +76,19 @@
   (switch-to-buffer (get-buffer-create "*scratch*"))
   (lisp-interaction-mode))
 
+(defun update-org ()
+  "Update Org files to the latest version."
+  (interactive)
+  (let ((dir (expand-file-name "~/org/")))
+    (if (file-exists-p dir)
+        (progn
+          (message "Updating org files...")
+          (cd dir)
+          (shell-command "git pull")
+          (message "Updating org files...done"))
+      (message "\"%s\" doesn't exist." dir))))
+(defalias 't_fighting-update-org 'update-org)
+
 (defun save-buffer-as-utf8 (coding-system)
   "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
   (interactive "zCoding system for visited file (default nil):")
@@ -207,11 +220,13 @@ initialized with the current filename."
 (defun t_fighting--standardize-theme (theme)
   "Standardize THEME."
   (pcase theme
+    ('colorful 'doom-snazzy)
     ('default 'doom-one)
     ('classic 'doom-molokai)
-    ('dark 'doom-Iosvkem)
+    ('dark 'doom-palenight)
     ('light 'doom-one-light)
-    ('daylight 'doom-tomorrow-day)
+    ('day 'doom-opera-light)
+    ('night 'doom-city-lights)
     (_ (or theme 'doom-one))))
 
 (defun t_fighting-compatible-theme-p (theme)
@@ -223,7 +238,7 @@ initialized with the current filename."
   (interactive
    (list
     (intern (completing-read "Load theme: "
-                             '(default classic dark light daylight)))))
+                             '(colorful default classic dark light daylight)))))
   (let ((theme (t_fighting--standardize-theme theme)))
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme theme t)))
