@@ -42,6 +42,7 @@
             ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
             ([remap xref-find-references] . lsp-ui-peek-find-references)
             ("C-c u" . lsp-ui-imenu))
+
      :init (setq lsp-ui-doc-enable nil
                  lsp-ui-doc-use-webkit nil
                  lsp-ui-doc-delay 0.5
@@ -55,6 +56,7 @@
                  lsp-ui-sideline-ignore-duplicate t
 
                  lsp-eldoc-enable-hover nil)
+
      :config
      (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
 
@@ -78,19 +80,6 @@
    (use-package company-lsp
      :init (setq company-lsp-cache-candidates 'auto))
 
-   ;; Debug
-   ;; (use-package dap-mode
-   ;;   :diminish
-   ;;   :functions dap-hydra/nil
-   ;;   :bind (:map lsp-mode-map
-   ;;          ("<f5>" . dap-debug)
-   ;;          ("M-<f5>" . dap-hydra))
-   ;;   :hook ((after-init . dap-mode)
-   ;;          (dap-mode . dap-ui-mode)
-   ;;          (dap-session-created . (lambda (&_rest) (dap-hydra)))
-   ;;          (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))
-
-   ;;          (python-mode . (lambda () (require 'dap-python)))))
 
    ;; `lsp-mode' and `treemacs' integration.
    (when emacs/>=25.2p
