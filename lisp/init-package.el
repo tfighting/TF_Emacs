@@ -19,10 +19,10 @@
 (advice-add 'package--save-selected-packages :override #'my-save-selected-packages)
 
 ;; Use mirror
-(setq package-archives '(("gnu"          . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-			 ("melpa"        . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-			 ("org"          . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-			 ("melpa-stable" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa-stable/")))
+(setq package-archives '(("gnu"          . "http://elpa.emacs-china.org/gnu/")
+			             ("melpa"        . "http://elpa.emacs-china.org/melpa/")
+			             ("org"          . "http://elpa.emacs-china.org/org/")
+			             ("melpa-stable" . "http://elpa.emacs-china.org/melpa-stable/")))
 
 ;; Initialize packages
 (unless (bound-and-true-p package--initialized) ; To avoid warnings in 27

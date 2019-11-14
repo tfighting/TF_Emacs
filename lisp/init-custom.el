@@ -10,10 +10,6 @@
   (require 'init-const))
 
 
-(defvar t_fighting-font-size 13.5
-  "the default font size")
-
-
 (defgroup t_fighting nil
   "Centaur Emacs customizations."
   :group 'convenience
@@ -36,12 +32,12 @@
 
 
 
-(defcustom t_fighting-theme 'colorful
+(defcustom t_fighting-theme 'default
   "Set color theme."
   :group 't_fighting
   :type '(choice
-          (const :tag "colorful theme" colorful)
           (const :tag "Default theme" default)
+          (const :tag "colorful theme" colorful)
           (const :tag "Classic theme" classic)
           (const :tag "Dark theme" dark)
           (const :tag "Light theme" light)

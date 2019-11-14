@@ -220,9 +220,9 @@ initialized with the current filename."
 (defun t_fighting--standardize-theme (theme)
   "Standardize THEME."
   (pcase theme
-    ('colorful 'doom-snazzy)
     ('default 'doom-one)
     ('classic 'doom-molokai)
+    ('colorful 'doom-snazzy)
     ('dark 'doom-palenight)
     ('light 'doom-one-light)
     ('day 'doom-opera-light)
@@ -238,7 +238,7 @@ initialized with the current filename."
   (interactive
    (list
     (intern (completing-read "Load theme: "
-                             '(colorful default classic dark light daylight)))))
+                             '(default classic colorful dark light daylight)))))
   (let ((theme (t_fighting--standardize-theme theme)))
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme theme t)))
