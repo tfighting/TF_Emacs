@@ -62,21 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
   ;; Install: pip install grip
   (use-package grip-mode
     :bind (:map markdown-mode-command-map
-           ("g" . grip-mode)))
+           ("g" . grip-mode))
+    :init
+    (setq grip-preview-use-webkit nil)
+    (setq grip-github-user "tfighting")
+    (setq grip-github-password "tl2009105129" ))
+
 
   ;; Table of contents
   (use-package markdown-toc
     :bind (:map markdown-mode-command-map
-           ("r" . markdown-toc-generate-or-refresh-toc)))
-  ;; a Github username for API authentication
-  (setq grip-github-user "tfighting")
-  ;; a Github password or auth token for API auth
-  (setq grip-github-password "db3fb36858507b6416d585a46e82216a0280e581")
-  )
+           ("r" . markdown-toc-generate-or-refresh-toc))))
 
 
 
 (provide 'init-markdown)
-
 
 ;;; init-markdown.el ends here
