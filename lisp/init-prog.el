@@ -15,25 +15,7 @@
   :ensure nil
   :hook (prog-mode . prettify-symbols-mode)
   :init
-  (setq-default prettify-symbols-alist
-                '(("lambda" . ?λ)
-                  ("<-" . ?←)
-                  ("->" . ?→)
-                  ("->>" . ?↠)
-                  ("=>" . ?⇒)
-                  ("map" . ?↦)
-                  ("/=" . ?≠)
-                  ("!=" . ?≠)
-                  ("==" . ?≡)
-                  ("<=" . ?≤)
-                  (">=" . ?≥)
-                  ("=<<" . (?= (Br . Bl) ?≪))
-                  (">>=" . (?≫ (Br . Bl) ?=))
-                  ("<=<" . ?↢)
-                  (">=>" . ?↣)
-                  ("&&" . ?∧)
-                  ("||" . ?∨)
-                  ("not" . ?¬)))
+  (setq-default prettify-symbols-alist t_fighting-prettify-symbols-alist)
   (setq prettify-symbols-unprettify-at-point 'right-edge))
 
 ;; Jump to definition
@@ -79,11 +61,12 @@
 (unless (fboundp 'conf-toml-mode)
   (use-package toml-mode))
 
-;; Fish shell
-;; (use-package fish-mode
-;;   :hook (fish-mode . (lambda ()
-;;                        (add-hook 'before-save-hook
-;;                                  #'fish_indent-before-save))))
+;; Batch Mode eXtras
+(use-package bmx-mode
+  :after company
+  :diminish
+  :hook (after-init . bmx-mode-setup-defaults))
+
 
 (provide 'init-prog)
 

@@ -41,6 +41,7 @@
   (setq use-package-expand-minimally t)
   (setq use-package-enable-imenu-support t))
 
+
 (eval-when-compile
   (require 'use-package))
 
@@ -50,31 +51,6 @@
 
 ;; Update GPG keyring for GNU ELPA
 (use-package gnu-elpa-keyring-update)
-
-
-;; A modern Packages Menu
-(use-package paradox
-  :init
-  (setq paradox-execute-asynchronously t)
-  (setq paradox-github-token t)
-  (setq paradox-display-star-count nil)
-
-  (defalias 'upgrade-packages #'paradox-upgrade-packages)
-
-  ;; Replace default `list-packages'
-  (defun my-paradox-enable (&rest _)
-    "Enable paradox, overriding the default package-menu."
-    (paradox-enable))
-  (advice-add #'list-packages :before #'my-paradox-enable)
-  :config
-  (when (fboundp 'page-break-lines-mode)
-    (add-hook 'paradox-after-execute-functions
-              (lambda (&rest _)
-                (let ((buf (get-buffer-create "*Paradox Report*"))
-                      (inhibit-read-only t))
-                  (with-current-buffer buf
-                    (page-break-lines-mode 1))))
-              t)))
 
 (provide 'init-package)
 

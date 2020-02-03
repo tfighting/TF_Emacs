@@ -1,4 +1,4 @@
-;;; init.el --- A Fancy and Fast Emacs Configuration.	-*- lexical-binding: t no-byte-compile: t; -*-
+ ;;; init.el --- A Fancy and Fast Emacs Configuration.	-*- lexical-binding: t no-byte-compile: t; -*-
 
 ;;; Commentary:
 ;;
@@ -68,7 +68,7 @@ decrease this. If you experience stuttering, increase this.")
 
 (update-load-path)
 ;;if you set the third libraty,you can cancel the commentary
-;;(add-subdirs-to-load-path)
+(add-subdirs-to-load-path)
 
 ;;Constants
 (require 'init-const)
@@ -81,7 +81,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-package)
 
 ;; Preferences
-(require 'init-base)
+(require 'init-basic)
 (require 'init-funcs)
 (require 'init-fonts)
 (require 'init-hydra)
@@ -89,6 +89,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-ui)
 (require 'init-edit)
 (require 'init-ivy)
+(require 'init-search)
 (require 'init-company)
 (require 'init-yasnippet)
 
@@ -110,7 +111,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-utils)
 (require 'init-pyim)
 
-;; Programming
+;;Programming
 (require 'init-vcs)
 (require 'init-flycheck)
 (require 'init-projectile)

@@ -17,7 +17,7 @@
 ;;   pip install autopep8
 (use-package python
   :ensure nil
-  :hook (inferior-python-mode-hook . (lambda ()
+  :hook (inferior-python-mode . (lambda ()
                                        (process-query-on-exit-flag
                                         (get-process "Python"))))
   :init

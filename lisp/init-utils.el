@@ -20,48 +20,35 @@
 
 ;; Youdao Dictionary
 (use-package youdao-dictionary
-  :init(use-package posframe)
-  :functions (posframe-show
-              posframe-hide)
-  :commands (youdao-dictionary-mode
-             youdao-dictionary--region-or-word
-             youdao-dictionary--format-result)
+  :commands youdao-dictionary-play-voice-of-current-word
   :bind (("C-c y" . my-youdao-search-at-point)
-         ("C-c Y" . youdao-dictionary-search-at-point))
-  :config
-  ;; Cache documents
-  (setq url-automatic-caching t)
+         ("C-c Y" . youdao-dictionary-search-at-point)
+         :map youdao-dictionary-mode-map
+         ("h" . youdao-dictionary-hydra/body)
+         ("?" . youdao-dictionary-hydra/body))
+  :init
+  (use-package posframe)
+  (setq url-automatic-caching t
+        youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
 
-  ;; Enable Chinese word segmentation support (支持中文分词)
-  (setq youdao-dictionary-use-chinese-word-segmentation t)
-
-  (with-eval-after-load 'posframe
-    (defun youdao-dictionary-search-at-point-posframe ()
-      "Search word at point and display result with posframe."
+  (with-no-warnings
+    (defun my-youdao-search-at-point ()
+      "Search word at point and display result with `posframe', `pos-tip', or buffer."
       (interactive)
-      (let ((word (youdao-dictionary--region-or-word)))
-        (if word
-            (progn
-              (with-current-buffer (get-buffer-create youdao-dictionary-buffer-name)
-                (let ((inhibit-read-only t))
-                  (erase-buffer)
-                  (youdao-dictionary-mode)
-                  (insert (youdao-dictionary--format-result word))
-                  (goto-char (point-min))
-                  (set (make-local-variable 'youdao-dictionary-current-buffer-word) word)))
-              (posframe-show youdao-dictionary-buffer-name :position (point))
-              (unwind-protect
-                  (push (read-event) unread-command-events)
-                (posframe-hide youdao-dictionary-buffer-name)))
-          (message "Nothing to look up")))))
-
-  (defun my-youdao-search-at-point ()
-    (interactive)
-    (if (display-graphic-p)
-        (if (fboundp 'youdao-dictionary-search-at-point-posframe)
-            (youdao-dictionary-search-at-point-posframe)
-          (youdao-dictionary-search-at-point-tooltip))
-      (youdao-dictionary-search-at-point))))
+      (if (display-graphic-p)
+          (if emacs/>=26p
+              (youdao-dictionary-search-at-point-posframe)
+            (youdao-dictionary-search-at-point-tooltip))
+        (youdao-dictionary-search-at-point))))
+  :config
+  (with-eval-after-load 'hydra
+    (defhydra youdao-dictionary-hydra (:color blue)
+      ("p" youdao-dictionary-play-voice-of-current-word "play voice of current word")
+      ("y" youdao-dictionary-play-voice-at-point "play voice at point")
+      ("q" quit-window "quit")
+      ("C-g" nil nil)
+      ("h" nil nil)
+      ("?" nil nil))))
 
 ;;
 ;; Search tools
@@ -73,56 +60,38 @@
   (setq wgrep-auto-save-buffer t
         wgrep-change-readonly-file t))
 
-;; `find-dired' alternative using `fd'
-(when (executable-find "fd")
-  (use-package fd-dired))
-
+;; Fast search tool: `ripgrep'
 ;; `ripgrep'
-(when (executable-find "rg")
-  (use-package rg
-    :defines projectile-command-map
-    :hook (after-init . rg-enable-default-bindings)
-    :config
-    (setq rg-group-result t
-          rg-show-columns t)
+(use-package rg
+  :defines projectile-command-map
+  :hook (after-init . rg-enable-default-bindings)
+  :bind (:map rg-global-map
+         ("c" . rg-dwim-current-dir)
+         ("f" . rg-dwim-current-file)
+         ("m" . rg-menu)
+         :map rg-mode-map
+         ("m" . rg-menu))
+  :init (setq rg-group-result t
+              rg-show-columns t)
+  :config
+  (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases)
 
-    (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases)
+  (with-eval-after-load 'projectile
+    (defalias 'projectile-ripgrep #'rg-project)
+    (bind-key "s R" #'rg-project projectile-command-map))
 
-    (with-eval-after-load 'projectile
-      (defalias 'projectile-ripgrep 'rg-project)
-      (bind-key "s R" #'rg-project projectile-command-map))
-
-    (with-eval-after-load 'counsel
-      (bind-keys
-       :map rg-global-map
-       ("c r" . counsel-rg)
-       ("c s" . counsel-ag)
-       ("c p" . counsel-pt)
-       ("c f" . counsel-fzf)))))
-
-;; Discover key bindings and their meaning for the current Emacs major mode
-(use-package discover-my-major
-  :bind (("C-h M-m" . discover-my-major)
-         ("C-h M-M" . discover-my-mode)))
-
-
+  (with-eval-after-load 'counsel
+    (bind-keys
+     :map rg-global-map
+     ("R" . counsel-rg)
+     ("F" . counsel-fzf))))
 
 ;; Persistent the scratch buffer
 (use-package persistent-scratch
-  :preface
-  (defun my-save-buffer ()
-    "Save scratch and other buffer."
-    (interactive)
-    (let ((scratch-name "*scratch*"))
-      (if (string-equal (buffer-name) scratch-name)
-          (progn
-            (message "Saving %s..." scratch-name)
-            (persistent-scratch-save)
-            (message "Wrote %s" scratch-name))
-        (save-buffer))))
-  :hook (after-init . persistent-scratch-setup-default)
-  :bind (:map lisp-interaction-mode-map
-         ("C-x C-s" . my-save-buffer)))
+  :diminish
+  :hook ((after-init . persistent-scratch-autosave-mode)
+         (lisp-interaction-mode . persistent-scratch-mode)))
+
 
 ;; PDF reader
 (when (display-graphic-p)
@@ -198,7 +167,25 @@
         :init (setq pdf-view-restore-filename
                     (locate-user-emacs-file ".pdf-view-restore"))))))
 
+;; Nice writing
+(use-package olivetti
+  :diminish
+  :bind ("<f7>" . olivetti-mode)
+  :hook (olivetti-mode . (lambda ()
+                           (if olivetti-mode
+                               (text-scale-set +2)
+                             (text-scale-set 0))))
+  :init (setq olivetti-body-width 0.618))
 
+;; Edit text for browsers with GhostText or AtomicChrome extension
+(use-package atomic-chrome
+  :hook ((emacs-startup . atomic-chrome-start-server)
+         (atomic-chrome-edit-mode . delete-other-windows))
+  :init (setq atomic-chrome-buffer-open-style 'frame)
+  :config
+  (if (fboundp 'gfm-mode)
+      (setq atomic-chrome-url-major-mode-alist
+            '(("github\\.com" . gfm-mode)))))
 
 ;; Music player
 (use-package bongo
@@ -227,8 +214,14 @@
     (bind-key "b" #'bongo-add-dired-files dired-mode-map)))
 
 ;; Misc
+(use-package copyit)                    ; copy path, url, etc.
+(use-package daemons)                   ; system services/daemons
+(use-package diffview)                  ; side-by-side diff view
+(use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
-(use-package ztree)                     ; text mode directory tree
+(use-package list-environment)
+(use-package memory-usage)
+(use-package tldr)
 
 (provide 'init-utils)
 

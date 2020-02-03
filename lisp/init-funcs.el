@@ -10,8 +10,23 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const)
-  (require 'init-custom))
+  (require 'init-const))
+
+;; Suppress warnings
+(defvar t_fighting-theme-alist)
+
+
+(declare-function async-inject-variables 'async)
+(declare-function chart-bar-quickie 'chart)
+(declare-function flycheck-buffer 'flycheck)
+(declare-function flymake-start 'flymake)
+(declare-function upgrade-packages 'init-package)
+
+
+;;Check whether the font is installed.
+(defun font-installed-p (font-name)
+  "Check if font with FONT-NAME is available."
+  (find-font (font-spec :name font-name)))
 
 ;; Dos2Unix/Unix2Dos
 (defun dos2unix ()
@@ -24,19 +39,68 @@
   (interactive)
   (set-buffer-file-coding-system 'undecided-dos nil))
 
-;; Revert buffer
+(defun delete-carrage-returns ()
+  "Delete `^M' characters in the buffer.
+Same as `replace-string C-q C-m RET RET'."
+  (interactive)
+  (save-excursion
+    (goto-char 0)
+    (while (search-forward "\r" nil :noerror)
+      (replace-match ""))))
+
+;; File and buffer
 (defun revert-this-buffer ()
   "Revert the current buffer."
   (interactive)
   (unless (minibuffer-window-active-p (selected-window))
-    (text-scale-increase 0)
-    (widen)
-    (if (and (fboundp 'fancy-narrow-active-p)
-             (fancy-narrow-active-p))
-        (fancy-widen))
     (revert-buffer t t)
     (message "Reverted this buffer.")))
-(bind-key "s-r" #'revert-this-buffer)
+(global-set-key (kbd "s-r") #'revert-this-buffer)
+
+(defun delete-this-file ()
+  "Delete the current file, and kill the buffer."
+  (interactive)
+  (unless (buffer-file-name)
+    (error "No file is currently being edited"))
+  (when (yes-or-no-p (format "Really delete '%s'?"
+                             (file-name-nondirectory buffer-file-name)))
+    (delete-file (buffer-file-name))
+    (kill-this-buffer)))
+(global-set-key (kbd "C-x K") #'delete-this-file)
+
+(defun rename-this-file (new-name)
+  "Renames both current buffer and file it's visiting to NEW-NAME."
+  (interactive "sNew name: ")
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (unless filename
+      (error "Buffer '%s' is not visiting a file!" name))
+    (progn
+      (when (file-exists-p filename)
+        (rename-file filename new-name 1))
+      (set-visited-file-name new-name)
+      (rename-buffer new-name))))
+
+(defun browse-this-file ()
+  "Open the current file as a URL using `browse-url'."
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (if (and (fboundp 'tramp-tramp-file-p)
+             (tramp-tramp-file-p file-name))
+        (error "Cannot open tramp file")
+      (browse-url (concat "file://" file-name)))))
+
+(defun copy-file-name ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (if-let ((filename (if (equal major-mode 'dired-mode)
+                         default-directory
+                       (buffer-file-name))))
+      (progn
+        (kill-new filename)
+        (message "Copied '%s'" filename))
+    (message "WARNING: Current buffer is not attached to a file!")))
+
 
 ;; Mode line
 (defun mode-line-height ()
@@ -70,24 +134,12 @@
     (find-file custom-file)))
 
 
+;;Misc
 (defun create-scratch-buffer ()
   "Create a scratch buffer."
   (interactive)
   (switch-to-buffer (get-buffer-create "*scratch*"))
   (lisp-interaction-mode))
-
-(defun update-org ()
-  "Update Org files to the latest version."
-  (interactive)
-  (let ((dir (expand-file-name "~/org/")))
-    (if (file-exists-p dir)
-        (progn
-          (message "Updating org files...")
-          (cd dir)
-          (shell-command "git pull")
-          (message "Updating org files...done"))
-      (message "\"%s\" doesn't exist." dir))))
-(defalias 't_fighting-update-org 'update-org)
 
 (defun save-buffer-as-utf8 (coding-system)
   "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
@@ -116,95 +168,54 @@
         (async-byte-recompile-directory dir)
       (byte-recompile-directory dir 0 t))))
 
+
+(define-minor-mode t_fighting-read-mode
+  "Minor Mode for better reading experience."
+  :init-value nil
+  :group t_fighting
+  (if t_fighting-read-mode
+      (progn
+        (when (fboundp 'olivetti-mode)
+          (olivetti-mode 1))
+        (when (fboundp 'mixed-pitch-mode)
+          (mixed-pitch-mode 1)))
+    (progn
+      (when (fboundp 'olivetti-mode)
+        (olivetti-mode -1))
+      (when (fboundp 'mixed-pitch-mode)
+        (mixed-pitch-mode -1)))))
+(global-set-key (kbd "M-<f7>") #'t_fighting-read-mode)
+
+;; Update
 ;;
-;;Operate files
-;;
-(defun t_fighting--file-path ()
-  "Retrieve the file path of the current buffer.
-Returns:
-  - A string containing the file path in case of success.
-  - `nil' in case the current buffer does not have a directory."
-  (when-let (file-path (buffer-file-name))
-    (file-truename file-path)))
 
-;; copy file path
-(defun copy-file-path ()
-  "Copy and show the file path of the current buffer."
+(defun update-all-packages ()
+  "Update all packages right now"
   (interactive)
-  (if-let (file-path (t_fighting--file-path))
-      (message "%s" (kill-new file-path))
-    (message "WARNING: Current buffer is not attached to a file!")))
+  (message "Updating all packages....")
+  (use-package auto-package-update
+    :if (not (daemonp))
+    :custom
+    (auto-package-update-delete-old-versions t)
+    (auto-package-update-hide-results nil)
+    :init
+    (auto-package-update-now))
+  (message "Updating all packages done!"))
+(defalias 't_fighting-update-all-packages 'update-all-packages)
 
-
-;; Copy file name
-(defun copy-file-name ()
-  "Copy and show the file name of the current buffer."
+(defun update-org ()
+  "Update Org files to the latest version."
   (interactive)
-  (if-let (file-name (file-name-nondirectory (t_fighting--file-path)))
-      (message "%s" (kill-new file-name))
-    (message "WARNING: Current buffer is not attached to a file!")))
+  (let ((dir (expand-file-name "~/org/")))
+    (if (file-exists-p dir)
+        (progn
+          (message "Updating org files...")
+          (cd dir)
+          (shell-command "git pull")
+          (message "Updating org files...done"))
+      (message "\"%s\" doesn't exist." dir))))
+(defalias 't_fighting-update-org 'update-org)
 
-;; rename the current filename
-(defun rename-current-filename (&optional arg)
-  "Rename the current buffer and the file it is visiting.
-If the buffer isn't visiting a file, ask if it should
-be saved to a file, or just renamed.
-If called without a prefix argument, the prompt is
-initialized with the current filename."
-  (interactive "P")
-  (let* ((name (buffer-name))
-         (filename (buffer-file-name)))
-    (if (and filename (file-exists-p filename))
-        ;; the buffer is visiting a file
-        (let* ((dir (file-name-directory filename))
-               (new-name (read-file-name "New name: " (if arg dir filename))))
-          (cond ((get-buffer new-name)
-                 (error "A buffer named '%s' already exists!" new-name))
-                (t
-                 (let ((dir (file-name-directory new-name)))
-                   (when (and (not (file-exists-p dir))
-                              (yes-or-no-p
-                               (format "Create directory '%s'?" dir)))
-                     (make-directory dir t)))
-                 (rename-file filename new-name 1)
-                 (rename-buffer new-name)
-                 (set-visited-file-name new-name)
-                 (set-buffer-modified-p nil)
-                 (when (fboundp 'recentf-add-file)
-                   (recentf-add-file new-name)
-                   (recentf-remove-if-non-kept filename))
-                 (when (projectile-project-p)
-                   (call-interactively #'projectile-invalidate-cache))
-                 (message "File '%s' successfully renamed to '%s'"
-                          name (file-name-nondirectory new-name)))))
-      ;; the buffer is not visiting a file
-      (let ((key))
-        (while (not (memq key '(?s ?r)))
-          (setq key (read-key (propertize
-                               (format
-                                (concat "Buffer '%s' is not visiting a file: "
-                                        "[s]ave to file or [r]ename buffer?")
-                                name)
-                               'face 'minibuffer-prompt)))
-          (cond ((eq key ?s)            ; save to file
-                 ;; this allows for saving a new empty (unmodified) buffer
-                 (unless (buffer-modified-p) (set-buffer-modified-p t))
-                 (save-buffer))
-                ((eq key ?r)            ; rename buffer
-                 (let ((new-name (read-string "New buffer name: ")))
-                   (while (get-buffer new-name)
-                     ;; ask to rename again, if the new buffer name exists
-                     (if (yes-or-no-p
-                          (format (concat "A buffer named '%s' already exists: "
-                                          "Rename again?")
-                                  new-name))
-                         (setq new-name (read-string "New buffer name: "))
-                       (keyboard-quit)))
-                   (rename-buffer new-name)
-                   (message "Buffer '%s' successfully renamed to '%s'"
-                            name new-name)))
-                ;; ?\a = C-g, ?\e = Esc and C-[
-                ((memq key '(?\a ?\e)) (keyboard-quit))))))))
 
 ;;
 ;; UI
@@ -217,39 +228,29 @@ initialized with the current filename."
   (run-hooks 'after-load-theme-hook))
 (advice-add #'load-theme :after #'run-after-load-theme-hook)
 
-(defun t_fighting--standardize-theme (theme)
-  "Standardize THEME."
-  (pcase theme
-    ('default 'doom-one)
-    ('classic 'doom-molokai)
-    ('colorful 'doom-snazzy)
-    ('dark 'doom-palenight)
-    ('light 'doom-one-light)
-    ('day 'doom-opera-light)
-    ('night 'doom-city-lights)
-    (_ (or theme 'doom-one))))
+(defun t_fighting--real-theme (theme)
+  "Return real THEME name."
+  (alist-get theme t_fighting-theme-alist 'doom-one))
 
 (defun t_fighting-compatible-theme-p (theme)
   "Check if the THEME is compatible. THEME is a symbol."
-  (string-prefix-p "doom" (symbol-name (t_fighting--standardize-theme theme))))
+  (string-prefix-p "doom" (symbol-name (t_fighting--real-theme theme))))
 
 (defun t_fighting-load-theme (theme)
   "Set color THEME."
   (interactive
    (list
     (intern (completing-read "Load theme: "
-                             '(default classic colorful dark light daylight)))))
-  (let ((theme (t_fighting--standardize-theme theme)))
-    (mapc #'disable-theme custom-enabled-themes)
-    (load-theme theme t)))
+                             (mapcar #'car t_fighting-theme-alist)))))
+  (setq t_fighting-theme theme)
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme (t_fighting--real-theme theme) t))
+(global-set-key (kbd "C-c T") #'t_fighting-load-theme)
 
 (defun t_fighting-dark-theme-p ()
   "Check if the current theme is a dark theme."
   (eq (frame-parameter nil 'background-mode) 'dark))
 
-(defun t_fighting-current-theme ()
-  "The current enabled theme."
-  (car custom-enabled-themes))
 
 ;;
 ;;python

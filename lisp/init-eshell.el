@@ -8,22 +8,27 @@
 
 ;;; Code:
 
-;; Emacs command shell
 (use-package eshell
   :ensure nil
   :defines eshell-prompt-function
   :functions eshell/alias
   :hook (eshell-mode . (lambda ()
                          (bind-key "C-l" 'eshell/clear eshell-mode-map)
+                         ;; Aliases
                          (eshell/alias "f" "find-file $1")
                          (eshell/alias "fo" "find-file-other-window $1")
                          (eshell/alias "d" "dired $1")
+                         (eshell/alias "l" "ls -lFh")
                          (eshell/alias "ll" "ls -l")
-                         (eshell/alias "la" "ls -al")))
+                         (eshell/alias "la" "ls -lAFh")
+                         (eshell/alias "lr" "ls -tRFh")
+                         (eshell/alias "lrt" "ls -lFcrt")
+                         (eshell/alias "lsa" "ls -lah")
+                         (eshell/alias "lt" "ls -ltFh")))
   :config
   (with-no-warnings
-    (unless (fboundp #'flatten-tree)
-      (defalias #'flatten-tree #'eshell-flatten-list))
+    (unless (fboundp 'flatten-tree)
+      (defalias 'flatten-tree #'eshell-flatten-list))
 
     (defun eshell/clear ()
       "Clear the eshell buffer."
@@ -43,11 +48,11 @@
         ;; argument causes later arguments to be looked for in that directory,
         ;; not the starting directory
         (mapc #'find-file (mapcar #'expand-file-name (flatten-tree (reverse args))))))
+    (defalias 'eshell/e #'eshell/emacs)
+    (defalias 'eshell/ec #'eshell/emacs)
 
-    (defalias 'eshell/e 'eshell/emacs)
-
-    (defun eshell/ec (&rest args)
-      "Compile a file (ARGS) in Emacs.  Use `compile' to do background make."
+    (defun eshell/ebc (&rest args)
+      "Compile a file (ARGS) in Emacs. Use `compile' to do background make."
       (if (eshell-interactive-output-p)
           (let ((compilation-process-setup-function
                  (list 'lambda nil
@@ -58,7 +63,7 @@
         (throw 'eshell-replace-command
                (let ((l (eshell-stringify-list (flatten-tree args))))
                  (eshell-parse-command (car l) (cdr l))))))
-    (put 'eshell/ec 'eshell-no-numeric-conversions t)
+    (put 'eshell/ebc 'eshell-no-numeric-conversions t)
 
     (defun eshell-view-file (file)
       "View FILE.  A version of `view-file' which properly rets the eshell prompt."
@@ -78,7 +83,8 @@
                              'kill-buffer)))))
 
     (defun eshell/less (&rest args)
-      "Invoke `view-file' on a file (ARGS).  \"less +42 foo\" will go to line 42 in the buffer for foo."
+      "Invoke `view-file' on a file (ARGS).
+\"less +42 foo\" will go to line 42 in the buffer for foo."
       (while args
         (if (string-match "\\`\\+\\([0-9]+\\)\\'" (car args))
             (let* ((line (string-to-number (match-string 1 (pop args))))
@@ -86,8 +92,7 @@
               (eshell-view-file file)
               (forward-line line))
           (eshell-view-file (pop args)))))
-
-    (defalias 'eshell/more 'eshell/less))
+    (defalias 'eshell/more #'eshell/less))
 
   ;;  Display extra information for prompt
   (use-package eshell-prompt-extras
@@ -95,30 +100,29 @@
     :defines eshell-highlight-prompt
     :commands (epe-theme-lambda epe-theme-dakrone epe-theme-pipeline)
     :init (setq eshell-highlight-prompt nil
-                eshell-prompt-function 'epe-theme-lambda))
+                eshell-prompt-function #'epe-theme-lambda))
 
   ;; Fish-like history autosuggestions
   (use-package esh-autosuggest
     :defines ivy-display-functions-alist
-    :preface
-    (defun setup-eshell-ivy-completion ()
-      (setq-local ivy-display-functions-alist
-                  (remq (assoc 'ivy-completion-in-region ivy-display-functions-alist)
-                        ivy-display-functions-alist)))
     :bind (:map eshell-mode-map
            ([remap eshell-pcomplete] . completion-at-point))
     :hook ((eshell-mode . esh-autosuggest-mode)
-           (eshell-mode . setup-eshell-ivy-completion)))
+           (eshell-mode . eshell-setup-ivy-completion))
+    :init (defun eshell-setup-ivy-completion ()
+            "Setup `ivy' completion in `eshell'."
+            (setq-local ivy-display-functions-alist
+                        (remq (assoc 'ivy-completion-in-region
+                                     ivy-display-functions-alist)
+                              ivy-display-functions-alist))))
 
-  ;; Eldoc support
+  ;; `eldoc' support
   (use-package esh-help
     :init (setup-esh-help-eldoc))
 
-  ;; `cd' to frequent directory in eshell
+  ;; `cd' to frequent directory in `eshell'
   (use-package eshell-z
-    :hook (eshell-mode
-           .
-           (lambda () (require 'eshell-z)))))
+    :hook (eshell-mode . (lambda () (require 'eshell-z)))))
 
 (provide 'init-eshell)
 

@@ -7,62 +7,56 @@
 
 ;;; Code:
 
-
 (eval-when-compile
-  (require 'init-custom))
+  (require 'init-const))
 
-;; Miscs
-;; (setq initial-scratch-message nil)
-(setq uniquify-buffer-name-style 'post-forward-angle-brackets) ; Show path if names are same
-(setq adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*")
-(setq adaptive-fill-first-line-regexp "^* *$")
-(setq delete-by-moving-to-trash t)         ; Deleting files go to OS's trash folder
-(setq make-backup-files nil)               ; Forbide to make backup files
-(setq auto-save-default nil)               ; Disable auto save
 
-(setq-default major-mode 'text-mode)
+;; Automatic save
+(use-package auto-save
+  :ensure nil
+  :load-path (lambda () (expand-file-name "site-lisp/auto-save" user-emacs-directory))
+  :init
+  (require 'auto-save)
+  (auto-save-enable)
 
-(setq sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*")
-(setq sentence-end-double-space nil)
 
-;; Tab and Space
-;; Permanently indent with spaces, never with TABs
-(setq-default c-basic-offset   4
-              tab-width        4
-              indent-tabs-mode nil)
+  ;; (setq auto-save-silent nil)   ; quietly save
+  (setq auto-save-delete-trailing-whitespace t))  ; automatically delete spaces at the end of the line when saving
+
+;; Automatic parenthesis pairing
+(use-package elec-pair
+  :ensure nil
+  :hook (after-init . electric-pair-mode)
+  :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit))
+
+;; parenthesis operation
+(use-package awesome-pair
+  :load-path (lambda () (expand-file-name "site-lisp/awesome-pair" user-emacs-directory))
+
+  :bind
+  (:map prog-mode-map
+   (("C-l" . awesome-pair-jump-out-pair-and-newline)
+    ("SPC" . awesome-pair-space)
+    ("=" . awesome-pair-equal)
+    ("M-f" . awesome-pair-jump-right)
+    ("M-b" . awesome-pair-jump-left)))
+  :hook (prog-mode . awesome-pair-mode))
+
+;; Delete Block
+(use-package delete-block
+  :load-path (lambda () (expand-file-name "site-lisp/delete-block" user-emacs-directory))
+  :bind
+  (("M-d" . delete-block-forward)
+   ("C-<backspace>" . delete-block-backward)
+   ("M-<backspace>" . delete-block-backward)
+   ("M-DEL" . delete-block-backward)))
+
 
 ;; Delete selection if you insert
 (use-package delsel
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
-;; Rectangle
-(use-package rect
-  :ensure nil
-  :bind (("<C-return>" . rect-hydra/body))
-  :pretty-hydra
-  ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
-    :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key "q")
-   ("Move"
-    (("h" backward-char "←")
-     ("j" next-line "↓")
-     ("k" previous-line "↑")
-     ("l" forward-char "→"))
-    "Action"
-    (("w" copy-rectangle-as-kill "copy") ; C-x r M-w
-     ("y" yank-rectangle "yank")         ; C-x r y
-     ("t" string-rectangle "string")     ; C-x r t
-     ("d" kill-rectangle "kill")         ; C-x r d
-     ("c" clear-rectangle "clear")       ; C-x r c
-     ("o" open-rectangle "open"))        ; C-x r o
-    "Misc"
-    (("N" rectangle-number-lines "number lines")        ; C-x r N
-     ("e" rectangle-exchange-point-and-mark "exchange") ; C-x C-x
-     ("u" undo "undo")
-     ("r" (if (region-active-p)
-              (deactivate-mark)
-            (rectangle-mark-mode 1))
-      "reset")))))
 
 ;; Automatically reload files was modified by external program
 (use-package autorevert
@@ -78,10 +72,13 @@
          ("C-c C-z b" . browse-url-of-buffer)
          ("C-c C-z r" . browse-url-of-region)
          ("C-c C-z u" . browse-url)
+         ("C-c C-z e" . browse-url-emacs)
          ("C-c C-z v" . browse-url-of-file))
   :init
   (with-eval-after-load 'dired
-    (bind-key "C-c C-z f" #'browse-url-of-file dired-mode-map)))
+    (bind-key "C-c C-z f" #'browse-url-of-file dired-mode-map))
+  (when (featurep 'xwidget-internal)
+    (bind-key "C-c C-z w" #'xwidget-webkit-browse-url)))
 
 ;; Click to browse URL or to send to e-mail address
 (use-package goto-addr
@@ -101,6 +98,11 @@
                 avy-all-windows-alt t
                 avy-background t
                 avy-style 'pre))
+
+;; Jump to Chinese characters
+(use-package ace-pinyin
+  :diminish
+  :hook (after-init . ace-pinyin-global-mode))
 
 ;; Kill text between the point and the character CHAR
 (use-package avy-zap
@@ -127,10 +129,6 @@
   (with-eval-after-load 'ert
     (bind-key "o" #'ace-link-help ert-results-mode-map)))
 
-;; Jump to Chinese characters
-(use-package ace-pinyin
-  :diminish
-  :hook (after-init . ace-pinyin-global-mode))
 
 ;; Minor mode to aggressively keep your code always indented
 (use-package aggressive-indent
@@ -152,12 +150,8 @@
   ;; Be slightly less aggressive in C/C++/C#/Java/Go/Swift
   (add-to-list
    'aggressive-indent-dont-indent-if
-   '(and (or (derived-mode-p 'c-mode)
-             (derived-mode-p 'c++-mode)
-             (derived-mode-p 'csharp-mode)
-             (derived-mode-p 'java-mode)
-             (derived-mode-p 'go-mode)
-             (derived-mode-p 'swift-mode))
+   '(and (derived-mode-p 'c-mode 'c++-mode 'csharp-mode
+                         'java-mode 'go-mode 'swift-mode)
          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
                              (thing-at-point 'line))))))
 
@@ -170,6 +164,16 @@
          ([remap isearch-query-replace] . anzu-isearch-query-replace)
          ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
   :hook (after-init . global-anzu-mode))
+
+;; Redefine M-< and M-> for some modes
+(when emacs/>=25.3p
+  (use-package beginend
+    :diminish (beginend-mode beginend-global-mode)
+    :hook (after-init . beginend-global-mode)
+    :config
+    (mapc (lambda (pair)
+            (add-hook (car pair) (lambda () (diminish (cdr pair)))))
+          beginend-modes)))
 
 ;; An all-in-one comment command to rule them all
 (use-package comment-dwim-2
@@ -196,46 +200,10 @@
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-merge-split-window-function 'split-window-horizontally))
 
-;; Automatic parenthesis pairing
-(use-package elec-pair
-  :ensure nil
-  :hook (after-init . electric-pair-mode)
-  :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit))
-
-;; Edit multiple regions in the same way simultaneously
-(use-package iedit
-  :defines desktop-minor-mode-table
-  :bind (("C-;" . iedit-mode)
-         ("C-x r RET" . iedit-rectangle-mode)
-         :map isearch-mode-map ("C-;" . iedit-mode-from-isearch)
-         :map esc-map ("C-;" . iedit-execute-last-modification)
-         :map help-map ("C-;" . iedit-mode-toggle-on-function))
-  :config
-  ;; Avoid restoring `iedit-mode'
-  (with-eval-after-load 'desktop
-    (add-to-list 'desktop-minor-mode-table
-                 '(iedit-mode nil))))
 
 ;; Increase selected region by semantic units
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
-
-;; Multiple cursors
-(use-package multiple-cursors
-  :bind (("C-S-c C-S-c"   . mc/edit-lines)
-         ("C->"           . mc/mark-next-like-this)
-         ("C-<"           . mc/mark-previous-like-this)
-         ("C-c C-<"       . mc/mark-all-like-this)
-         ("C-M->"         . mc/skip-to-next-like-this)
-         ("C-M-<"         . mc/skip-to-previous-like-this)
-         ("s-<mouse-1>"   . mc/add-cursor-on-click)
-         ("C-S-<mouse-1>" . mc/add-cursor-on-click)
-         :map mc/keymap
-         ("C-|" . mc/vertical-align-with-space)))
-
-;; Smartly select region, rectangle, multi cursors
-(use-package smart-region
-  :hook (after-init . smart-region-on))
 
 ;; On-the-fly spell checker
 (use-package flyspell
@@ -243,7 +211,7 @@
   :diminish
   :if (executable-find "aspell")
   :hook (((text-mode outline-mode) . flyspell-mode)
-         ;; (prog-mode . flyspell-prog-mode)
+         (prog-mode . flyspell-prog-mode)
          (flyspell-mode . (lambda ()
                             (dolist (key '("C-;" "C-," "C-."))
                               (unbind-key key flyspell-mode-map)))))
@@ -268,60 +236,23 @@
   :bind (([remap move-beginning-of-line] . mwim-beginning-of-code-or-line)
          ([remap move-end-of-line] . mwim-end-of-code-or-line)))
 
-;; Windows-scroll commands
-(use-package pager
-  :bind (([remap scroll-up-command] . pager-page-down)
-         ([next]   . pager-page-down)
-         ([remap scroll-down-command] . pager-page-up)
-         ([prior]  . pager-page-up)
-         ([M-up]   . pager-row-up)
-         ([M-kp-8] . pager-row-up)
-         ([M-down] . pager-row-down)
-         ([M-kp-2] . pager-row-down)))
-
-;; Treat undo history as a tree
-;; FIXME:  keep the diff window
-(make-variable-buffer-local 'undo-tree-visualizer-diff)
-(use-package undo-tree
-  :diminish
-  :defines recentf-exclude
-  :hook (after-init . global-undo-tree-mode)
-  :init (setq undo-tree-visualizer-timestamps t
-              undo-tree-visualizer-diff t
-              undo-tree-enable-undo-in-region nil
-              undo-tree-auto-save-history nil
-              undo-tree-history-directory-alist
-              `(("." . ,(locate-user-emacs-file "undo-tree-hist/"))))
-  :config (dolist (dir undo-tree-history-directory-alist)
-            (push (expand-file-name (cdr dir)) recentf-exclude)))
+;; Undo/Redo
+(use-package undo-fu
+  :bind (([remap undo] . undo-fu-only-undo)
+         ([remap undo-only] . undo-fu-only-undo)
+         ("C-?" . undo-fu-only-redo)
+         ("M-_" . undo-fu-only-redo)))
 
 ;; Goto last change
-(use-package goto-chg
-  :bind ("C-," . goto-last-change))
+(use-package goto-last-change
+  :bind ("s-," . goto-last-change))
 
-;; Preview when `goto-line`
-(use-package goto-line-preview
-  :bind ([remap goto-line] . goto-line-preview))
-
-;; Handling capitalized subwords in a nomenclature
-(use-package subword
-  :ensure nil
-  :diminish
-  :hook ((prog-mode . subword-mode)
-         (minibuffer-setup . subword-mode)))
-
-;; Hideshow
-(use-package hideshow
-  :ensure nil
-  :diminish hs-minor-mode
-  :bind (:map hs-minor-mode-map
-         ("C-`" . hs-toggle-hiding)))
 
 ;; Flexible text folding
 (use-package origami
   :pretty-hydra
   ((:title (pretty-hydra-title "Origami" 'octicon "fold")
-    :color blue :quit-key "q")
+    :color amaranth :quit-key "q")
    ("Node"
     ((":" origami-recursively-toggle-node "toggle recursively")
      ("a" origami-toggle-all-nodes "toggle all")
@@ -335,38 +266,15 @@
          ("C-`" . origami-hydra/body))
   :hook (prog-mode . origami-mode)
   :init (setq origami-show-fold-header t)
-  :config
-  (face-spec-reset-face 'origami-fold-header-face)
-
-  ;; Support LSP
-  (when t_fighting-lsp
-    (use-package lsp-origami
-      :hook (origami-mode . (lambda ()
-                              (if (bound-and-true-p lsp-mode)
-                                  (lsp-origami-mode)))))))
+  :config (face-spec-reset-face 'origami-fold-header-face))
 
 ;; Open files as another user
 (unless sys/win32p
   (use-package sudo-edit))
 
-;; Narrow/Widen
-(use-package fancy-narrow
-  :diminish
-  :hook (after-init . fancy-narrow-mode))
-
-;; Edit text for browsers with GhostText or AtomicChrome extension
-(use-package atomic-chrome
-  :hook ((emacs-startup . atomic-chrome-start-server)
-         (atomic-chrome-edit-mode . delete-other-windows))
-  :init (setq atomic-chrome-buffer-open-style 'frame)
-  :config
-  (if (fboundp 'gfm-mode)
-      (setq atomic-chrome-url-major-mode-alist
-            '(("github\\.com" . gfm-mode)))))
 
 
 
 (provide 'init-edit)
-
 
 ;;init-edit.el ends here

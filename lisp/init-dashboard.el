@@ -30,7 +30,7 @@
     ((:title (pretty-hydra-title "Dashboard" 'material "dashboard" :height 1.1 :v-adjust -0.225)
       :color pink :quit-key "q")
      ("Navigator"
-      (
+      (("U" update-all-packages "update" :exit t)
        ("H" browse-homepage "homepage" :exit t)
        ("R" restore-session "recover session" :exit t)
        ("L" persp-load-state-from-file "list sessions" :exit t)
@@ -58,6 +58,7 @@
            ("R" . restore-session)
            ("L" . persp-load-state-from-file)
            ("S" . open-custom-file)
+           ("U" . update-all-packages)
            ("q" . quit-dashboard)
            ("h" . dashboard-hydra/body)
            ("?" . dashboard-hydra/body))
@@ -70,7 +71,8 @@
           dashboard-show-shortcuts nil
           dashboard-items '((recents  . 5)
                             (bookmarks . 5)
-                            (projects . 5))
+                            (projects . 5)
+                            (agenda . 5))
 
           dashboard-set-init-info t
           dashboard-set-file-icons t
@@ -95,17 +97,33 @@
           dashboard-navigator-buttons
           `(((,(when (display-graphic-p)
                  (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
-              "Homepage" "Browse homepage"
+              "Homepage"
+              "Browse homepage"
               (lambda (&rest _) (browse-url t_fighting-homepage)))
-             (,(when (display-graphic-p)
+
+             ;; display previous session
+             (,(when sys/gui
                  (all-the-icons-material "restore" :height 1.35 :v-adjust -0.24))
-              "Restore" "Restore previous session"
+              "Restore"
+              "Restore previous session"
               (lambda (&rest _) (restore-session)))
-             (,(when (display-graphic-p)
+
+             ;; display custom file
+             (,(when sys/gui
                  (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
-              "Settings" "Open custom file"
+              "Settings"
+              "Open custom file"
               (lambda (&rest _) (find-file custom-file)))
-             (,(if (display-graphic-p)
+
+             ;; display update packages
+             (,(when sys/gui
+                 (all-the-icons-material "update" :height 1.35 :v-adjust -0.24))
+              "Update"
+              "Update T_fighting Emacs"
+              (lambda (&rest _) (t_fighting-update-all-packages)))
+
+             ;; display help
+             (,(if sys/gui
                    (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
                  "?")
               "" "Help (?/h)"
@@ -153,6 +171,7 @@
             (persp-load-state-from-file)
           (error
            (message "Error: Unable to restore last session -- %s" err)))
+        (quit-window t)
         (when (persp-get-buffer-or-null persp-special-last-buffer)
           (persp-switch-to-buffer persp-special-last-buffer))
         (message "Done")))

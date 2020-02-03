@@ -16,13 +16,22 @@
   :custom-face (org-ellipsis ((t (:foreground nil))))
   :preface
   (defun hot-expand (str &optional mod)
-    "Expand org template."
+    "Expand org template.
+STR is a structure template string recognised by org like <s. MOD is a
+string with additional parameters to add the begin line of the
+structure element. HEADER string includes more parameters that are
+prepended to the element after the #+HEADER: tag."
     (let (text)
       (when (region-active-p)
         (setq text (buffer-substring (region-beginning) (region-end)))
         (delete-region (region-beginning) (region-end)))
       (insert str)
-      (org-try-structure-completion)
+      (if (fboundp 'org-try-structure-completion)
+          (org-try-structure-completion) ; < org 9
+        (progn
+          ;; New template expansion since org 9
+          (require 'org-tempo nil t)
+          (org-tempo-complete-tag)))
       (when mod (insert mod) (forward-line))
       (when text (insert text))))
   :pretty-hydra
@@ -31,9 +40,12 @@
    ("Basic"
     (("a" (hot-expand "<a") "ascii")
      ("c" (hot-expand "<c") "center")
+     ("C" (hot-expand "<C") "comment")
      ("e" (hot-expand "<e") "example")
+     ("E" (hot-expand "<E") "export")
      ("h" (hot-expand "<h") "html")
      ("l" (hot-expand "<l") "latex")
+     ("n" (hot-expand "<n") "note")
      ("o" (hot-expand "<q") "quote")
      ("v" (hot-expand "<v") "verse"))
     "Head"
@@ -70,20 +82,26 @@
                        "Beautify org symbols."
                        (push '("[ ]" . ?☐) prettify-symbols-alist)
                        (push '("[X]" . ?☑) prettify-symbols-alist)
-                       (push '("[-]" . ?⛞) prettify-symbols-alist)
-                       (push '("#+TITLE" . ?🕮) prettify-symbols-alist)
-                       (push '("#+DATE" . ?📆) prettify-symbols-alist)
-                       (push '("#+AUTHOR" . ?👤) prettify-symbols-alist)
-                       (push '("#+EMAIL" . ?🖂) prettify-symbols-alist)
-                       (push '("#+OPTIONS" . ?⚙) prettify-symbols-alist)
-                       (push '("#+TAGS" . ?🏷) prettify-symbols-alist)
-                       (push '("#+DESCRIPTION" . ?🗎) prettify-symbols-alist)
+                       (push '("[-]" . ?⛝) prettify-symbols-alist)
+
+                       (push '("#+ARCHIVE:" . ?📦) prettify-symbols-alist)
+                       (push '("#+AUTHOR:" . ?👤) prettify-symbols-alist)
+                       (push '("#+CREATOR:" . ?💁) prettify-symbols-alist)
+                       (push '("#+DATE:" . ?📆) prettify-symbols-alist)
+                       (push '("#+DESCRIPTION:" . ?⸙) prettify-symbols-alist)
+                       (push '("#+EMAIL:" . ?🖂) prettify-symbols-alist)
+                       (push '("#+OPTIONS:" . ?⛭) prettify-symbols-alist)
+                       (push '("#+SETUPFILE:" . ?⛮) prettify-symbols-alist)
+                       (push '("#+TAGS:" . ?🏷) prettify-symbols-alist)
+                       (push '("#+TITLE:" . ?🕮) prettify-symbols-alist)
+
                        (push '("#+BEGIN_SRC" . ?✎) prettify-symbols-alist)
                        (push '("#+END_SRC" . ?□) prettify-symbols-alist)
                        (push '("#+BEGIN_QUOTE" . ?») prettify-symbols-alist)
                        (push '("#+END_QUOTE" . ?«) prettify-symbols-alist)
                        (push '("#+HEADERS" . ?☰) prettify-symbols-alist)
                        (push '("#+RESULTS:" . ?💻) prettify-symbols-alist)
+
                        (prettify-symbols-mode 1)))
          (org-indent-mode . (lambda()
                               (diminish 'org-indent-mode)
@@ -108,7 +126,11 @@
               org-pretty-entities nil
               org-hide-emphasis-markers t)
   :config
-  ;; Enable markdown backend
+  ;; Add new template
+  (add-to-list 'org-structure-template-alist '("n" . "note"))
+
+  ;; Add gfm/md backends
+  (use-package ox-gfm)
   (add-to-list 'org-export-backends 'md)
 
   (with-eval-after-load 'counsel
@@ -116,9 +138,9 @@
 
   ;; Prettify UI
   (use-package org-bullets
-    :if (char-displayable-p ?⚙)
+    :if (char-displayable-p ?⚫)
     :hook (org-mode . org-bullets-mode)
-    :init  (setq org-bullets-bullet-list '("⚙" "⚙" "⚙" "⚙")))
+    :init (setq org-bullets-bullet-list '("⚫" "⚫" "⚫" "⚫")))
 
   (use-package org-fancy-priorities
     :diminish
@@ -126,7 +148,7 @@
     :init (setq org-fancy-priorities-list
                 (if (char-displayable-p ?⯀)
                     '("⯀" "⯀" "⯀" "⯀")
-                  '("HIGH" "MIDIUM" "LOW" "OPTIONAL"))))
+                  '("HIGH" "MEDIUM" "LOW" "OPTIONAL"))))
 
   ;; Babel
   (setq org-confirm-babel-evaluate nil
@@ -171,9 +193,16 @@
   (use-package toc-org
     :hook (org-mode . toc-org-mode))
 
+  ;; Export text/html MIME emails
+  (use-package org-mime
+    :bind (:map message-mode-map
+           ("C-c M-o" . org-mime-htmlize)
+           :map org-mode-map
+           ("C-c M-o" . org-mime-org-buffer-htmlize)))
+
   ;; Preview
   (use-package org-preview-html
-    :diminish org-preview-html-mode)
+    :diminish)
 
   ;; Presentation
   (use-package org-tree-slide
@@ -206,11 +235,11 @@
     (org-pomodoro-mode-line-overtime ((t (:inherit error))))
     (org-pomodoro-mode-line-break ((t (:inherit success))))
     :bind (:map org-agenda-mode-map
-           ("P" . org-pomodoro)))
-
-  ;; Visually summarize progress
-  (use-package org-dashboard))
+           ("P" . org-pomodoro))))
 
 (provide 'init-org)
+
+
+
 
 ;;; init-org.el ends here

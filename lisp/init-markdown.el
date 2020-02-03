@@ -67,7 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
   ;; Table of contents
   (use-package markdown-toc
     :bind (:map markdown-mode-command-map
-           ("r" . markdown-toc-generate-or-refresh-toc))))
+           ("r" . markdown-toc-generate-or-refresh-toc)))
+  ;; a Github username for API authentication
+  (setq grip-github-user "tfighting")
+  ;; a Github password or auth token for API auth
+  (setq grip-github-password "db3fb36858507b6416d585a46e82216a0280e581")
+  )
+
+
 
 (provide 'init-markdown)
 

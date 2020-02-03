@@ -11,6 +11,11 @@
   (require 'init-const)
   (require 'init-custom))
 
+;; Personal information
+(setq user-full-name t_fighting-full-name)
+(setq user-mail-address t_fighting-mail-address)
+
+
 ;; Compatibility
 (unless (fboundp 'caadr)
   (defun caadr (x)
@@ -18,32 +23,6 @@
     (declare (compiler-macro internal--compiler-macro-cXXr))
     (car (car (cdr x)))))
 
-;; Personal information
-(setq user-full-name t_fighting-full-name)
-(setq user-mail-address t_fighting-mail-address)
-
-
-;; Key Modifiers
-(with-no-warnings
-  (cond
-   (sys/win32p
-    ;; make PC keyboard's Win key or other to type Super or Hyper
-    ;; (setq w32-pass-lwindow-to-system nil)
-    (setq w32-lwindow-modifier 'super     ; Left Windows key
-          w32-apps-modifier 'hyper)       ; Menu/App key
-    (w32-register-hot-key [s-t]))
-   ((and sys/macp (eq window-system 'mac))
-    ;; Compatible with Emacs Mac port
-    (setq mac-option-modifier 'meta
-          mac-command-modifier 'super)
-    (bind-keys ([(super a)] . mark-whole-buffer)
-               ([(super c)] . kill-ring-save)
-               ([(super l)] . goto-line)
-               ([(super q)] . save-buffers-kill-emacs)
-               ([(super s)] . save-buffer)
-               ([(super v)] . yank)
-               ([(super w)] . delete-frame)
-               ([(super z)] . undo)))))
 
 
 ;; Encoding
@@ -119,7 +98,7 @@
 
 (use-package simple
   :ensure nil
-  :hook ((window-setup . size-indication-mode)
+  :hook ((after-init . size-indication-mode)
          ((prog-mode markdown-mode conf-mode) . enable-trailing-whitespace))
   :init (setq column-number-mode t
               line-number-mode t
@@ -138,22 +117,37 @@
 
 ;; Mouse & Smooth Scroll
 ;; Scroll one line at a time (less "jumpy" than defaults)
-;; SmoothScroll
-;; Vertical Scroll
 
-(when (display-graphic-p)
+(when sys/gui
   (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
         mouse-wheel-progressive-speed nil))
 (setq scroll-step 1
       scroll-margin 0
       scroll-conservatively 100000)
 
-
+;;
 ;; Misc
-(setq-default fill-column 80)
+;;
+
+;; Don't lock files
+(setq-default create-lockfiles nil)
 (fset 'yes-or-no-p 'y-or-n-p)
+(setq-default marjor-mode 'text-mode
+	     fill-column 80
+	     tab-width 4
+	     indent-tabs-mode nil) ;; Permanently indent with spaces, never with TABs
+
 (setq visible-bell t
-      inhibit-compacting-font-caches t) ; Don’t compact font caches during GC.
+      inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
+      delete-by-moving-to-trash t       ; Deleting files go to OS's trash folder
+      make-backup-files nil             ; Forbide to make backup files
+      ;;auto-save-default nil             ; Disable auto save
+
+      uniquify-buffer-name-style 'post-forward-angle-brackets ; Show path if names are same
+      adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
+      adaptive-fill-first-line-regexp "^* *$"
+      sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
+      sentence-end-double-space nil)
 
 ;; Fullscreen
 ;; WORKAROUND: To address blank screen issue with child-frame in fullscreen
@@ -166,6 +160,6 @@
            ("M-S-<return>" . toggle-frame-fullscreen))
 
 
-(provide 'init-base)
+(provide 'init-basic)
 
 ;;init-base.el ends here
