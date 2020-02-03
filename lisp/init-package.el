@@ -22,7 +22,8 @@
 (setq package-archives '(("gnu"          . "http://elpa.emacs-china.org/gnu/")
 			             ("melpa"        . "http://elpa.emacs-china.org/melpa/")
 			             ("org"          . "http://elpa.emacs-china.org/org/")
-			             ("melpa-stable" . "http://elpa.emacs-china.org/melpa-stable/")))
+			             ("melpa-stable" . "http://elpa.emacs-china.org/melpa-stable/")
+                                     ("cselpa" . "https://elpa.thecybershadow.net/packages/")))
 
 ;; Initialize packages
 (unless (bound-and-true-p package--initialized) ; To avoid warnings in 27

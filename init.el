@@ -103,9 +103,8 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-window)
 (require 'init-treemacs)
 
-(require 'init-eshell)
-(require 'init-shell)
 
+(require 'init-aweshell)
 (require 'init-markdown)
 (require 'init-org)
 (require 'init-utils)
