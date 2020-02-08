@@ -22,7 +22,9 @@
   :hook ((markdown-mode . flyspell-mode)
          (markdown-mode . auto-fill-mode)
          (markdown-mode . flycheck-enable-markdownlint))
-  :mode (("README\\.md\\'" . gfm-mode))
+  :mode  (("README\\.md\\'" . gfm-mode)
+          ("\\.md\\'" . markdown-mode)
+          ("\\.markdown\\'" . markdown-mode))
   :init
   (setq markdown-enable-wiki-links t
         markdown-italic-underscore t

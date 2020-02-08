@@ -72,7 +72,7 @@
         ("m" diff-hl-margin-mode "margin gutter" :toggle t)
         ("D" diff-hl-dired-mode "dired gutter" :toggle t))
        "Theme"
-      (("t d" (t_fighting-load-theme 'default) "default"
+       (("t d" (t_fighting-load-theme 'default) "default"
          :toggle (eq t_fighting-theme 'default))
         ("t c" (t_fighting-load-theme 'classic) "classic"
          :toggle (eq t_fighting-theme 'classic))
@@ -100,7 +100,7 @@
                          :caller 'counsel-load-theme)
          "others" :toggle (not (assoc t_fighting-theme t_fighting-theme-alist))))
 
-      ))))
+       ))))
 
 (provide 'init-hydra)
 

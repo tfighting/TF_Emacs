@@ -219,9 +219,9 @@
 (use-package diffview)                  ; side-by-side diff view
 (use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
-(use-package list-environment)
+(use-package list-environment)          ; List all enviroment varialbe.
 (use-package memory-usage)
-(use-package tldr)
+(use-package ztree)                     ; show files like tree
 
 (provide 'init-utils)
 

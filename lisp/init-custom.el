@@ -73,15 +73,6 @@ If Non-nil, use dashboard, otherwise will restore previous session."
   :group 't_fighting
   :type 'boolean)
 
-(defcustom t_fighting-lsp 'lsp-mode
-  "Set language server."
-  :group 't_fighting
-  :type '(choice
-          (const :tag "LSP Mode" 'lsp-mode)
-          (const :tag "eglot" 'eglot)
-          nil))
-
-
 (defcustom t_fighting-prettify-symbols-alist
   '(("lambda" . ?λ)
     ("<-" . ?←)

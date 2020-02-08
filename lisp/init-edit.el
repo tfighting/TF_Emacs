@@ -10,8 +10,6 @@
 (eval-when-compile
   (require 'init-const))
 
-
-;; Automatic save
 (use-package auto-save
   :ensure nil
   :load-path (lambda () (expand-file-name "site-lisp/auto-save" user-emacs-directory))
@@ -20,7 +18,7 @@
   (auto-save-enable)
 
 
-  ;; (setq auto-save-silent nil)   ; quietly save
+  (setq auto-save-silent t)   ; quietly save
   (setq auto-save-delete-trailing-whitespace t))  ; automatically delete spaces at the end of the line when saving
 
 ;; Automatic parenthesis pairing
@@ -246,6 +244,20 @@
 ;; Goto last change
 (use-package goto-last-change
   :bind ("s-," . goto-last-change))
+
+;; Handling capitalized subwords in a nomenclature
+(use-package subword
+  :ensure nil
+  :diminish
+  :hook ((prog-mode . subword-mode)
+         (minibuffer-setup . subword-mode)))
+
+;; Hideshow
+(use-package hideshow
+  :ensure nil
+  :diminish hs-minor-mode
+  :bind (:map hs-minor-mode-map
+         ("C-`" . hs-toggle-hiding)))
 
 
 ;; Flexible text folding

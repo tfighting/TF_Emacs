@@ -92,7 +92,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-search)
 (require 'init-company)
 (require 'init-yasnippet)
-
+(require 'init-eaf)
 (require 'init-dashboard)
 (require 'init-dired)
 
@@ -120,3 +120,6 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-elisp)
 (require 'init-python)
 (require 'init-prog)
+
+;; Happy Games
+(require 'init-games)

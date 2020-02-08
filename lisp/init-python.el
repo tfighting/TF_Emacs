@@ -18,8 +18,8 @@
 (use-package python
   :ensure nil
   :hook (inferior-python-mode . (lambda ()
-                                       (process-query-on-exit-flag
-                                        (get-process "Python"))))
+                                  (process-query-on-exit-flag
+                                   (get-process "Python"))))
   :init
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil)
@@ -35,13 +35,7 @@
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
   ;; Live Coding in Python
-  (use-package live-py-mode)
-
-  ;; Format using YAPF
-  ;; Install: pip install yapf
-  (use-package yapfify
-    :diminish yapf-mode
-    :hook (python-mode . yapf-mode)))
+  (use-package live-py-mode))
 
 
 

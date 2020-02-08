@@ -44,7 +44,7 @@
   (setq pyim-page-tooltip 'posframe)
 
   ;; 选词框显示5个候选词
-  (setq pyim-page-length 5)
+  (setq pyim-page-length 8)
 
   :bind
   (("M-j" . pyim-convert-string-at-point)))
