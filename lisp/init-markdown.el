@@ -19,8 +19,7 @@
                              (locate-dominating-file md-file md-lint))))
       (setq-local flycheck-markdown-markdownlint-cli-config
                   (concat md-lint-dir md-lint))))
-  :hook ((markdown-mode . flyspell-mode)
-         (markdown-mode . auto-fill-mode)
+  :hook ((markdown-mode . auto-fill-mode)
          (markdown-mode . flycheck-enable-markdownlint))
   :mode  (("README\\.md\\'" . gfm-mode)
           ("\\.md\\'" . markdown-mode)

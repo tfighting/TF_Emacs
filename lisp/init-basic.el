@@ -93,8 +93,8 @@
 (use-package time
   :ensure nil
   :hook (after-init . display-time-mode)
-  :init (setq display-time-24hr-format t
-              display-time-day-and-date t))
+  :init (setq display-time-24hr-format nil
+              display-time-day-and-date nil))
 
 (use-package simple
   :ensure nil

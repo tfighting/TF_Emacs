@@ -85,16 +85,19 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-funcs)
 (require 'init-fonts)
 (require 'init-hydra)
-
 (require 'init-ui)
 (require 'init-edit)
 (require 'init-ivy)
-(require 'init-search)
 (require 'init-company)
 (require 'init-yasnippet)
-(require 'init-eaf)
 (require 'init-dashboard)
 (require 'init-dired)
+
+;; customize
+(require 'init-search)
+(require 'init-eaf)
+(require 'init-awesome-tab)
+(require 'init-aweshell)
 
 (require 'init-highlight)
 (require 'init-ibuffer)
@@ -102,9 +105,6 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-persp)
 (require 'init-window)
 (require 'init-treemacs)
-
-
-(require 'init-aweshell)
 (require 'init-markdown)
 (require 'init-org)
 (require 'init-utils)

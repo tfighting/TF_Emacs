@@ -43,7 +43,6 @@
         ("a" aggressive-indent-mode "aggressive indent" :toggle t)
         ("h" hungry-delete-mode "hungry delete" :toggle t)
         ("e" electric-pair-mode "electric pair" :toggle t)
-        ("c" flyspell-mode "spell check" :toggle t)
         ("S" prettify-symbols-mode "pretty symbol" :toggle t)
         ("L" page-break-lines-mode "page break lines" :toggle t)
         ("M" doom-modeline-mode "modern mode-line" :toggle t))

@@ -8,7 +8,7 @@
 ;; Code
 
 
-
+;; Search some files/variable etc. in the current project.
 (use-package color-rg
   :load-path (lambda () (expand-file-name "site-lisp/color-rg" user-emacs-directory))
   :if (executable-find "rg")
