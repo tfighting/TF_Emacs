@@ -16,7 +16,9 @@
   :commands (aweshell-new aweshell-dedicated-open)
   :bind
   (("M-#" . aweshell-dedicated-open)
-   (:map eshell-mode-map ("M-#" . aweshell-dedicated-close))))
+   (:map eshell-mode-map ("M-#" . aweshell-dedicated-close)))
+  :config
+  (defalias 'aweshell 'aweshell-new))
 
 ;; `cd' to frequent directory in `eshell',similarity to jump-mode of zsh.
 (use-package eshell-z

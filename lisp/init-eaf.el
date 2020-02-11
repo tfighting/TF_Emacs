@@ -40,6 +40,5 @@
 
 
 
-
 (provide 'init-eaf)
 ;;; init-eaf.el ends here.

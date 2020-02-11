@@ -74,8 +74,8 @@ FACE defaults to inheriting from default and highlight."
   :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
   :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
   :bind (("M-i" . symbol-overlay-put)
-         ("M-n" . symbol-overlay-jump-next)
-         ("M-p" . symbol-overlay-jump-prev)
+         ("M-}" . symbol-overlay-jump-next)
+         ("M-{" . symbol-overlay-jump-prev)
          ("M-N" . symbol-overlay-switch-forward)
          ("M-P" . symbol-overlay-switch-backward)
          ("M-C" . symbol-overlay-remove-all)
@@ -192,10 +192,10 @@ FACE defaults to inheriting from default and highlight."
 ;; Highlight TODO and similar keywords in comments and strings
 (use-package hl-todo
   :bind (:map hl-todo-mode-map
-              ([C-f3] . hl-todo-occur)
-              ("C-c t p" . hl-todo-previous)
-              ("C-c t n" . hl-todo-next)
-              ("C-c t o" . hl-todo-occur))
+         ([C-f3] . hl-todo-occur)
+         ("C-c t p" . hl-todo-previous)
+         ("C-c t n" . hl-todo-next)
+         ("C-c t o" . hl-todo-occur))
   :hook (after-init . global-hl-todo-mode)
   :config
   (dolist (keyword '("BUG" "DEFECT" "ISSUE"))

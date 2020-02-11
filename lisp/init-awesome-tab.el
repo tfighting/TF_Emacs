@@ -29,17 +29,18 @@
 
     "Switch Group"
     (("b g" awesome-tab-backward-group "backward group" :exit nil)
-     ("b f" awesome-tab-forward-group "forward group" :exit nil))
+     ("b f" awesome-tab-forward-group "forward group" :exit nil)
+     ("t g" awesome-tab-switch-group "switch group" :exit nil))
 
     "Kill Buffer"
-    (("k c" awesome-tab-kill-other-buffers-in-current-group "kill current buffer" :exit t)
-     ("k a" awesome-tab-kill-all-buffers-in-current-group　"kill all buffers" :exit t))))
-  :bind ("C-<f7>" . awesome-tab-hydra/body)
+    (("k c" kill-current-buffer "kill current buffer" :exit t)
+     ("k o" awesome-tab-kill-other-buffers-in-current-group "kill other buffer" :exit t)
+     ("k a" awesome-tab-kill-all-buffers-in-current-group "kill all buffers" :exit t))))
+  :bind (("C-<f7>" . awesome-tab-hydra/body)
+         ("C-i" . awesome-tab-ace-jump))
   :config
   (when (not (display-graphic-p))
-    (setq frame-background-mode 'dark))
-  )
+    (setq frame-background-mode 'dark)))
 
-
-(provide 'init-awesome-tab)
+  (provide 'init-awesome-tab)
 ;;; init-awesome-tab.el ends here.

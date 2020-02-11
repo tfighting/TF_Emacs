@@ -31,7 +31,6 @@
                                 (?D defun-name     " ")
                                 (?e line           "\n")
                                 (?b buffer-file-name)
-
                                 (?^ backward-line-edge "")
                                 (?$ forward-line-edge "")
                                 (?h buffer "")

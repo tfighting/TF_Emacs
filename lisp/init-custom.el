@@ -11,9 +11,10 @@
 
 ;; Unbind unnecessary keys
 (global-set-key (kbd "C-z") nil)
+(global-set-key (kbd "C-j") nil) ;; Insert newline
 ;; Move up/down paragraph
-(global-set-key (kbd "s-n") #'forward-paragraph)
-(global-set-key (kbd "s-p") #'backward-paragraph)
+(global-set-key (kbd "M-n") #'forward-paragraph)
+(global-set-key (kbd "M-p") #'backward-paragraph)
 ;; Persional information
 (defgroup t_fighting nil
   "Centaur Emacs customizations."

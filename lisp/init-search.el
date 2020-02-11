@@ -7,6 +7,10 @@
 
 ;; Code
 
+;; A fuzzy match tool
+;; git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+;; ~/.fzf/install
+(use-package fzf)
 
 ;; Search some files/variable etc. in the current project.
 (use-package color-rg
@@ -16,13 +20,21 @@
 
 
 (use-package snails
-  :load-path (lambda () (expand-file-name "site-elisp/snails/" user-emacs-directory))
+  :load-path (lambda () (expand-file-name "site-lisp/snails" user-emacs-directory))
   :if (display-graphic-p)
   :custom-face
   (snails-content-buffer-face ((t (:background "#111" :height 110))))
   (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
   (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
   :config
+  (use-package exec-path-from-shell
+    :if (featurep 'cocoa))
+
+  ;; Install fuz.el, the download page:https://apt.llvm.org/
+  ;; sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+  ;; sudo apt install clang
+  ;; some fuz configuration
+  ;;(add-to-list 'load-path (expand-file-name "site-lisp/fuz" user-emacs-directory))
   ;; Functions for specific backends
   (defun snails-current-project ()
     (interactive)

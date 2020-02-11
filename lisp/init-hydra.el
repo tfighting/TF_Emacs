@@ -59,7 +59,6 @@
        "Coding"
        (("f" flycheck-mode "flycheck" :toggle t)
         ("F" flymake-mode "flymake" :toggle t)
-        ("o" origami-mode "folding" :toggle t)
         ("O" hs-minor-mode "hideshow" :toggle t)
         ("u" subword-mode "subword" :toggle t)
         ("W" which-function-mode "which function" :toggle t)

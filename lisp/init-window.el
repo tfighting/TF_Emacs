@@ -7,7 +7,8 @@
 
 ;;; Code:
 
-                                        ; Directional window-selection routines
+
+;; Directional window-selection routines
 (use-package windmove
   :ensure nil
   :hook (after-init . windmove-default-keybindings))
