@@ -37,7 +37,7 @@
 
 
 (use-package term-keys
-  :if (not sys/gui)
+  :if (not *sys/gui*)
   :config (term-keys-mode t))
 
 

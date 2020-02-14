@@ -28,7 +28,7 @@
     :custom-face (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
     :pretty-hydra
     ((:title (pretty-hydra-title "Dashboard" 'material "dashboard" :height 1.1 :v-adjust -0.225)
-      :color pink :quit-key "q")
+             :color pink :quit-key "q")
      ("Navigator"
       (("U" update-all-packages "update" :exit t)
        ("H" browse-homepage "homepage" :exit t)
@@ -85,45 +85,42 @@
 
           dashboard-set-footer t
           dashboard-footer (format "T_Fighting, %s" (format-time-string "%Y"))
-          dashboard-footer-icon (cond ((display-graphic-p)
-                                       (all-the-icons-faicon "heart"
-                                                             :height 1.1
-                                                             :v-adjust -0.05
-                                                             :face 'error))
+          dashboard-footer-icon (cond (*sys/gui*                                       (all-the-icons-faicon "heart"
+                                                                                                               :height 1.1
+                                                                                                               :v-adjust -0.05
+                                                                                                               :face 'error))
                                       ((char-displayable-p ?🧡) "🧡 ")
                                       (t (propertize ">" 'face 'font-lock-doc-face)))
 
           dashboard-set-navigator t
           dashboard-navigator-buttons
-          `(((,(when (display-graphic-p)
-                 (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
+          `(((,(when *sys/gui*                 (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
               "Homepage"
               "Browse homepage"
-              (lambda (&rest _) (browse-url t_fighting-homepage)))
-
+              (lambda (&rest _) (browse-url *t_fighting-homepage*)))
              ;; display previous session
-             (,(when sys/gui
+             (,(when *sys/gui*
                  (all-the-icons-material "restore" :height 1.35 :v-adjust -0.24))
               "Restore"
               "Restore previous session"
               (lambda (&rest _) (restore-session)))
 
              ;; display custom file
-             (,(when sys/gui
+             (,(when *sys/gui*
                  (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
               "Settings"
               "Open custom file"
               (lambda (&rest _) (find-file custom-file)))
 
              ;; display update packages
-             (,(when sys/gui
+             (,(when *sys/gui*
                  (all-the-icons-material "update" :height 1.35 :v-adjust -0.24))
               "Update"
               "Update T_fighting Emacs"
               (lambda (&rest _) (t_fighting-update-all-packages)))
 
              ;; display help
-             (,(if sys/gui
+             (,(if *sys/gui*
                    (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
                  "?")
               "" "Help (?/h)"

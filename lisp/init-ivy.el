@@ -103,12 +103,11 @@
         counsel-yank-pop-separator "\n────────\n")
 
   ;; Use the faster search tool: ripgrep (`rg')
-  (when (executable-find "rg")
+  (when *rg*
     (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never %s %s")
-    (when (and sys/macp (executable-find "gls"))
-      (setq counsel-find-file-occur-use-find nil
-            counsel-find-file-occur-cmd
-            "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first")))
+    (when (and *sys/mac* (executable-find "gls"))      (setq counsel-find-file-occur-use-find nil
+                                                             counsel-find-file-occur-cmd
+                                                             "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first")))
   :config
   (with-no-warnings
     ;; Display an arrow with the selected item
@@ -116,8 +115,7 @@
       "Transform CANDS into a string for minibuffer."
       (ivy--format-function-generic
        (lambda (str)
-         (concat (if (display-graphic-p)
-                     (all-the-icons-octicon "chevron-right" :height 0.8 :v-adjust -0.05)
+         (concat (if *sys/gui*                    (all-the-icons-octicon "chevron-right" :height 0.8 :v-adjust -0.05)
                    ">")
                  (propertize " " 'display `(space :align-to 2))
                  (ivy--add-face str 'ivy-current-match)))
@@ -406,12 +404,10 @@ This is for use in `ivy-re-builders-alist'."
 
   ;; Quick launch apps
   (cond
-   (sys/linux-x-p
-    (bind-key "s-<f6>" #'counsel-linux-app counsel-mode-map))
-   (sys/macp
-    (use-package counsel-osx-app
-      :bind (:map counsel-mode-map
-             ("s-<f6>" . counsel-osx-app)))))
+   (*sys/linux-gui*    (bind-key "s-<f6>" #'counsel-linux-app counsel-mode-map))
+   (*sys/mac*    (use-package counsel-osx-app
+                   :bind (:map counsel-mode-map
+                          ("s-<f6>" . counsel-osx-app)))))
 
   ;; Display world clock using Ivy
   (use-package counsel-world-clock
@@ -490,143 +486,125 @@ This is for use in `ivy-re-builders-alist'."
 
     (defun ivy-rich-buffer-icon (candidate)
       "Display buffer icons in `ivy-rich'."
-      (when (display-graphic-p)
-        (let* ((buffer (get-buffer candidate))
-               (buffer-file-name (buffer-file-name buffer))
-               (major-mode (buffer-local-value 'major-mode buffer))
-               (icon (with-current-buffer buffer (all-the-icons-icon-for-buffer))))
-          (if (symbolp icon)
-              (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
-            icon))))
+      (when *sys/gui*        (let* ((buffer (get-buffer candidate))
+                                      (buffer-file-name (buffer-file-name buffer))
+                                      (major-mode (buffer-local-value 'major-mode buffer))
+                                      (icon (with-current-buffer buffer (all-the-icons-icon-for-buffer))))
+                                 (if (symbolp icon)
+                                     (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
+                                   icon))))
 
     (defun ivy-rich-file-icon (candidate)
       "Display file icons in `ivy-rich'."
-      (when (display-graphic-p)
-        (let* ((path (concat ivy--directory candidate))
-               (file (file-name-nondirectory path))
-               (icon (cond
-                      ((file-directory-p path)
-                       (all-the-icons-icon-for-dir path nil ""))
-                      ((string-match "^/.*:$" path)
-                       (all-the-icons-octicon "radio-tower" :height 1.0 :v-adjust 0.01))
-                      ((not (string-empty-p file))
-                       (all-the-icons-icon-for-file file :v-adjust -0.05)))))
-          (if (symbolp icon)
-              (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
-            icon))))
+      (when *sys/gui*        (let* ((path (concat ivy--directory candidate))
+                                      (file (file-name-nondirectory path))
+                                      (icon (cond
+                                             ((file-directory-p path)
+                                              (all-the-icons-icon-for-dir path nil ""))
+                                             ((string-match "^/.*:$" path)
+                                              (all-the-icons-octicon "radio-tower" :height 1.0 :v-adjust 0.01))
+                                             ((not (string-empty-p file))
+                                              (all-the-icons-icon-for-file file :v-adjust -0.05)))))
+                                 (if (symbolp icon)
+                                     (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
+                                   icon))))
 
     (defun ivy-rich-project-icon (_candidate)
       "Display project icons in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-octicon "file-directory" :height 1.0 :v-adjust 0.01)))
+      (when *sys/gui*        (all-the-icons-octicon "file-directory" :height 1.0 :v-adjust 0.01)))
 
     (defun ivy-rich-mode-icon (_candidate)
       "Display mode icons in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-faicon "cube" :height 0.95 :v-adjust -0.05 :face 'all-the-icons-blue)))
+      (when *sys/gui*        (all-the-icons-faicon "cube" :height 0.95 :v-adjust -0.05 :face 'all-the-icons-blue)))
 
     (defun ivy-rich-function-icon (_candidate)
       "Display function icons in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-faicon "cube" :height 0.95 :v-adjust -0.05 :face 'all-the-icons-purple)))
+      (when *sys/gui*        (all-the-icons-faicon "cube" :height 0.95 :v-adjust -0.05 :face 'all-the-icons-purple)))
 
     (defun ivy-rich-variable-icon (_candidate)
       "Display the variable icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-octicon "tag" :height 0.95 :v-adjust 0 :face 'all-the-icons-lblue)))
+      (when *sys/gui*        (all-the-icons-octicon "tag" :height 0.95 :v-adjust 0 :face 'all-the-icons-lblue)))
 
     (defun ivy-rich-symbol-icon (_candidate)
       "Display the symbol icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-octicon "gear" :height 0.9 :v-adjust -0.05)))
+      (when *sys/gui*        (all-the-icons-octicon "gear" :height 0.9 :v-adjust -0.05)))
 
     (defun ivy-rich-theme-icon (_candidate)
       "Display the theme icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-material "palette" :height 1.0 :v-adjust -0.2)))
+      (when *sys/gui*        (all-the-icons-material "palette" :height 1.0 :v-adjust -0.2)))
 
     (defun ivy-rich-keybinding-icon (_candidate)
       "Display the keybindings icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-material "keyboard" :height 0.9 :v-adjust -0.15)))
+      (when *sys/gui*        (all-the-icons-material "keyboard" :height 0.9 :v-adjust -0.15)))
 
     (defun ivy-rich-library-icon (_candidate)
       "Display the library icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-material "view_module" :height 1.0 :v-adjust -0.225 :face 'all-the-icons-lblue)))
+      (when *sys/gui*        (all-the-icons-material "view_module" :height 1.0 :v-adjust -0.225 :face 'all-the-icons-lblue)))
 
     (defun ivy-rich-package-icon (_candidate)
       "Display the package icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-faicon "archive" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-silver)))
+      (when *sys/gui*        (all-the-icons-faicon "archive" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-silver)))
 
     (defun ivy-rich-font-icon (_candidate)
       "Display the font icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-faicon "font" :height 0.85 :v-adjust -0.05 :face 'all-the-icons-lblue)))
+      (when *sys/gui*        (all-the-icons-faicon "font" :height 0.85 :v-adjust -0.05 :face 'all-the-icons-lblue)))
 
     (defun ivy-rich-world-clock-icon (_candidate)
       "Display the world clock icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-faicon "globe" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-lblue)))
+      (when *sys/gui*        (all-the-icons-faicon "globe" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-lblue)))
 
     (defun ivy-rich-tramp-icon (_candidate)
       "Display the tramp icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-octicon "radio-tower" :height 0.9 :v-adjust 0.01)))
+      (when *sys/gui*        (all-the-icons-octicon "radio-tower" :height 0.9 :v-adjust 0.01)))
 
     (defun ivy-rich-git-branch-icon (_candidate)
       "Display the git branch icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-octicon "git-branch" :height 1.0 :v-adjust -0.05 :face 'all-the-icons-green)))
+      (when *sys/gui*       (all-the-icons-octicon "git-branch" :height 1.0 :v-adjust -0.05 :face 'all-the-icons-green)))
 
     (defun ivy-rich-process-icon (_candidate)
       "Display the process icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (all-the-icons-faicon "bolt" :height 1.0 :v-adjust -0.05 :face 'all-the-icons-lblue)))
+      (when *sys/gui*        (all-the-icons-faicon "bolt" :height 1.0 :v-adjust -0.05 :face 'all-the-icons-lblue)))
 
     (defun ivy-rich-imenu-icon (candidate)
       "Display the imenu icon in `ivy-rich'."
-      (when (display-graphic-p)
-        (let ((case-fold-search nil))
-          (cond
-           ((string-match-p "Type Parameters?[:)]" candidate)
-            (all-the-icons-faicon "arrows" :height 0.85 :v-adjust -0.05))
-           ((string-match-p "\\(Variables?\\)\\|\\(Fields?\\)\\|\\(Parameters?\\)[:)]" candidate)
-            (all-the-icons-octicon "tag" :height 0.95 :v-adjust 0 :face 'all-the-icons-lblue))
-           ((string-match-p "Constants?[:)]" candidate)
-            (all-the-icons-faicon "square-o" :height 0.95 :v-adjust -0.15))
-           ((string-match-p "Enum\\(erations?\\)?[:)]" candidate)
-            (all-the-icons-material "storage" :height 0.95 :v-adjust -0.2 :face 'all-the-icons-orange))
-           ((string-match-p "References?[:)]" candidate)
-            (all-the-icons-material "collections_bookmark" :height 0.95 :v-adjust -0.2))
-           ((string-match-p "\\(Types?\\)\\|\\(Property\\)[:)]" candidate)
-            (all-the-icons-faicon "wrench" :height 0.9 :v-adjust -0.05))
-           ((string-match-p "\\(Functions?\\)\\|\\(Methods?\\)\\|\\(Constructors?\\)[:)]" candidate)
-            (all-the-icons-faicon "cube" :height 0.95 :v-adjust -0.05 :face 'all-the-icons-purple))
-           ((string-match-p "\\(Class\\)\\|\\(Structs?\\)[:)]" candidate)
-            (all-the-icons-material "settings_input_component" :height 0.9 :v-adjust -0.15 :face 'all-the-icons-orange))
-           ((string-match-p "Interfaces?[:)]" candidate)
-            (all-the-icons-material "share" :height 0.95 :v-adjust -0.2 :face 'all-the-icons-lblue))
-           ((string-match-p "Modules?[:)]" candidate)
-            (all-the-icons-material "view_module" :height 0.95 :v-adjust -0.15 :face 'all-the-icons-lblue))
-           ((string-match-p "Packages?[:)]" candidate)
-            (all-the-icons-faicon "archive" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-silver))
-           (t (all-the-icons-material "find_in_page" :height 0.9 :v-adjust -0.125))))))
+      (when *sys/gui*        (let ((case-fold-search nil))
+                                 (cond
+                                  ((string-match-p "Type Parameters?[:)]" candidate)
+                                   (all-the-icons-faicon "arrows" :height 0.85 :v-adjust -0.05))
+                                  ((string-match-p "\\(Variables?\\)\\|\\(Fields?\\)\\|\\(Parameters?\\)[:)]" candidate)
+                                   (all-the-icons-octicon "tag" :height 0.95 :v-adjust 0 :face 'all-the-icons-lblue))
+                                  ((string-match-p "Constants?[:)]" candidate)
+                                   (all-the-icons-faicon "square-o" :height 0.95 :v-adjust -0.15))
+                                  ((string-match-p "Enum\\(erations?\\)?[:)]" candidate)
+                                   (all-the-icons-material "storage" :height 0.95 :v-adjust -0.2 :face 'all-the-icons-orange))
+                                  ((string-match-p "References?[:)]" candidate)
+                                   (all-the-icons-material "collections_bookmark" :height 0.95 :v-adjust -0.2))
+                                  ((string-match-p "\\(Types?\\)\\|\\(Property\\)[:)]" candidate)
+                                   (all-the-icons-faicon "wrench" :height 0.9 :v-adjust -0.05))
+                                  ((string-match-p "\\(Functions?\\)\\|\\(Methods?\\)\\|\\(Constructors?\\)[:)]" candidate)
+                                   (all-the-icons-faicon "cube" :height 0.95 :v-adjust -0.05 :face 'all-the-icons-purple))
+                                  ((string-match-p "\\(Class\\)\\|\\(Structs?\\)[:)]" candidate)
+                                   (all-the-icons-material "settings_input_component" :height 0.9 :v-adjust -0.15 :face 'all-the-icons-orange))
+                                  ((string-match-p "Interfaces?[:)]" candidate)
+                                   (all-the-icons-material "share" :height 0.95 :v-adjust -0.2 :face 'all-the-icons-lblue))
+                                  ((string-match-p "Modules?[:)]" candidate)
+                                   (all-the-icons-material "view_module" :height 0.95 :v-adjust -0.15 :face 'all-the-icons-lblue))
+                                  ((string-match-p "Packages?[:)]" candidate)
+                                   (all-the-icons-faicon "archive" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-silver))
+                                  (t (all-the-icons-material "find_in_page" :height 0.9 :v-adjust -0.125))))))
 
-    (when (display-graphic-p)
-      (defun my-ivy-rich-bookmark-type (candidate)
-        (let ((filename (ivy-rich-bookmark-filename candidate)))
-          (cond ((null filename)
-                 (all-the-icons-material "block" :height 1.0 :v-adjust -0.2 :face 'warning))  ; fixed #38
-                ((file-remote-p filename)
-                 (all-the-icons-octicon "radio-tower" :height 0.9 :v-adjust 0.01))
-                ((not (file-exists-p filename))
-                 (all-the-icons-material "block" :height 1.0 :v-adjust -0.2 :face 'error))
-                ((file-directory-p filename)
-                 (all-the-icons-octicon "file-directory" :height 0.9 :v-adjust -0.05))
-                (t (all-the-icons-icon-for-file (file-name-nondirectory filename) :height 0.9 :v-adjust -0.05)))))
-      (advice-add #'ivy-rich-bookmark-type :override #'my-ivy-rich-bookmark-type)))
+    (when *sys/gui*      (defun my-ivy-rich-bookmark-type (candidate)
+                             (let ((filename (ivy-rich-bookmark-filename candidate)))
+                               (cond ((null filename)
+                                      (all-the-icons-material "block" :height 1.0 :v-adjust -0.2 :face 'warning))  ; fixed #38
+                                     ((file-remote-p filename)
+                                      (all-the-icons-octicon "radio-tower" :height 0.9 :v-adjust 0.01))
+                                     ((not (file-exists-p filename))
+                                      (all-the-icons-material "block" :height 1.0 :v-adjust -0.2 :face 'error))
+                                     ((file-directory-p filename)
+                                      (all-the-icons-octicon "file-directory" :height 0.9 :v-adjust -0.05))
+                                     (t (all-the-icons-icon-for-file (file-name-nondirectory filename) :height 0.9 :v-adjust -0.05)))))
+          (advice-add #'ivy-rich-bookmark-type :override #'my-ivy-rich-bookmark-type)))
 
   (setq ivy-rich-display-transformers-list
         '(ivy-switch-buffer

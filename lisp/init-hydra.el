@@ -22,12 +22,10 @@
             (height (or height 1.0))
             (v-adjust (or v-adjust 0.0)))
         (concat
-         (when (and (display-graphic-p) icon-type icon-name)
-           (let ((f (intern (format "all-the-icons-%s" icon-type))))
-             (when (fboundp f)
-               (concat
-                (apply f (list icon-name :face face :height height :v-adjust v-adjust))
-                " "))))
+         (when (and *sys/gui* icon-type icon-name)           (let ((f (intern (format "all-the-icons-%s" icon-type))))                                                                 (when (fboundp f)
+                                                                                                                                                                                         (concat
+                                                                                                                                                                                          (apply f (list icon-name :face face :height height :v-adjust v-adjust))
+                                                                                                                                                                                          " "))))
          (propertize title 'face face))))
 
     ;; Global toggles

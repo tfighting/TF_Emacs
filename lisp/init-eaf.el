@@ -9,11 +9,14 @@
 ;; Code
 ;;
 
+(eval-when-compile
+  (require 'init-const))
+
 (use-package eaf
-  :ensure nil
-  :load-path (lambda () (expand-file-name "site-lisp" user-emacs-directory))
+  :load-path (lambda () (expand-file-name "site-lisp/emacs-application-framework" user-emacs-directory))
   :init
   (require 'eaf)
+  :if *sys/gui*
   :custom
   (eaf-find-alternate-file-in-dired t)
   (browse-url-browser-function 'eaf-open-browser) ;; Make EAF Browser my default browser.

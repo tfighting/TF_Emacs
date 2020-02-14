@@ -119,8 +119,7 @@ Same as `replace-string C-q C-m RET RET'."
 (defun browse-homepage ()
   "Browse the Github page of T_Fighting Emacs."
   (interactive)
-  (browse-url t_fighting-homepage))
-
+  (browse-url *t_fighting-homepage*))
 ;; Open custom file
 (defun open-custom-file()
   "Open custom.el if exists, otherwise create it."

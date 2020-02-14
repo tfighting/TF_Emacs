@@ -11,7 +11,6 @@
 
 ;; Unbind unnecessary keys
 (global-set-key (kbd "C-z") nil)
-(global-set-key (kbd "C-j") nil) ;; Insert newline
 ;; Move up/down paragraph
 (global-set-key (kbd "M-n") #'forward-paragraph)
 (global-set-key (kbd "M-p") #'backward-paragraph)
@@ -50,14 +49,14 @@
     (day      . doom-acario-light)
     (night    . doom-city-lights))
   "The color theme list."
-  :group 'centaur
+  :group 't_fighting
   :type '(alist :key-type (symbol :tag "Theme name")
                 :value-type (symbol :tag "Internal theme name")))
 
 
 (defcustom t_fighting-theme 'default
   "Set color theme."
-  :group 'centaur
+  :group 't_fighting
   :type `(choice ,@(mapcar
                     (lambda (item)
                       (let ((name (car item)))

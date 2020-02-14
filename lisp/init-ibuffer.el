@@ -22,8 +22,7 @@
   (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold)))
 
   ;; Display buffer icons on GUI
-  (when (display-graphic-p)
-    ;; For alignment, the size of the name field should be the width of an icon
+  (when *sys/gui*    ;; For alignment, the size of the name field should be the width of an icon
     (define-ibuffer-column icon (:name "  ")
       (let ((icon (if (and (buffer-file-name)
                            (all-the-icons-auto-mode-match?))
@@ -33,8 +32,7 @@
             (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
           icon)))
 
-    (setq ibuffer-formats `((mark modified read-only ,(if emacs/>=26p 'locked "")
-                                  ;; Here you may adjust by replacing :right with :center or :left
+    (setq ibuffer-formats `((mark modified read-only ,(if *emacs/>=26p* 'locked "")                                  ;; Here you may adjust by replacing :right with :center or :left
                                   ;; According to taste, if you want the icon further from the name
                                   " " (icon 2 2 :left :elide)
                                   ,(propertize " " 'display `(space :align-to 8))
@@ -63,13 +61,12 @@
                           (ibuffer-do-sort-by-alphabetic)))))
     :config
     (setq ibuffer-projectile-prefix
-          (if (display-graphic-p)
-              (concat
-               (all-the-icons-octicon "file-directory"
-                                      :face ibuffer-filter-group-name-face
-                                      :v-adjust -0.05
-                                      :height 1.25)
-               " ")
+          (if *sys/gui*              (concat
+                                        (all-the-icons-octicon "file-directory"
+                                                               :face ibuffer-filter-group-name-face
+                                                               :v-adjust -0.05
+                                                               :height 1.25)
+                                        " ")
             "Project: "))))
 
 (provide 'init-ibuffer)

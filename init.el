@@ -93,7 +93,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-dashboard)
 (require 'init-dired)
 
-;; customize
+;;customize
 (require 'init-search)
 (require 'init-eaf)
 (require 'init-awesome-tab)
@@ -110,7 +110,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-utils)
 (require 'init-pyim)
 
-;;Programming
+;; ;;Programming
 (require 'init-vcs)
 (require 'init-flycheck)
 (require 'init-projectile)

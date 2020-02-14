@@ -48,13 +48,11 @@
       default-process-coding-system '(utf-8 . utf-8))
 
 ;;add system environment
-(when (or sys/mac-x-p sys/linux-x-p)
-  (use-package exec-path-from-shell
-    :init
-    (setq exec-path-from-shell-check-startup-files nil
-          exec-path-from-shell-variables '("PATH" "MANPATH")
-          exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize)))
+(when (or *sys/mac-gui* *sys/linux-gui*)  (use-package exec-path-from-shell                                          :init
+                                            (setq exec-path-from-shell-check-startup-files nil
+                                                  exec-path-from-shell-variables '("PATH" "MANPATH")
+                                                  exec-path-from-shell-arguments '("-l"))
+                                            (exec-path-from-shell-initialize)))
 
 ;; Start server
 (use-package server
@@ -118,9 +116,8 @@
 ;; Mouse & Smooth Scroll
 ;; Scroll one line at a time (less "jumpy" than defaults)
 
-(when sys/gui
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
-        mouse-wheel-progressive-speed nil))
+(when *sys/gui*  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+                       mouse-wheel-progressive-speed nil))
 (setq scroll-step 1
       scroll-margin 0
       scroll-conservatively 100000)
@@ -150,9 +147,7 @@
 
 ;; Fullscreen
 ;; WORKAROUND: To address blank screen issue with child-frame in fullscreen
-(when (and sys/mac-x-p emacs/>=26p)
-  (add-hook 'window-setup-hook (lambda ()
-                                 (setq ns-use-native-fullscreen nil))))
+(when *sys/mac-gui*  (add-hook 'window-setup-hook (lambda ()                                                                      (setq ns-use-native-fullscreen nil))))
 (bind-keys ("C-<f11>" . toggle-frame-fullscreen)
            ("C-s-f" . toggle-frame-fullscreen) ; Compatible with macOS
            ("S-s-<return>" . toggle-frame-fullscreen)

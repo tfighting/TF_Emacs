@@ -11,12 +11,10 @@
   (require 'init-const))
 
 (use-package auto-save
-  :ensure nil
   :load-path (lambda () (expand-file-name "site-lisp/auto-save" user-emacs-directory))
   :init
   (require 'auto-save)
   (auto-save-enable)
-
 
   (setq auto-save-silent t)   ; quietly save
   (setq auto-save-delete-trailing-whitespace t))  ; automatically delete spaces at the end of the line when saving
@@ -30,7 +28,6 @@
 ;; parenthesis operation
 (use-package awesome-pair
   :load-path (lambda () (expand-file-name "site-lisp/awesome-pair" user-emacs-directory))
-
   :bind
   (:map prog-mode-map
    (("C-l" . awesome-pair-jump-out-pair-and-newline)
@@ -164,14 +161,14 @@
   :hook (after-init . global-anzu-mode))
 
 ;; Redefine M-< and M-> for some modes
-(when emacs/>=25.3p
-  (use-package beginend
-    :diminish (beginend-mode beginend-global-mode)
-    :hook (after-init . beginend-global-mode)
-    :config
-    (mapc (lambda (pair)
-            (add-hook (car pair) (lambda () (diminish (cdr pair)))))
-          beginend-modes)))
+
+(use-package beginend
+  :diminish (beginend-mode beginend-global-mode)
+  :hook (after-init . beginend-global-mode)
+  :config
+  (mapc (lambda (pair)
+          (add-hook (car pair) (lambda () (diminish (cdr pair)))))
+        beginend-modes))
 
 ;; An all-in-one comment command to rule them all
 (use-package comment-dwim-2
@@ -246,8 +243,7 @@
 
 
 ;; Open files as another user
-(unless sys/win32p
-  (use-package sudo-edit))
+(unless *sys/win32p*  (use-package sudo-edit))
 
 
 

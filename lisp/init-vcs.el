@@ -20,24 +20,22 @@
          ("C-x M-g" . magit-dispatch)
          ("C-c M-g" . magit-file-popup))
   :config
-  (when sys/win32p
-    (setenv "GIT_ASKPASS" "git-gui--askpass"))
+  (when *sys/win32p*    (setenv "GIT_ASKPASS" "git-gui--askpass"))
 
   (when (fboundp 'transient-append-suffix)
     ;; Add switch: --tags
     (transient-append-suffix 'magit-fetch
-      "-p" '("-t" "Fetch all tags" ("-t" "--tags"))))
+                             "-p" '("-t" "Fetch all tags" ("-t" "--tags"))))
 
   ;; Access Git forges from Magit
   (when (executable-find "cc")
     (use-package forge :demand))
 
   ;; Show TODOs in magit
-  (when emacs/>=25.2p
-    (use-package magit-todos
-      :init
-      (setq magit-todos-nice (if (executable-find "nice") t nil))
-      (magit-todos-mode 1))))
+  (use-package magit-todos
+    :init
+    (setq magit-todos-nice (if (executable-find "nice") t nil))
+    (magit-todos-mode 1)))
 
 ;; Walk through git revisions of a file
 (use-package git-timemachine
@@ -116,13 +114,11 @@
                  (unwind-protect
                      (push (read-event) unread-command-events)
                    (posframe-delete buffer-name))))
-              ((and (fboundp 'pos-tip-show) (display-graphic-p))
-               (pos-tip-show popuped-message))
-              ((fboundp 'lv-message)
-               (lv-message popuped-message)
-               (unwind-protect
-                   (push (read-event) unread-command-events)
-                 (lv-delete-window)))
+              ((and (fboundp 'pos-tip-show) *sys/gui*)               (pos-tip-show popuped-message))              ((fboundp 'lv-message)
+                                                                                                                   (lv-message popuped-message)
+                                                                                                                   (unwind-protect
+                                                                                                                       (push (read-event) unread-command-events)
+                                                                                                                     (lv-delete-window)))
               (t (message "%s" popuped-message)))
         (run-hook-with-args 'git-messenger:after-popup-hook popuped-message)))
     (advice-add #'git-messenger:popup-close :override #'ignore)

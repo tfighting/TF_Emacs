@@ -15,24 +15,21 @@
 (use-package dired
   :ensure nil
   :bind (:map dired-mode-map
-         ("C-c C-p" . wdired-change-to-wdired-mode))
+              ("C-c C-p" . wdired-change-to-wdired-mode))
   :config
   ;; Always delete and copy recursively
   (setq dired-recursive-deletes 'always
         dired-recursive-copies 'always
         dired-dwim-target t)
 
-  (when sys/macp
-    ;; Suppress the warning: `ls does not support --dired'.
+  (when *sys/mac*    ;; Suppress the warning: `ls does not support --dired'.
     (setq dired-use-ls-dired nil)
 
     (when (executable-find "gls")
       ;; Use GNU ls as `gls' from `coreutils' if available.
       (setq insert-directory-program "gls")))
 
-  (when (or (and sys/macp (executable-find "gls"))
-            (and (not sys/macp) (executable-find "ls")))
-
+  (when (or (and *sys/mac* (executable-find "gls"))            (and (not *sys/mac*) (executable-find "ls")))
     ;; Using `insert-directory-program'
     (setq ls-lisp-use-insert-directory-program t)
 
@@ -42,18 +39,18 @@
     ;; Quick sort dired buffers via hydra
     (use-package dired-quick-sort
       :bind (:map dired-mode-map
-             ("S" . hydra-dired-quick-sort/body))))
+                  ("S" . hydra-dired-quick-sort/body))))
 
   ;; Show git info in dired
   (use-package dired-git-info
     :bind (:map dired-mode-map
-           (")" . dired-git-info-mode)))
+                (")" . dired-git-info-mode)))
 
 
   ;; Allow rsync from dired buffers
   (use-package dired-rsync
     :bind (:map dired-mode-map
-           ("C-c C-r" . dired-rsync)))
+                ("C-c C-r" . dired-rsync)))
 
 
   ;; Colourful dired
@@ -97,10 +94,7 @@
     :demand
     :config
     (let ((cmd (cond
-                (sys/mac-x-p "open")
-                (sys/linux-x-p "xdg-open")
-                (sys/win32p "start")
-                (t ""))))
+                (*sys/mac-gui* "open")                (*sys/linux-gui* "xdg-open")                (*sys/win32p* "start")                (t ""))))
       (setq dired-guess-shell-alist-user
             `(("\\.pdf\\'" ,cmd)
               ("\\.docx\\'" ,cmd)

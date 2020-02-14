@@ -5,15 +5,15 @@
 ;;
 ;; Code:
 
+
 (eval-when-compile
   (require 'init-const))
 
-
 (use-package awesome-tab
-  :load-path (lambda () (expand-file-name "site-lisp" user-emacs-directory))
+  :load-path (lambda () (expand-file-name "site-lisp/awesome-tab" user-emacs-directory))
   :hook (after-init . awesome-tab-mode)
   :init
-  (when sys/gui
+  (when *sys/gui*
     (require 'all-the-icons))
   :pretty-hydra
   ((:title (pretty-hydra-title "Awesome-Tab" 'octicon "fold")
@@ -37,10 +37,7 @@
      ("k o" awesome-tab-kill-other-buffers-in-current-group "kill other buffer" :exit t)
      ("k a" awesome-tab-kill-all-buffers-in-current-group "kill all buffers" :exit t))))
   :bind (("C-<f7>" . awesome-tab-hydra/body)
-         ("C-i" . awesome-tab-ace-jump))
-  :config
-  (when (not (display-graphic-p))
-    (setq frame-background-mode 'dark)))
+         ("<f7>" . awesome-tab-ace-jump)))
 
-  (provide 'init-awesome-tab)
-;;; init-awesome-tab.el ends here.
+(provide 'init-awesome-tab)
+;;;init-awesome-tab.el ends here.
