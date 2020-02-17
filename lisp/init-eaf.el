@@ -13,7 +13,7 @@
   (require 'init-const))
 
 (use-package eaf
-  :load-path (lambda () (expand-file-name "site-lisp/emacs-application-framework" user-emacs-directory))
+  :ensure nil
   :init
   (require 'eaf)
   :if *sys/gui*

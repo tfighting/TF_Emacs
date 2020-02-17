@@ -11,7 +11,7 @@
   (require 'init-const))
 
 (use-package auto-save
-  :load-path (lambda () (expand-file-name "site-lisp/auto-save" user-emacs-directory))
+  :ensure nil
   :init
   (require 'auto-save)
   (auto-save-enable)
@@ -27,7 +27,7 @@
 
 ;; parenthesis operation
 (use-package awesome-pair
-  :load-path (lambda () (expand-file-name "site-lisp/awesome-pair" user-emacs-directory))
+  :ensure nil
   :bind
   (:map prog-mode-map
    (("C-l" . awesome-pair-jump-out-pair-and-newline)
@@ -39,7 +39,7 @@
 
 ;; Delete Block
 (use-package delete-block
-  :load-path (lambda () (expand-file-name "site-lisp/delete-block" user-emacs-directory))
+  :ensure nil
   :bind
   (("M-d" . delete-block-forward)
    ("C-<backspace>" . delete-block-backward)

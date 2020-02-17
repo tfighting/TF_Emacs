@@ -22,10 +22,12 @@
             (height (or height 1.0))
             (v-adjust (or v-adjust 0.0)))
         (concat
-         (when (and *sys/gui* icon-type icon-name)           (let ((f (intern (format "all-the-icons-%s" icon-type))))                                                                 (when (fboundp f)
-                                                                                                                                                                                         (concat
-                                                                                                                                                                                          (apply f (list icon-name :face face :height height :v-adjust v-adjust))
-                                                                                                                                                                                          " "))))
+         (when (and *sys/gui* icon-type icon-name)
+           (let ((f (intern (format "all-the-icons-%s" icon-type))))
+             (when (fboundp f)
+               (concat
+                (apply f (list icon-name :face face :height height :v-adjust v-adjust))
+                " "))))
          (propertize title 'face face))))
 
     ;; Global toggles
@@ -39,25 +41,15 @@
                                    display-line-numbers-mode
                                  global-linum-mode))
         ("a" aggressive-indent-mode "aggressive indent" :toggle t)
-        ("h" hungry-delete-mode "hungry delete" :toggle t)
+        ("d" hungry-delete-mode "hungry delete" :toggle t)
         ("e" electric-pair-mode "electric pair" :toggle t)
-        ("S" prettify-symbols-mode "pretty symbol" :toggle t)
-        ("L" page-break-lines-mode "page break lines" :toggle t)
-        ("M" doom-modeline-mode "modern mode-line" :toggle t))
+        ("s" prettify-symbols-mode "pretty symbol" :toggle t)
+        ("l" page-break-lines-mode "page break lines" :toggle t)
+        ("b" display-battery-mode "battery" :toggle t)
+        ("m" doom-modeline-mode "modern mode-line" :toggle t))
        "Highlight"
-       (("l" global-hl-line-mode "line" :toggle t)
-        ("P" show-paren-mode "paren" :toggle t)
-        ("s" symbol-overlay-mode "symbol" :toggle t)
-        ("r" rainbow-mode "rainbow" :toggle t)
-        ("w" (setq show-trailing-whitespace (not show-trailing-whitespace))
-         "whitespace" :toggle show-trailing-whitespace)
-        ("d" rainbow-delimiters-mode "delimiter" :toggle t)
-        ("i" highlight-indent-guides-mode "indent" :toggle t)
-        ("T" hl-todo-mode "todo" :toggle t))
-       "Coding"
-       (("f" flycheck-mode "flycheck" :toggle t)
-        ("F" flymake-mode "flymake" :toggle t)
-        ("O" hs-minor-mode "hideshow" :toggle t)
+       (("h l" global-hl-line-mode "line" :toggle t)
+        ("h p" show-paren-mode "paren" :toggle t)
         ("u" subword-mode "subword" :toggle t)
         ("W" which-function-mode "which function" :toggle t)
         ("E" toggle-debug-on-error "debug on error" :toggle (default-value 'debug-on-error))
@@ -65,7 +57,7 @@
        "Version Control"
        (("v" diff-hl-mode "gutter" :toggle t)
         ("V" diff-hl-flydiff-mode "live gutter" :toggle t)
-        ("m" diff-hl-margin-mode "margin gutter" :toggle t)
+        ("M" diff-hl-margin-mode "margin gutter" :toggle t)
         ("D" diff-hl-dired-mode "dired gutter" :toggle t))
        "Theme"
        (("t d" (t_fighting-load-theme 'default) "default"

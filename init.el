@@ -73,14 +73,14 @@ decrease this. If you experience stuttering, increase this.")
 ;;Constants
 (require 'init-const)
 
-;;Customization
+;; ;;Customization
 (require 'init-custom)
 
 ;; Packages
 ;; Without this comment Emacs25 adds (package-initialize) here
 (require 'init-package)
 
-;; Preferences
+;;Preferences
 (require 'init-basic)
 (require 'init-funcs)
 (require 'init-fonts)
@@ -110,7 +110,7 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-utils)
 (require 'init-pyim)
 
-;; ;;Programming
+;;Programming
 (require 'init-vcs)
 (require 'init-flycheck)
 (require 'init-projectile)

@@ -11,7 +11,9 @@
            when (font-installed-p font)
            return (set-face-attribute 'default nil
                                       :font font
-                                      :height (cond (*sys/mac-gui* 130)                                                    (*sys/win32p* 110)                                                    (t 130))))
+                                      :height (cond (*sys/mac-gui* 130)
+                                                    (*sys/win32p* 110)
+                                                    (t 120))))
 
   ;; Specify font for all unicode characters
   (cl-loop for font in '("Symbola" "Apple Symbols" "Symbol" "icons-in-terminal")
