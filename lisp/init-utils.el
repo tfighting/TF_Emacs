@@ -52,6 +52,9 @@
 ;; Search tools
 ;;
 
+
+
+
 ;; Persistent the scratch buffer
 (use-package persistent-scratch
   :diminish

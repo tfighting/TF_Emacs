@@ -17,13 +17,13 @@
 
 ;; Code restructuring and search tools.
 (use-package color-rg
-  :load-path (lambda () (expand-file-name "site-lisp/color-rg" user-emacs-directory))
-  :if (executable-find "rg")
+  :ensure nil
+  :if "rg"
   :bind ("C-M-s" . color-rg-search-input))
 
 ;; a awesome fuzzy match search framework.
 (use-package snails
-  :load-path (lambda () (expand-file-name "site-lisp/snails" user-emacs-directory))
+  :ensure nil
   :if *sys/gui*
   :custom-face
   (snails-content-buffer-face ((t (:background "#111" :height 110))))

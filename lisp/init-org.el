@@ -84,8 +84,8 @@ prepended to the element after the #+HEADER: tag."
     "Source"
     (("s" (hot-expand "<s") "src")
      ("m" (hot-expand "<s" "emacs-lisp") "emacs-lisp")
-     ("y" (hot-expand "<s" "python :results output") "python")
-     ("p" (hot-expand "<s" "perl") "perl")
+     ("p" (hot-expand "<s" "python :results output") "python")
+     ("y" (hot-expand "<s" "perl") "perl")
      ("r" (hot-expand "<s" "ruby") "ruby")
      ("S" (hot-expand "<s" "sh") "sh")
      ("g" (hot-expand "<s" "go :imports '\(\"fmt\"\)") "golang"))
@@ -128,10 +128,11 @@ prepended to the element after the #+HEADER: tag."
                               (setq show-paren-mode nil))))
 
   :config
-  (set-face-attribute 'org-level-1 nil :height 1.3 :bold t)
-  (set-face-attribute 'org-level-2 nil :height 1.2 :bold t)
-  (set-face-attribute 'org-level-3 nil :height 1.1 :bold t)
-  (set-face-attribute 'org-level-4 nil :height 1.0 :bold t)
+  (set-face-attribute 'org-level-1 nil :height 1.20 :bold t)
+  (set-face-attribute 'org-level-2 nil :height 1.15 :bold t)
+  (set-face-attribute 'org-level-3 nil :height 1.10 :bold t)
+  (set-face-attribute 'org-level-4 nil :height 1.05 :bold t)
+  (set-face-attribute 'org-level-5 nil :height 1.05 :bold t)
   (when (file-directory-p "~/org/agenda/")
     (setq org-agenda-files (list "~/org/agenda/")))
 
@@ -173,13 +174,3 @@ prepended to the element after the #+HEADER: tag."
 
 (provide 'init-org)
 ;;; init-org.el ends here
-
-;; (setq org-fancy-priorities-list '((?A . "❗")
-;;                                   (?B . "⬆")
-;;                                   (?C . "⬇")
-;;                                   (?D . "☕")
-;;                                   (?1 . "⚡")
-;;                                   (?2 . "⮬")
-;;                                   (?3 . "")
-;;                                   (?4 . "☕")
-;;                                   (?I . "Important")))

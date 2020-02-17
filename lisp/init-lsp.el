@@ -14,15 +14,19 @@
   :hook (python-mode . lsp-deferred)
   :commands (lsp lsp-deferred)
   :bind (:map lsp-mode-map
-         ("C-c C-d" . lsp-describe-thing-at-point))
+              ("C-c C-d" . lsp-describe-thing-at-point))
 
   :custom
   (lsp-auto-guess-root t)  ;; detect project root
   (lsp-prefer-flymake nil)    ;; use flycheck
-  (flymake-fringe-indicator-position 'right-fringe))
+  (read-process-output-max (* 1024 1024))
+  (lsp-file-watch-threshold 2000)
+  ;;(lsp-keep-workspace-alive nil) ;; close lsp server after last workspace closed
+  )
 
 
 (use-package lsp-ui
+  :after lsp-mode
   :custom-face
   (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
   (lsp-ui-sideline-code-action ((t (:inherit warning))))
@@ -31,27 +35,22 @@
          :map lsp-ui-mode-map
          ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
          ([remap xref-find-references] . lsp-ui-peek-find-references))
-  :init (setq lsp-ui-doc-enable nil
-              lsp-ui-doc-use-webkit nil
-              lsp-ui-doc-delay 0.2
-              lsp-ui-doc-include-signature t
-              lsp-ui-doc-position 'bottom
-              lsp-ui-doc-border (face-foreground 'default)
-              lsp-eldoc-enable-hover nil ; Disable eldoc displays in minibuffer
+  :init
+  (setq lsp-ui-doc-enable nil      ;; close text display
+        lsp-eldoc-enable-hover nil ;; Disable eldoc displays in minibuffer
+        lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-imenu-enable t
+        lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
+                              ,(face-foreground 'font-lock-string-face)
+                              ,(face-foreground 'font-lock-constant-face)
+                              ,(face-foreground 'font-lock-variable-name-face))
+        )
 
-              lsp-ui-imenu-enable t
-              lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
-                                    ,(face-foreground 'font-lock-string-face)
-                                    ,(face-foreground 'font-lock-constant-face)
-                                    ,(face-foreground 'font-lock-variable-name-face))
-
-              lsp-ui-sideline-enable nil
-              lsp-ui-sideline-show-hover nil
-              lsp-ui-sideline-show-diagnostics nil
-              lsp-ui-sideline-ignore-duplicate t)
   :config
   (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
-
   ;; `C-g'to close doc
   (advice-add #'keyboard-quit :before #'lsp-ui-doc-hide)
 

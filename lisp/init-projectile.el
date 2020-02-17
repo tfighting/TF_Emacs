@@ -13,8 +13,8 @@
 (use-package projectile
   :diminish
   :bind (:map projectile-mode-map
-              ("s-t" . projectile-find-file) ; `cmd-t' or `super-t'
-              ("C-c p" . projectile-command-map))
+         ("s-t" . projectile-find-file) ; `cmd-t' or `super-t'
+         ("C-c p" . projectile-command-map))
   :hook (after-init . projectile-mode)
   :init
   (setq projectile-mode-line-prefix ""
@@ -24,8 +24,7 @@
   ;; (projectile-update-mode-line)         ; Update mode-line at the first time
 
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
-  (when (and (not (executable-find "fd"))
-             (executable-find "rg"))
+  (when (and (not (executable-find "fd")) *rg*)
     (setq projectile-generic-command
           (let ((rg-cmd ""))
             (dolist (dir projectile-globally-ignored-directories)

@@ -18,10 +18,9 @@
              treemacs-git-mode)
   :bind (([f8]        . treemacs)
          ("M-0"       . treemacs-select-window)
-         ("C-x 1"     . treemacs-delete-other-windows)
          ("C-x t 1"   . treemacs-delete-other-windows)
          ("C-x t t"   . treemacs)
-         ("C-x t b"   . treemacs-bookmark)
+         ("C-x t b"   . treemacs-bookmar)
          ("C-x t C-t" . treemacs-find-file)
          ("C-x t M-t" . treemacs-find-tag)
          :map treemacs-mode-map
@@ -48,7 +47,7 @@
   (use-package treemacs-projectile
     :after projectile
     :bind (:map projectile-command-map
-                ("h" . treemacs-projectile)))
+           ("h" . treemacs-projectile)))
 
   (use-package treemacs-magit
     :after magit
