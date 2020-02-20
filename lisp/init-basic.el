@@ -24,16 +24,15 @@
     (car (car (cdr x)))))
 
 
-
-;; Encoding
-;; UTF-8 as the default coding system
+;;
+;; Set default code UTF-8
+;;
 (when (fboundp 'set-charset-priority)
   (set-charset-priority 'unicode))
 
 ;; Explicitly set the prefered coding systems to avoid annoying prompt
 ;; from emacs (especially on Microsoft Windows)
 (prefer-coding-system 'utf-8)
-
 (set-language-environment 'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-buffer-file-coding-system 'utf-8)
@@ -43,16 +42,18 @@
 (set-terminal-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (modify-coding-system-alist 'process "*" 'utf-8)
-
 (setq locale-coding-system 'utf-8
       default-process-coding-system '(utf-8 . utf-8))
 
+
 ;;add system environment
-(when (or *sys/mac-gui* *sys/linux-gui*)  (use-package exec-path-from-shell                                          :init
-                                            (setq exec-path-from-shell-check-startup-files nil
-                                                  exec-path-from-shell-variables '("PATH" "MANPATH")
-                                                  exec-path-from-shell-arguments '("-l"))
-                                            (exec-path-from-shell-initialize)))
+(when    (or *sys/mac-gui* *sys/linux-gui*)
+  (use-package exec-path-from-shell
+    :init
+    (setq exec-path-from-shell-check-startup-files nil
+          exec-path-from-shell-variables '("PATH" "MANPATH")
+          exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize)))
 
 ;; Start server
 (use-package server
@@ -99,7 +100,6 @@
   :hook ((after-init . size-indication-mode)
          ((prog-mode markdown-mode conf-mode) . enable-trailing-whitespace))
   :init (setq column-number-mode t
-              line-number-mode t
               kill-whole-line t               ; Kill line including '\n'
               line-move-visual nil
               track-eol t                     ; Keep cursor at end of lines. Require line-move-visual is nil.
@@ -130,9 +130,9 @@
 (setq-default create-lockfiles nil)
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq-default marjor-mode 'text-mode
-	     fill-column 80
-	     tab-width 4
-	     indent-tabs-mode nil) ;; Permanently indent with spaces, never with TABs
+	      fill-column 80
+	      tab-width 4
+	      indent-tabs-mode nil) ;; Permanently indent with spaces, never with TABs
 
 (setq visible-bell t
       inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
@@ -147,7 +147,9 @@
 
 ;; Fullscreen
 ;; WORKAROUND: To address blank screen issue with child-frame in fullscreen
-(when *sys/mac-gui*  (add-hook 'window-setup-hook (lambda ()                                                                      (setq ns-use-native-fullscreen nil))))
+(when *sys/mac-gui*
+  (add-hook 'window-setup-hook (lambda ()
+                                 (setq ns-use-native-fullscreen nil))))
 (bind-keys ("C-<f11>" . toggle-frame-fullscreen)
            ("C-s-f" . toggle-frame-fullscreen) ; Compatible with macOS
            ("S-s-<return>" . toggle-frame-fullscreen)

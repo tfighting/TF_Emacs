@@ -34,7 +34,7 @@
         treemacs-silent-refresh          t
         treemacs-width                   30)
 
-  (treemacs-follow-mode t)
+  (treemacs-follow-mode t) ;;treemacs moves to the selected file.
   (treemacs-filewatch-mode t)
   (pcase (cons (not (null (executable-find "git")))
                (not (null (executable-find "python3"))))

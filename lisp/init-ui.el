@@ -11,10 +11,31 @@
   (require 'init-const)
   (require 'init-custom))
 
-;; Suppress warnings in hydra
+
+
+;; Declare some functions for protecting warnings.
 (declare-function t_fighting-compatible-theme-p 'init-funcs)
 (declare-function t_fighting-load-theme 'init-funcs)
 (declare-function font-installed-p 'init-funcs)
+
+;;;;;;;;;;;;;;;;;;;;Some basic interface configuration ;;;;;;;;;;;;;;;;;;;;
+
+;; Forbid some GUI features
+(setq use-file-dialog nil
+      use-dialog-box nil
+      inhibit-startup-screen t
+      inhibit-startup-echo-area-message t)
+
+;; Display dividers between windows
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 1 ;; window
+      window-divider-default-right-width 1)
+(add-hook 'window-setup-hook #'window-divider-mode)
+
+;; Display line number when files are opend
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
 ;; Logo
 
 (setq fancy-splash-image t_fighting-logo)
@@ -23,7 +44,11 @@
 (setq frame-title-format '("T_Finghting Emacs - %b")
       icon-title-format frame-title-format)
 
+;; Inhibit resizing frame
+(setq frame-inhibit-implied-resize t
+      frame-resize-pixelwise t)
 
+;; Some Mac interface configuration.
 (when *sys/mac-gui*  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
       (add-to-list 'default-frame-alist '(ns-appearance . dark))
       (add-hook 'after-load-theme-hook
@@ -32,200 +57,58 @@
                     (set-frame-parameter nil 'ns-appearance bg)
                     (setcdr (assq 'ns-appearance default-frame-alist) bg)))))
 
-;; Inhibit resizing frame
-(setq frame-inhibit-implied-resize t
-      frame-resize-pixelwise t)
+(when *sys/mac*  ;; Render thinner fonts
+  (setq ns-use-thin-smoothing t)
+  ;; Don't open a file in a new frame
+  (setq ns-pop-up-frames nil))
 
-
-;; Menu/Tool/Scroll bars
-(unless *emacs/>=27p*  (push '(menu-bar-lines . 0) default-frame-alist)
-        (push '(tool-bar-lines . 0) default-frame-alist)
-        (push '(vertical-scroll-bars) default-frame-alist))
-
-;; Theme
-(if (t_fighting-compatible-theme-p t_fighting-theme)
-    (progn
-      (use-package doom-themes
-        :defines doom-themes-treemacs-theme
-        :functions doom-themes-hide-modeline
-        :init (t_fighting-load-theme t_fighting-theme)
-        :config
-        ;; Make swiper match clearer
-	    (with-eval-after-load 'swiper
-	      (set-face-background 'swiper-background-match-face-1 "SlateGray1"))
-
-        ;; Enable flashing mode-line on errors
-        (doom-themes-visual-bell-config)
-
-        ;; Enable customized theme (`all-the-icons' must be installed!)
-        (setq doom-themes-treemacs-theme "doom-colors")
-        (doom-themes-treemacs-config)
-        (with-eval-after-load 'treemacs
-          (remove-hook 'treemacs-mode-hook #'doom-themes-hide-modeline)))
-
-      ;; Make certain buffers grossly incandescent
-      (use-package solaire-mode
-        :functions persp-load-state-from-file
-        :hook (((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
-               (minibuffer-setup . solaire-mode-in-minibuffer)
-               (after-load-theme . solaire-mode-swap-bg))
-        :config
-        (setq solaire-mode-remap-fringe nil)
-        (solaire-global-mode 1)
-        (solaire-mode-swap-bg)
-        (advice-add #'persp-load-state-from-file
-                    :after #'solaire-mode-restore-persp-mode-buffers)))
-  (progn
-    (warn "The current theme may not be compatible with Centaur!")
-    (t_fighting-load-theme t_fighting-theme)))
-
-;; Mode-line
-(use-package doom-modeline
-  :custom
-  (doom-modeline-minor-modes t)
-  (doom-modeline-unicode-fallback t)
-  (doom-modeline-mu4e nil)
-  :hook (after-init . doom-modeline-mode)
-  :init
-  ;; prevent flash of unstyled modeline at startup
-  (unless after-init-time
-    (setq doom-modeline--old-format mode-line-format)
-    (setq-default mode-line-format nil))
-  :bind (:map doom-modeline-mode-map
-         ("C-<f6>" . doom-modeline-hydra/body))
-  :pretty-hydra
-  ((:title (pretty-hydra-title "Mode Line" 'fileicon "emacs")
-    :color amaranth :quit-key "q")
-   ("Icon"
-    (("i" (setq doom-modeline-icon (not doom-modeline-icon))
-      "display icons" :toggle doom-modeline-icon)
-     ("u" (setq doom-modeline-unicode-fallback (not doom-modeline-unicode-fallback))
-      "unicode fallback" :toggle doom-modeline-unicode-fallback)
-     ("m" (setq doom-modeline-major-mode-icon (not doom-modeline-major-mode-icon))
-      "major mode" :toggle doom-modeline-major-mode-icon)
-     ("c" (setq doom-modeline-major-mode-color-icon (not doom-modeline-major-mode-color-icon))
-      "colorful major mode" :toggle doom-modeline-major-mode-color-icon)
-     ("s" (setq doom-modeline-buffer-state-icon (not doom-modeline-buffer-state-icon))
-      "buffer state" :toggle doom-modeline-buffer-state-icon)
-     ("o" (setq doom-modeline-buffer-modification-icon (not doom-modeline-buffer-modification-icon))
-      "modification" :toggle doom-modeline-buffer-modification-icon)
-     ("v" (setq doom-modeline-modal-icon (not doom-modeline-modal-icon))
-      "modal" :toggle doom-modeline-modal-icon))
-    "Segment"
-    (("M" (setq doom-modeline-minor-modes (not doom-modeline-minor-modes))
-      "minor modes" :toggle doom-modeline-minor-modes)
-     ("W" (setq doom-modeline-enable-word-count (not doom-modeline-enable-word-count))
-      "word count" :toggle doom-modeline-enable-word-count)
-     ("E" (setq doom-modeline-buffer-encoding (not doom-modeline-buffer-encoding))
-      "encoding" :toggle doom-modeline-buffer-encoding)
-     ("I" (setq doom-modeline-indent-info (not doom-modeline-indent-info))
-      "indent" :toggle doom-modeline-indent-info)
-     ("L" (setq doom-modeline-lsp (not doom-modeline-lsp))
-      "lsp" :toggle doom-modeline-lsp)
-     ("P" (setq doom-modeline-persp-name (not doom-modeline-persp-name))
-      "perspective" :toggle doom-modeline-persp-name)
-     ("G" (setq doom-modeline-github (not doom-modeline-github))
-      "github" :toggle doom-modeline-github)
-     ("N" (setq doom-modeline-gnus (not doom-modeline-gnus))
-      "gnus" :toggle doom-modeline-gnus)
-     ("U" (setq doom-modeline-mu4e (not doom-modeline-mu4e))
-      "mu4e" :toggle doom-modeline-mu4e)
-     ("R" (setq doom-modeline-irc (not doom-modeline-irc))
-      "irc" :toggle doom-modeline-irc)
-     ("S" (setq doom-modeline-checker-simple-format (not doom-modeline-checker-simple-format))
-      "simple checker" :toggle doom-modeline-checker-simple-format)
-     ("V" (setq doom-modeline-env-version (not doom-modeline-env-version))
-      "version" :toggle doom-modeline-env-version))
-    "Style"
-    (("t u" (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
-      "truncate upto project"
-      :toggle (eq doom-modeline-buffer-file-name-style 'truncate-upto-project))
-     ("t f" (setq doom-modeline-buffer-file-name-style 'truncate-from-project)
-      "truncate from project"
-      :toggle (eq doom-modeline-buffer-file-name-style 'truncate-from-project))
-     ("t w" (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-      "truncate with project"
-      :toggle (eq doom-modeline-buffer-file-name-style 'truncate-with-project))
-     ("t e" (setq doom-modeline-buffer-file-name-style 'truncate-except-project)
-      "truncate except project"
-      :toggle (eq doom-modeline-buffer-file-name-style 'truncate-except-project))
-     ("t r" (setq doom-modeline-buffer-file-name-style 'truncate-upto-root)
-      "truncate upto root"
-      :toggle (eq doom-modeline-buffer-file-name-style 'truncate-upto-root))
-     ("t a" (setq doom-modeline-buffer-file-name-style 'truncate-all)
-      "truncate all"
-      :toggle (eq doom-modeline-buffer-file-name-style 'truncate-all))
-     ("r f" (setq doom-modeline-buffer-file-name-style 'relative-from-project)
-      "relative from project"
-      :toggle (eq doom-modeline-buffer-file-name-style 'relative-from-project))
-     ("r t" (setq doom-modeline-buffer-file-name-style 'relative-to-project)
-      "relative to project"
-      :toggle (eq doom-modeline-buffer-file-name-style 'relative-to-project))
-     ("f" (setq doom-modeline-buffer-file-name-style 'file-name)
-      "file name"
-      :toggle (eq doom-modeline-buffer-file-name-style 'file-name))
-     ("b" (setq doom-modeline-buffer-file-name-style 'buffer-name)
-      "buffer name"
-      :toggle (eq doom-modeline-buffer-file-name-style 'buffer-name)))
-    "Misc"
-    (("g" (progn
-            (message "Fetching GitHub notifications...")
-            (run-with-timer 300 nil #'doom-modeline--github-fetch-notifications)
-            (browse-url "https://github.com/notifications"))
-      "github notifications" :exit t)
-     ("e" (if (bound-and-true-p flycheck-mode)
-              (flycheck-list-errors)
-            (flymake-show-diagnostics-buffer))
-      "list errors" :exit t)
-     ("B" (if (bound-and-true-p grip-mode)
-              (grip-browse-preview)
-            (message "Not in preiew"))
-      "browse preivew" :exit t)))))
+;; Don't use GTK+ tooltip
+(when (boundp 'x-gtk-use-system-tooltips)
+  (setq x-gtk-use-system-tooltips nil))
 
 (use-package hide-mode-line
   :hook (((completion-list-mode completion-in-region-mode) . hide-mode-line-mode)))
 
-;; A minor-mode menu for mode-line
-(use-package minions
-  :hook (doom-modeline-mode . minions-mode))
 
-;; Icons
+;;;;;;;;;;;;;;;;;;;;;;;;; Icons Configuration ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; NOTE: Must run `M-x all-the-icons-install-fonts', and install fonts manually on Windows
 (use-package all-the-icons
-  :if *sys/gui*  :init (unless (or *sys/win32p* (font-installed-p "all-the-icons"))                           (all-the-icons-install-fonts t))
+  :if *sys/gui*
+  :init (unless (or *sys/win32p* (font-installed-p "all-the-icons"))
+	  (all-the-icons-install-fonts t))
   :config
-  (with-no-warnings
-    ;; FIXME: Align the directory icons
-    ;; @see https://github.com/domtronn/all-the-icons.el/pull/173
-    (defun all-the-icons-icon-for-dir (dir &optional chevron padding)
-      "Format an icon for DIR with CHEVRON similar to tree based directories."
-      (let* ((matcher (all-the-icons-match-to-alist (file-name-base (directory-file-name dir)) all-the-icons-dir-icon-alist))
-             (path (expand-file-name dir))
-             (chevron (if chevron (all-the-icons-octicon (format "chevron-%s" chevron) :height 0.8 :v-adjust -0.1) ""))
-             (padding (or padding "\t"))
-             (icon (cond
-                    ((file-symlink-p path)
-                     (all-the-icons-octicon "file-symlink-directory" :height 1.0 :v-adjust 0.0))
-                    ((all-the-icons-dir-is-submodule path)
-                     (all-the-icons-octicon "file-submodule" :height 1.0 :v-adjust 0.0))
-                    ((file-exists-p (format "%s/.git" path))
-                     (format "%s" (all-the-icons-octicon "repo" :height 1.1 :v-adjust 0.0)))
-                    (t (apply (car matcher) (list (cadr matcher) :v-adjust 0.0))))))
-        (format "%s%s%s%s%s" padding chevron padding icon padding)))
+  ;; FIXME: Align the directory icons
+  ;; @see https://github.com/domtronn/all-the-icons.el/pull/173
+  (defun all-the-icons-icon-for-dir (dir &optional chevron padding)
+    "Format an icon for DIR with CHEVRON similar to tree based directories."
+    (let* ((matcher (all-the-icons-match-to-alist (file-name-base (directory-file-name dir)) all-the-icons-dir-icon-alist))
+           (path (expand-file-name dir))
+           (chevron (if chevron (all-the-icons-octicon (format "chevron-%s" chevron) :height 0.8 :v-adjust -0.1) ""))
+           (padding (or padding "\t"))
+           (icon (cond
+                  ((file-symlink-p path)
+                   (all-the-icons-octicon "file-symlink-directory" :height 1.0 :v-adjust 0.0))
+                  ((all-the-icons-dir-is-submodule path)
+                   (all-the-icons-octicon "file-submodule" :height 1.0 :v-adjust 0.0))
+                  ((file-exists-p (format "%s/.git" path))
+                   (format "%s" (all-the-icons-octicon "repo" :height 1.1 :v-adjust 0.0)))
+                  (t (apply (car matcher) (list (cadr matcher) :v-adjust 0.0))))))
+      (format "%s%s%s%s%s" padding chevron padding icon padding)))
 
-    (defun all-the-icons-reset ()
-      "Reset (unmemoize/memoize) the icons."
-      (interactive)
-      (dolist (f '(all-the-icons-icon-for-file
-                   all-the-icons-icon-for-mode
-                   all-the-icons-icon-for-url
-                   all-the-icons-icon-family-for-file
-                   all-the-icons-icon-family-for-mode
-                   all-the-icons-icon-family))
-        (ignore-errors
-          (memoize-restore f)
-          (memoize f)))
-      (message "Reset all-the-icons")))
+  (defun all-the-icons-reset ()
+    "Reset (unmemoize/memoize) the icons."
+    (interactive)
+    (dolist (f '(all-the-icons-icon-for-file
+                 all-the-icons-icon-for-mode
+                 all-the-icons-icon-for-url
+                 all-the-icons-icon-family-for-file
+                 all-the-icons-icon-family-for-mode
+                 all-the-icons-icon-family))
+      (ignore-errors
+        (memoize-restore f)
+        (memoize f)))
+    (message "Reset all-the-icons"))
 
   (add-to-list 'all-the-icons-icon-alist
                '("\\.go$" all-the-icons-fileicon "go" :face all-the-icons-blue))
@@ -304,50 +187,64 @@
   (add-to-list 'all-the-icons-mode-icon-alist
                '(gfm-mode all-the-icons-octicon "markdown" :face all-the-icons-lblue)))
 
-;; Show native line numbers if possible, otherwise use `linum'
-(if (fboundp 'display-line-numbers-mode)
-    (use-package display-line-numbers
-      :ensure nil
-      :hook (prog-mode . display-line-numbers-mode))
-  (use-package linum-off
-    :demand
-    :defines linum-format
-    :hook (after-init . global-linum-mode)
-    :init (setq linum-format "%4d ")
-    :config
-    ;; Highlight current line number
-    (use-package hlinum
-      :defines linum-highlight-in-all-buffersp
-      :custom-face (linum-highlight-face ((t (:inherit default :background nil :foreground nil))))
-      :hook (global-linum-mode . hlinum-activate)
-      :init (setq linum-highlight-in-all-buffersp t))))
+;;;;;;;;;;;;;;;;;;;;;;;;; Theme Configuration ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Suppress GUI features
-(setq use-file-dialog nil
-      use-dialog-box nil
-      inhibit-startup-screen t
-      inhibit-startup-echo-area-message t)
+(if (t_fighting-compatible-theme-p t_fighting-theme)
+    (progn
+      (use-package doom-themes
+        :defines doom-themes-treemacs-theme
+        :functions doom-themes-hide-modeline
+        :init (t_fighting-load-theme t_fighting-theme)
+        :config
+        ;; Make swiper match clearer
+	(with-eval-after-load 'swiper
+	  (set-face-background 'swiper-background-match-face-1 "SlateGray1"))
 
-;; Display dividers between windows
-(setq window-divider-default-places t
-      window-divider-default-bottom-width 1
-      window-divider-default-right-width 1)
-(add-hook 'window-setup-hook #'window-divider-mode)
+        ;; Enable flashing mode-line on errors
+        (doom-themes-visual-bell-config)
 
-;; Use fixed pitch where it's sensible
-(use-package mixed-pitch
-  :diminish)
+        ;; Enable customized theme (`all-the-icons' must be installed!)
+        (setq doom-themes-treemacs-theme "doom-colors")
+        (doom-themes-treemacs-config)
+        (with-eval-after-load 'treemacs
+          (remove-hook 'treemacs-mode-hook #'doom-themes-hide-modeline)))
 
-(when *sys/mac*  ;; Render thinner fonts
-  (setq ns-use-thin-smoothing t)
-  ;; Don't open a file in a new frame
-  (setq ns-pop-up-frames nil))
+      ;; Make certain buffers grossly incandescent
+      (use-package solaire-mode
+        :functions persp-load-state-from-file
+        :hook (((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+               (minibuffer-setup . solaire-mode-in-minibuffer)
+               (after-load-theme . solaire-mode-swap-bg))
+        :config
+        (setq solaire-mode-remap-fringe nil)
+        (solaire-global-mode 1)
+        (solaire-mode-swap-bg)
+        (advice-add #'persp-load-state-from-file
+                    :after #'solaire-mode-restore-persp-mode-buffers)))
+  (progn
+    (warn "The current theme may not be compatible with T_fighting!")
+    (t_fighting-load-theme t_fighting-theme)))
 
-;; Don't use GTK+ tooltip
-(when (boundp 'x-gtk-use-system-tooltips)
-  (setq x-gtk-use-system-tooltips nil))
+;;Mode-line
+(use-package doom-modeline
+  :custom
+  (inhibit-compacting-font-caches t) ;; Don’t compact font caches during GC.
+  (doom-modeline-minor-modes t)
+  (doom-modeline-unicode-fallback t) ;; if not utf8, use unicode instead.
+  (doom-modeline-mu4e nil)
+  (doom-modeline-height 10)
+  :hook (after-init . doom-modeline-mode)
+  :init
+  ;; prevent flash of unstyled modeline at startup
+  (unless after-init-time
+    (setq doom-modeline--old-format mode-line-format)
+    (setq-default mode-line-format nil)))
 
-(provide 'init-ui)
+  ;; A minor-mode menu for mode-line
+  (use-package minions
+    :hook (doom-modeline-mode . minions-mode))
+
+  (provide 'init-ui)
 
 
 ;;; init-ui.el ends here

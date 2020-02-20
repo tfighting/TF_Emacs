@@ -32,7 +32,6 @@
   (:map prog-mode-map
    (("C-l" . awesome-pair-jump-out-pair-and-newline)
     ("SPC" . awesome-pair-space)
-    ("=" . awesome-pair-equal)
     ("M-f" . awesome-pair-jump-right)
     ("M-b" . awesome-pair-jump-left)))
   :hook (prog-mode . awesome-pair-mode))

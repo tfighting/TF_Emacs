@@ -3,7 +3,7 @@
 ;;; Commentary:
 ;;
 ;; T_Fighting Emacs - A Fancy and Fast Emacs Configuration.
-;;
+;; Only support emacs27 above.
 
 
 ;;; Code:

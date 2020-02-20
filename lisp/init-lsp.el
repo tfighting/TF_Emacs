@@ -14,14 +14,14 @@
   :hook (python-mode . lsp-deferred)
   :commands (lsp lsp-deferred)
   :bind (:map lsp-mode-map
-              ("C-c C-d" . lsp-describe-thing-at-point))
+         ("C-c C-d" . lsp-describe-thing-at-point))
 
   :custom
   (lsp-auto-guess-root t)  ;; detect project root
   (lsp-prefer-flymake nil)    ;; use flycheck
   (read-process-output-max (* 1024 1024))
   (lsp-file-watch-threshold 2000)
-  ;;(lsp-keep-workspace-alive nil) ;; close lsp server after last workspace closed
+  (lsp-keep-workspace-alive nil) ;; close lsp server after last workspace closed
   )
 
 

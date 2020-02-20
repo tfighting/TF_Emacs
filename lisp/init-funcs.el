@@ -15,7 +15,7 @@
 ;; Suppress warnings
 (defvar t_fighting-theme-alist)
 
-
+;; Declare some functions
 (declare-function async-inject-variables 'async)
 (declare-function chart-bar-quickie 'chart)
 (declare-function flycheck-buffer 'flycheck)
@@ -28,16 +28,6 @@
   "Check if font with FONT-NAME is available."
   (find-font (font-spec :name font-name)))
 
-;; Dos2Unix/Unix2Dos
-(defun dos2unix ()
-  "Convert the current buffer to UNIX file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-unix nil))
-
-(defun unix2dos ()
-  "Convert the current buffer to DOS file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-dos nil))
 
 (defun delete-carrage-returns ()
   "Delete `^M' characters in the buffer.
@@ -270,7 +260,7 @@ Same as `replace-string C-q C-m RET RET'."
       (executable-interpret (read-shell-command "Run: " command)))))
 
 (with-eval-after-load 'python
-  (define-key python-mode-map [f4] 'python/run-current-file))
+  (define-key python-mode-map [f4] #'python/run-current-file))
 
 
 
