@@ -1,0 +1,15 @@
+[submodule "site-lisp/color-rg"]
+	path = site-lisp/color-rg
+	url = https://github.com/manateelazycat/color-rg.git
+[submodule "site-lisp/emacs-application-framework"]
+	path = site-lisp/emacs-application-framework
+	url = https://github.com/manateelazycat/emacs-application-framework.git
+[submodule "site-lisp/snails"]
+	path = site-lisp/snails
+	url = https://github.com/manateelazycat/snails.git
+[submodule "site-lisp/multi-term"]
+	path = site-lisp/multi-term
+	url = https://github.com/manateelazycat/multi-term.git
+[submodule "site-lisp/aweshell"]
+	path = site-lisp/aweshell
+	url = https://github.com/tfighting/awesome-tab.git
