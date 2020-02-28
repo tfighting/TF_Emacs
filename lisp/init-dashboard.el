@@ -9,49 +9,14 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const)
+  (require 'init-constant)
   (require 'init-custom))
 
 ;; Dashboard
 (when t_fighting-dashboard
   (use-package dashboard
     :diminish (dashboard-mode page-break-lines-mode)
-    :defines persp-special-last-buffer
-    :functions (all-the-icons-faicon
-                all-the-icons-material
-                open-custom-file
-                persp-get-buffer-or-null
-                persp-load-state-from-file
-                persp-switch-to-buffer
-                winner-undo
-                widget-forward)
     :custom-face (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
-    :pretty-hydra
-    ((:title (pretty-hydra-title "Dashboard" 'material "dashboard" :height 1.1 :v-adjust -0.225)
-             :color pink :quit-key "q")
-     ("Navigator"
-      (("U" update-all-packages "update" :exit t)
-       ("H" browse-homepage "homepage" :exit t)
-       ("R" restore-session "recover session" :exit t)
-       ("L" persp-load-state-from-file "list sessions" :exit t)
-       ("S" open-custom-file "settings" :exit t))
-      "Section"
-      (("}" dashboard-next-section "next")
-       ("{" dashboard-previous-section "previous")
-       ("r" dashboard-goto-recent-files "recent files")
-       ("p" dashboard-goto-bookmarks "projects")
-       ("m" dashboard-goto-projects "bookmarks"))
-      "Item"
-      (("RET" widget-button-press "open" :exit t)
-       ("<tab>" widget-forward "next")
-       ("C-i" widget-forward "next")
-       ("<backtab>" widget-backward "previous")
-       ("C-n" next-line "next line")
-       ("C-p" previous-line "previous  line"))
-      "Misc"
-      (("<f2>" open-dashboard "open" :exit t)
-       ("g" dashboard-refresh-buffer "refresh" :exit t)
-       ("Q" quit-dashboard "quit" :exit t))))
     :bind (("<f2>" . open-dashboard)
            :map dashboard-mode-map
            ("H" . browse-homepage)
@@ -59,9 +24,7 @@
            ("L" . persp-load-state-from-file)
            ("S" . open-custom-file)
            ("U" . update-all-packages)
-           ("q" . quit-dashboard)
-           ("h" . dashboard-hydra/body)
-           ("?" . dashboard-hydra/body))
+           ("q" . quit-dashboard))
     :hook (dashboard-mode . (lambda () (setq-local frame-title-format "")))
     :init (dashboard-setup-startup-hook)
     :config
@@ -83,18 +46,21 @@
                                     (projects  . "file-directory")
                                     (registers . "database"))
 
-          dashboard-set-footer t
-          dashboard-footer (format "T_Fighting, %s" (format-time-string "%Y"))
-          dashboard-footer-icon (cond (*sys/gui*                                       (all-the-icons-faicon "heart"
-                                                                                                               :height 1.1
-                                                                                                               :v-adjust -0.05
-                                                                                                               :face 'error))
-                                      ((char-displayable-p ?🧡) "🧡 ")
-                                      (t (propertize ">" 'face 'font-lock-doc-face)))
+          dashboard-set-footer t ;; wheather to display footer
+          dashboard-footer-message (format "T_Fighting, %s" (format-time-string "%Y"))
+          dashboard-footer-icon (
+                                 cond (*sys/gui*
+                                       (all-the-icons-faicon "apple"
+                                                             :height 1.1
+                                                             :v-adjust -0.05
+                                                             :face 'error))
+                                 ((char-displayable-p ?☕) "☕ ")
+                                 (t (propertize ">" 'face 'font-lock-doc-face)))
 
           dashboard-set-navigator t
           dashboard-navigator-buttons
-          `(((,(when *sys/gui*                 (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
+          `(((,(when *sys/gui*
+                 (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
               "Homepage"
               "Browse homepage"
               (lambda (&rest _) (browse-url *t_fighting-homepage*)))
@@ -118,14 +84,7 @@
               "Update"
               "Update T_fighting Emacs"
               (lambda (&rest _) (t_fighting-update-all-packages)))
-
-             ;; display help
-             (,(if *sys/gui*
-                   (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
-                 "?")
-              "" "Help (?/h)"
-              (lambda (&rest _) (dashboard-hydra/body))
-              font-lock-string-face))))
+             )))
 
     (defun my-banner-path (&rest _)
       "Return the full path to banner."
@@ -195,7 +154,12 @@
     (defun dashboard-goto-bookmarks ()
       "Go to bookmarks."
       (interactive)
-      (funcall (local-key-binding "m")))))
+      (funcall (local-key-binding "m")))
+
+    (defun dashboard-goto-agenda ()
+      "Go to agenda."
+      (interactive)
+      (funcall (local-key-binding "a")))))
 
 (provide 'init-dashboard)
 

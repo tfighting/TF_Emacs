@@ -7,7 +7,7 @@
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-06-15 14:10:12
 ;; Version: 0.5
-;; Last-Updated: Sat Feb  8 20:14:10 2020 (-0500)
+;; Last-Updated: Sat Feb 22 03:07:37 2020 (-0500)
 ;;           By: Mingde (Matthew) Zeng
 ;; URL: http://www.emacswiki.org/emacs/download/eaf.el
 ;; Keywords:
@@ -111,6 +111,7 @@ Don't modify this map directly.  To bind keys for all apps use
 
 (defvar eaf-edit-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-t") #'eaf-edit-buffer-switch-to-org-mode)
     (define-key map (kbd "C-c C-k") #'eaf-edit-buffer-cancel)
     (define-key map (kbd "C-c C-c") #'eaf-edit-buffer-confirm)
     map))
@@ -282,6 +283,11 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
     ("g" . "insert_or_scroll_to_begin")
     ("x" . "insert_or_close_buffer")
     ("G" . "insert_or_scroll_to_bottom")
+    ("-" . "insert_or_zoom_out")
+    ("=" . "insert_or_zoom_in")
+    ("0" . "insert_or_zoom_reset")
+    ("m" . "insert_or_save_as_bookmark")
+    ("o" . "insert_or_open_url")
     ("C-a" . "select_all_or_input_text")
     ("M-u" . "clear_focus")
     ("M-i" . "open_download_manage_page")
@@ -358,7 +364,22 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
 
 (defcustom eaf-terminal-keybinding
   '(("C--" . "zoom_out")
-    ("C-=" . "zoom_in"))
+    ("C-=" . "zoom_in")
+    ("C-0" . "zoom_reset")
+    ("C-S-c" . "copy_text")
+    ("C-S-v" . "yank_text")
+    ("C-c C-c" . "eaf-send-cancel-key-sequence")
+    ("C-a" . "eaf-send-key-sequence")
+    ("C-e" . "eaf-send-key-sequence")
+    ("C-d" . "eaf-send-key-sequence")
+    ("C-n" . "eaf-send-key-sequence")
+    ("C-p" . "eaf-send-key-sequence")
+    ("C-r" . "eaf-send-key-sequence")
+    ("C-y" . "eaf-send-key-sequence")
+    ("C-k" . "eaf-send-key-sequence")
+    ("M-f" . "eaf-send-key-sequence")
+    ("M-b" . "eaf-send-key-sequence")
+    ("M-d" . "eaf-send-key-sequence"))
   "The keybinding of EAF Terminal."
   :type 'cons)
 
@@ -738,7 +759,12 @@ to edit EAF keybindings!" fun fun)))
           (set-keymap-parent map eaf-mode-map*)
           (cl-loop for (key . fun) in keybinding
                    do (define-key map (kbd key)
-                        (if (symbolp fun) fun (eaf--make-proxy-function fun)))
+                        (cond ((symbolp fun)
+                               fun)
+                              ((member fun (list "eaf-send-key-sequence" "eaf-send-cancel-key-sequence"))
+                               (intern fun))
+                              (t
+                               (eaf--make-proxy-function fun))))
                    finally return map))))
 
 (defun eaf--get-app-bindings (app-name)
@@ -860,6 +886,16 @@ to edit EAF keybindings!" fun fun)))
   "Directly send key to EAF Python side."
   (interactive)
   (eaf-call "send_key" eaf--buffer-id (key-description (this-command-keys-vector))))
+
+(defun eaf-send-key-sequence ()
+  "Directly send key sequence to EAF Python side."
+  (interactive)
+  (eaf-call "send_key_sequence" eaf--buffer-id (key-description (this-command-keys-vector))))
+
+(defun eaf-send-cancel-key-sequence ()
+  "Send C-c to terminal."
+  (interactive)
+  (eaf-call "send_key_sequence" eaf--buffer-id "C-c"))
 
 (defun eaf-set (sym val)
   "Similar to `set', but store SYM with VAL in EAF Python side, and return VAL.
@@ -987,10 +1023,10 @@ of `eaf--buffer-app-name' inside the EAF buffer."
 
 (dbus-register-signal
  :session "com.lazycat.eaf" "/com/lazycat/eaf"
- "com.lazycat.eaf" "update_buffer_title"
- #'eaf--update-buffer-title)
+ "com.lazycat.eaf" "update_buffer_details"
+ #'eaf--update-buffer-details)
 
-(defun eaf--update-buffer-title (bid title)
+(defun eaf--update-buffer-details (buffer-id title url)
   (when (> (length title) 0)
     (catch 'find-buffer
       (dolist (window (window-list))
@@ -998,9 +1034,10 @@ of `eaf--buffer-app-name' inside the EAF buffer."
           (with-current-buffer buffer
             (when (and
                    (derived-mode-p 'eaf-mode)
-                   (equal eaf--buffer-id bid))
+                   (equal eaf--buffer-id buffer-id))
               (setq mode-name (concat "EAF/" eaf--buffer-app-name))
               (setq-local eaf--bookmark-title title)
+              (setq-local eaf--buffer-url url)
               (rename-buffer (format eaf-buffer-title-format title))
               (throw 'find-buffer t))))))))
 
@@ -1228,10 +1265,14 @@ This function works best if paired with a fuzzy search package."
          (concat eaf-config-location
                  (file-name-as-directory "browser")
                  (file-name-as-directory "history")
-                 "log.txt")))
+                 "log.txt"))
+        (history-pattern "^\\(.+\\)ᛝ\\(.+\\)ᛡ\\(.+\\)$"))
     (if (file-exists-p browser-history-file-path)
-        (let* ((history-list (with-temp-buffer (insert-file-contents browser-history-file-path)
-                                               (split-string (buffer-string) "\n" t)))
+        (let* ((history-list (mapcar
+                              (lambda (h) (when (string-match history-pattern h)
+                                       (format "[%s] ⇰ %s" (match-string 1 h) (match-string 2 h))))
+                              (with-temp-buffer (insert-file-contents browser-history-file-path)
+                                                (split-string (buffer-string) "\n" t))))
                (history (completing-read "[EAF/browser] Search || URL || History: " history-list))
                (history-url (when (string-match "[^\s]+$" history)
                               (match-string 0 history))))
@@ -1324,7 +1365,7 @@ By default, `eaf-open' will switch to buffer if corresponding url exists.
 
 When called interactively, URL accepts a file that can be opened by EAF."
   (interactive "F[EAF] EAF Open: ")
-;; Try to set app-name along with url if app-name is unset.
+  ;; Try to set app-name along with url if app-name is unset.
   (when (and (not app-name) (file-exists-p url))
     (setq url (expand-file-name url))
     (when (featurep 'recentf)
@@ -1449,6 +1490,16 @@ Make sure that your smartphone is connected to the same WiFi network as this com
   (kill-buffer)
   (delete-window))
 
+(defun eaf-edit-buffer-switch-to-org-mode ()
+  "Switch to org-mode to edit table handly."
+  (interactive)
+  (org-mode)
+  (outline-show-all)
+  (beginning-of-buffer)
+  (local-set-key (kbd "C-c C-c") 'eaf-edit-buffer-confirm)
+  (local-set-key (kbd "C-c C-k") 'eaf-edit-buffer-cancel)
+  (eaf--edit-set-header-line))
+
 (dbus-register-signal
  :session "com.lazycat.eaf" "/com/lazycat/eaf"
  "com.lazycat.eaf" "edit_focus_text"
@@ -1460,15 +1511,22 @@ Make sure that your smartphone is connected to the same WiFi network as this com
   (let ((edit-text-buffer (generate-new-buffer (format "eaf-%s-edit-focus-text-%s" eaf--buffer-app-name buffer-id))))
     (switch-to-buffer edit-text-buffer)
     (eaf-edit-mode)
-    (setq header-line-format
-          (substitute-command-keys
-           (concat
-            "\\<eaf-edit-mode-map>"
-            " EAF/" eaf--buffer-app-name " EDIT: "
-            "Confirm with `\\[eaf-edit-buffer-confirm]', "
-            "Cancel with `\\[eaf-edit-buffer-cancel]'. ")))
+    (eaf--edit-set-header-line)
     (insert focus-text)
+    (beginning-of-buffer)
     ))
+
+(defun eaf--edit-set-header-line ()
+  (setq header-line-format
+        (substitute-command-keys
+         (concat
+          "\\<eaf-edit-mode-map>"
+          " EAF/" eaf--buffer-app-name " EDIT: "
+          "Confirm with `\\[eaf-edit-buffer-confirm]', "
+          "Cancel with `\\[eaf-edit-buffer-cancel]'. "
+          "Switch to org-mode with `\\[eaf-edit-buffer-switch-to-org-mode]'. "
+          ))))
+
 ;;;;;;;;;;;;;;;;;;;; Utils ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun eaf-get-view-info ()
   (let* ((window-allocation (eaf-get-window-allocation (selected-window)))

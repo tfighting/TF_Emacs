@@ -8,55 +8,85 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const))
+  (require 'init-constant))
 
-(use-package auto-save
-  :ensure nil
-  :init
-  (require 'auto-save)
-  (auto-save-enable)
 
-  (setq auto-save-silent t)   ; quietly save
-  (setq auto-save-delete-trailing-whitespace t))  ; automatically delete spaces at the end of the line when saving
-
-;; Automatic parenthesis pairing
-(use-package elec-pair
-  :ensure nil
-  :hook (after-init . electric-pair-mode)
-  :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit))
-
-;; parenthesis operation
-(use-package awesome-pair
-  :ensure nil
+;;;;;;;;;;;;;;;;;;;;; some parenthesis configuration ;;;;;;;;;;;;;;;;;;
+(use-package smartparens
+  :hook (prog-mode . smartparens-mode)
+  :diminish
   :bind
-  (:map prog-mode-map
-   (("C-l" . awesome-pair-jump-out-pair-and-newline)
-    ("SPC" . awesome-pair-space)
-    ("M-f" . awesome-pair-jump-right)
-    ("M-b" . awesome-pair-jump-left)))
-  :hook (prog-mode . awesome-pair-mode))
+  (:map smartparens-mode-map
+   ("C-M-f" . sp-forward-sexp)
+   ("C-M-b" . sp-backward-sexp))
+  :custom
+  (sp-escape-quotes-after-insert nil)
+  :config
+  ;; Stop pairing single quotes in elisp
+  (sp-local-pair 'emacs-lisp-mode "'" nil :actions nil)
+  (sp-local-pair 'org-mode "[" nil :actions nil))
 
-;; Delete Block
-(use-package delete-block
+;; Highlight matching parens
+(use-package paren
   :ensure nil
-  :bind
-  (("M-d" . delete-block-forward)
-   ("C-<backspace>" . delete-block-backward)
-   ("M-<backspace>" . delete-block-backward)
-   ("M-DEL" . delete-block-backward)))
+  :hook (after-init . show-paren-mode)
+  :init (setq show-paren-when-point-inside-paren t
+              show-paren-when-point-in-periphery t)
+  :config
+  (with-no-warnings
+    (defun display-line-overlay (pos str &optional face)
+      "Display line at POS as STR with FACE.
+FACE defaults to inheriting from default and highlight."
+      (let ((ol (save-excursion
+                  (goto-char pos)
+                  (make-overlay (line-beginning-position)
+                                (line-end-position)))))
+        (overlay-put ol 'display str)
+        (overlay-put ol 'face
+                     (or face '(:inherit highlight)))
+        ol))
 
-
-;; Delete selection if you insert
-(use-package delsel
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
+    (defvar-local show-paren--off-screen-overlay nil)
+    (defun show-paren-off-screen (&rest _args)
+      "Display matching line for off-screen paren."
+      (when (overlayp show-paren--off-screen-overlay)
+        (delete-overlay show-paren--off-screen-overlay))
+      ;; check if it's appropriate to show match info,
+      (when (and (overlay-buffer show-paren--overlay)
+                 (not (or cursor-in-echo-area
+                          executing-kbd-macro
+                          noninteractive
+                          (minibufferp)
+                          this-command))
+                 (and (not (bobp))
+                      (memq (char-syntax (char-before)) '(?\) ?\$)))
+                 (= 1 (logand 1 (- (point)
+                                   (save-excursion
+                                     (forward-char -1)
+                                     (skip-syntax-backward "/\\")
+                                     (point))))))
+        ;; rebind `minibuffer-message' called by
+        ;; `blink-matching-open' to handle the overlay display
+        (cl-letf (((symbol-function #'minibuffer-message)
+                   (lambda (msg &rest args)
+                     (let ((msg (apply #'format-message msg args)))
+                       (setq show-paren--off-screen-overlay
+                             (display-line-overlay
+                              (window-start) msg ))))))
+          (blink-matching-open))))
+    (advice-add #'show-paren-function :after #'show-paren-off-screen)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Automatically reload files was modified by external program
 (use-package autorevert
   :ensure nil
   :diminish
   :hook (after-init . global-auto-revert-mode))
+
+;; cut text between the point and the character CHAR
+(use-package avy-zap
+  :bind (("M-z" . avy-zap-to-char-dwim)
+         ("M-Z" . avy-zap-up-to-char-dwim)))
 
 ;; Pass a URL to a WWW browser
 (use-package browse-url
@@ -73,56 +103,6 @@
     (bind-key "C-c C-z f" #'browse-url-of-file dired-mode-map))
   (when (featurep 'xwidget-internal)
     (bind-key "C-c C-z w" #'xwidget-webkit-browse-url)))
-
-;; Click to browse URL or to send to e-mail address
-(use-package goto-addr
-  :ensure nil
-  :hook ((text-mode . goto-address-mode)
-         (prog-mode . goto-address-prog-mode)))
-
-;; Jump to things in Emacs tree-style
-(use-package avy
-  :bind (("C-:" . avy-goto-char)
-         ("C-'" . avy-goto-char-2)
-         ("M-g f" . avy-goto-line)
-         ("M-g w" . avy-goto-word-1)
-         ("M-g e" . avy-goto-word-0))
-  :hook (after-init . avy-setup-default)
-  :config (setq avy-all-windows nil
-                avy-all-windows-alt t
-                avy-background t
-                avy-style 'pre))
-
-;; Jump to Chinese characters
-(use-package ace-pinyin
-  :diminish
-  :hook (after-init . ace-pinyin-global-mode))
-
-;; Kill text between the point and the character CHAR
-(use-package avy-zap
-  :bind (("M-z" . avy-zap-to-char-dwim)
-         ("M-Z" . avy-zap-up-to-char-dwim)))
-
-;; Quickly follow links
-(use-package ace-link
-  :defines (org-mode-map
-            gnus-summary-mode-map
-            gnus-article-mode-map
-            ert-results-mode-map)
-  :bind ("M-o" . ace-link-addr)
-  :hook (after-init . ace-link-setup-default)
-  :config
-  (with-eval-after-load 'org
-    (bind-key "M-o" #'ace-link-org org-mode-map))
-  (with-eval-after-load 'gnus
-    (bind-keys
-     :map gnus-summary-mode-map
-     ("M-o" . ace-link-gnus)
-     :map gnus-article-mode-map
-     ("M-o" . ace-link-gnus)))
-  (with-eval-after-load 'ert
-    (bind-key "o" #'ace-link-help ert-results-mode-map)))
-
 
 ;; Minor mode to aggressively keep your code always indented
 (use-package aggressive-indent
@@ -205,10 +185,6 @@
   :hook (after-init . global-hungry-delete-mode)
   :config (setq-default hungry-delete-chars-to-skip " \t\f\v"))
 
-;; Framework for mode-specific buffer indexes
-(use-package imenu
-  :ensure nil
-  :bind (("C-." . imenu)))
 
 ;; Move to the beginning/end of line or code
 (use-package mwim
@@ -239,11 +215,8 @@
   :hook (prog-mode . hs-minor-mode)
   :bind ("C-`" . hs-toggle-hiding))
 
-
-
 ;; Open files as another user
 (unless *sys/win32p*  (use-package sudo-edit))
-
 
 
 

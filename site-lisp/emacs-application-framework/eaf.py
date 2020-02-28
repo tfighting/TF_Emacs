@@ -152,7 +152,7 @@ class EAF(dbus.service.Object):
         app_buffer.buffer_widget.resize(emacs_width, emacs_height)
 
         # Monitor buffer signals.
-        app_buffer.update_title.connect(self.update_buffer_title)
+        app_buffer.update_details.connect(self.update_buffer_details)
         app_buffer.translate_text.connect(self.translate_text)
         app_buffer.open_url_in_new_tab.connect(self.open_url_in_new_tab)
         app_buffer.open_url_in_background_tab.connect(self.open_url_in_background_tab)
@@ -306,6 +306,12 @@ class EAF(dbus.service.Object):
         if buffer_id in self.buffer_dict:
             self.buffer_dict[buffer_id].fake_key_event(event_string)
 
+    @dbus.service.method(EAF_DBUS_NAME, in_signature="ss", out_signature="")
+    def send_key_sequence(self, buffer_id, event_string):
+        # Send event to buffer when found match buffer.
+        if buffer_id in self.buffer_dict:
+            self.buffer_dict[buffer_id].fake_key_sequence(event_string)
+
     @dbus.service.method(EAF_DBUS_NAME, in_signature="sss", out_signature="")
     def handle_input_message(self, buffer_id, callback_type, callback_result):
         for buffer in list(self.buffer_dict.values()):
@@ -333,7 +339,7 @@ class EAF(dbus.service.Object):
         pass
 
     @dbus.service.signal(EAF_DBUS_NAME)
-    def update_buffer_title(self, buffer_id, title):
+    def update_buffer_details(self, buffer_id, title, url):
         pass
 
     @dbus.service.signal(EAF_DBUS_NAME)
@@ -443,6 +449,9 @@ class EAF(dbus.service.Object):
             print("Session is not restored, as %s cannot be found." % (self.session_file))
 
 if __name__ == "__main__":
+    import faulthandler
+    faulthandler.enable()
+
     import sys
     import signal
 

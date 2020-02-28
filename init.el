@@ -8,14 +8,14 @@
 
 ;;; Code:
 
+;; emacs--version >= 27
+(when (version< emacs-version "27")
+  (warn "T-fighting Emacs requires 27 and above"))
 
 ;;Speed up startup
-(defvar t_fighting-gc-cons-threshold (if (display-graphic-p) 8000000 800000)
-  "The default value to use for `gc-cons-threshold'. If you experience freezing,
-decrease this. If you experience stuttering, increase this.")
-
-(defvar t_fighting-gc-cons-upper-limit (if (display-graphic-p) 400000000 100000000)
-  "The temporary value for `gc-cons-threshold' to defer it.")
+(defvar t_fighting-gc-cons-threshold  80000000
+  "The default value to use for `gc-cons-threshold'.
+If you experience freezing,decrease this. If you experience stuttering, increase this.")
 
 (defvar t_fighting-gc-timer (run-with-idle-timer 10 t #'garbage-collect)
   "Run garbarge collection when idle 10s.")
@@ -23,15 +23,18 @@ decrease this. If you experience stuttering, increase this.")
 (defvar default-file-name-handler-alist file-name-handler-alist)
 
 (setq file-name-handler-alist nil)
-(setq gc-cons-threshold t_fighting-gc-cons-upper-limit)
+
+;; Better GC threshold
 (add-hook 'emacs-startup-hook
           (lambda ()
             "Restore defalut values after startup."
             (setq file-name-handler-alist default-file-name-handler-alist)
-            (setq gc-cons-threshold t_fighting-gc-cons-threshold)
+            (setq gc-cons-threshold t_fighting-gc-cons-threshold)))
 
-            ;; GC automatically while unfocusing the frame
-            ;; `focus-out-hook' is obsolete since 27.1
+;; GC automatically while unfocusing the frame
+;; `focus-out-hook' is obsolete since 27.1
+(add-hook 'emacs-startup-hook
+          (lambda ()
             (if (boundp 'after-focus-change-function)
                 (add-function :after after-focus-change-function
                   (lambda ()
@@ -42,7 +45,7 @@ decrease this. If you experience stuttering, increase this.")
             ;; Avoid GCs while using `ivy'/`counsel'/`swiper' and `helm', etc.
             ;; @see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/
             (defun my-minibuffer-setup-hook ()
-              (setq gc-cons-threshold t_fighting-gc-cons-upper-limit))
+              (setq gc-cons-threshold (* t_fighting-gc-cons-threshold 2)))
 
             (defun my-minibuffer-exit-hook ()
               (setq gc-cons-threshold t_fighting-gc-cons-threshold))
@@ -71,43 +74,37 @@ decrease this. If you experience stuttering, increase this.")
 (add-subdirs-to-load-path)
 
 ;;Constants
-(require 'init-const)
-
-;; ;;Customization
+(require 'init-constant)
 (require 'init-custom)
-
-;; Packages
-;; Without this comment Emacs25 adds (package-initialize) here
 (require 'init-package)
-
-;;Preferences
-(require 'init-basic)
-(require 'init-funcs)
+(require 'init-basic-config)
+(require 'init-functions)
 (require 'init-fonts)
 (require 'init-hydra)
-(require 'init-ui)
-(require 'init-edit)
 (require 'init-ivy)
+(require 'init-ui)
+(require 'init-highlight)
+(require 'init-edit)
+(require 'init-jump)
+(require 'init-search)
+(require 'init-eaf)
+(require 'init-awesome-tab)
+(require 'init-aweshell)
 (require 'init-company)
 (require 'init-yasnippet)
 (require 'init-dashboard)
 (require 'init-dired)
 
-;;customize
-(require 'init-search)
-(require 'init-eaf)
-(require 'init-awesome-tab)
-(require 'init-aweshell)
 
-(require 'init-highlight)
+
 (require 'init-ibuffer)
 (require 'init-kill-ring)
-(require 'init-persp)
 (require 'init-window)
 (require 'init-treemacs)
 (require 'init-markdown)
-(require 'init-org)
+(require 'init-pdf)
 (require 'init-utils)
+(require 'init-org)
 (require 'init-pyim)
 
 ;;Programming

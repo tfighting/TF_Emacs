@@ -21,33 +21,26 @@
   (lsp-prefer-flymake nil)    ;; use flycheck
   (read-process-output-max (* 1024 1024))
   (lsp-file-watch-threshold 2000)
-  (lsp-keep-workspace-alive nil) ;; close lsp server after last workspace closed
-  )
+  (lsp-keep-workspace-alive nil)) ;; close lsp server after last workspace closed
 
 
 (use-package lsp-ui
   :after lsp-mode
+  :commands lsp-ui-mode
   :custom-face
   (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
   (lsp-ui-sideline-code-action ((t (:inherit warning))))
-  :bind (("C-c u" . lsp-ui-imenu)
-         ("M-<f6> " . flycheck-list-errors)
+  :bind (("M-<f6> " . flycheck-list-errors)
          :map lsp-ui-mode-map
          ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
          ([remap xref-find-references] . lsp-ui-peek-find-references))
   :init
-  (setq lsp-ui-doc-enable nil      ;; close text display
-        lsp-eldoc-enable-hover nil ;; Disable eldoc displays in minibuffer
-        lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-hover nil
-        lsp-ui-sideline-show-diagnostics nil
+  (setq lsp-ui-doc-enable nil
+        lsp-ui-doc-include-signature t
+        lsp-ui-doc-border (face-foreground 'default)
+        lsp-ui-sideline-enable nil
         lsp-ui-sideline-ignore-duplicate t
-        lsp-ui-imenu-enable t
-        lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
-                              ,(face-foreground 'font-lock-string-face)
-                              ,(face-foreground 'font-lock-constant-face)
-                              ,(face-foreground 'font-lock-variable-name-face))
-        )
+        lsp-ui-sideline-show-code-actions nil)
 
   :config
   (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
@@ -103,14 +96,6 @@ Return a list of strings as the completion candidates."
             (company-lsp--filter-candidates candidates prefix)
           candidates)))
     (advice-add #'company-lsp--on-completion :override #'my-company-lsp--on-completion)))
-
-
-;; Ivy integration
-(use-package lsp-ivy
-  :after lsp-mode
-  :bind (:map lsp-mode-map
-         ([remap xref-find-apropos] . lsp-ivy-workspace-symbol)
-         ("C-s-." . lsp-ivy-global-workspace-symbol)))
 
 
 ;; Debug

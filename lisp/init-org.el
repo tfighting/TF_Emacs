@@ -9,8 +9,7 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const))
-
+  (require 'init-constant))
 (use-package org
   :ensure nil
   :custom-face

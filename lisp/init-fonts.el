@@ -6,8 +6,8 @@
 
 ;; Fonts
 (when *sys/gui*  ;; Set default font
-  (cl-loop for font in '( "Fira Code" "SF Mono" "Hack" "Source Code Pro"
-                          "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
+  (cl-loop for font in '("SF Mono" "Hack" "Fira Code" "SF Mono" "Source Code Pro"
+                         "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
            when (font-installed-p font)
            return (set-face-attribute 'default nil
                                       :font font

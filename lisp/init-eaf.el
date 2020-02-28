@@ -10,12 +10,15 @@
 ;;
 
 (eval-when-compile
-  (require 'init-const))
+  (require 'init-constant))
+
+;; requirement:
+;; 1. sudo apt -y install pepperflashplugin-nonfree instend adobe flash player
+
 
 (use-package eaf
   :ensure nil
-  :init
-  (require 'eaf)
+  :demand t
   :if *sys/gui*
   :custom
   (eaf-find-alternate-file-in-dired t)
@@ -39,7 +42,10 @@
   (eaf-bind-key scroll_to_begin "M->" eaf-browser-keybinding)
   (eaf-bind-key scroll_to_bottom "M-<" eaf-browser-keybinding)
   (eaf-bind-key open_link "M-h" eaf-browser-keybinding)
-  (eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding))
+  (eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
+  :bind ("C-z o" . eaf-open)
+  )
+
 
 
 

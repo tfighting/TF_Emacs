@@ -43,14 +43,6 @@
           exec-path-from-shell-variables '("PATH"))
     (exec-path-from-shell-initialize)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;; Save buffers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Save all buffers instead of the current buffer.
-(defun save-all-buffers ()
-  "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
-  (interactive)
-  (save-some-buffers t))
-(global-set-key (kbd "C-X C-S") #'save-all-buffers)
-
 (use-package super-save
   :diminish
   :custom
@@ -78,8 +70,6 @@ The original function deletes trailing whitespace of the current line."
           (delete-trailing-whitespace)
           (widen))))))
 (add-hook 'before-save-hook #'delete-trailing-whitespace-except-current-line)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;
 ;; Misc

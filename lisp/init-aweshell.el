@@ -8,8 +8,7 @@
 
 
 (eval-when-compile
-  (require 'init-const))
-
+  (require 'init-constant))
 ;; enhance eshell
 (use-package aweshell
   :load-path (lambda () (expand-file-name "site-lisp/aweshell" user-emacs-directory))

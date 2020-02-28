@@ -9,18 +9,22 @@
 
 
 (eval-when-compile
-  (require 'init-const))
+  (require 'init-constant))
 
 ;; Directory operations
 (use-package dired
   :ensure nil
-  :bind (:map dired-mode-map
-              ("C-c C-p" . wdired-change-to-wdired-mode))
+  :bind (("C-x C-j" . dired-jump)
+         :map dired-mode-map
+         ("C-c C-p" . wdired-change-to-wdired-mode) ; change names in dired-mode
+         ("o" . (lambda () (interactive) (find-alternate-file "..")))
+         ("<RET>" . dired-find-alternate-file))
   :config
   ;; Always delete and copy recursively
   (setq dired-recursive-deletes 'always
         dired-recursive-copies 'always
         dired-dwim-target t)
+
 
   (when *sys/mac*    ;; Suppress the warning: `ls does not support --dired'.
     (setq dired-use-ls-dired nil)
@@ -29,95 +33,28 @@
       ;; Use GNU ls as `gls' from `coreutils' if available.
       (setq insert-directory-program "gls")))
 
-  (when (or (and *sys/mac* (executable-find "gls"))            (and (not *sys/mac*) (executable-find "ls")))
+  (when (or (and *sys/mac* (executable-find "gls"))
+            (and (not *sys/mac*) (executable-find "ls")))
     ;; Using `insert-directory-program'
     (setq ls-lisp-use-insert-directory-program t)
 
     ;; Show directory first
-    (setq dired-listing-switches "-alh --group-directories-first")
+    (setq dired-listing-switches "-alh --group-directories-first"))
 
-    ;; Quick sort dired buffers via hydra
-    (use-package dired-quick-sort
-      :bind (:map dired-mode-map
-                  ("S" . hydra-dired-quick-sort/body))))
-
-  ;; Show git info in dired
-  (use-package dired-git-info
+  ;; buffer sorts via hydra
+  (use-package dired-quick-sort
     :bind (:map dired-mode-map
-                (")" . dired-git-info-mode)))
+           ("C-z s" . hydra-dired-quick-sort/body)))
 
-
-  ;; Allow rsync from dired buffers
+  ;; Allow copy files from dired-mode to the select files.
   (use-package dired-rsync
     :bind (:map dired-mode-map
-                ("C-c C-r" . dired-rsync)))
+           ("C-c C-r" . dired-rsync))))
 
-
-  ;; Colourful dired
-  (use-package diredfl
-    :init (diredfl-global-mode 1))
-
-  ;; Shows icons
-  (use-package all-the-icons-dired
-    :diminish
-    :hook (dired-mode . all-the-icons-dired-mode)
-    :config
-    (with-no-warnings
-      (defun my-all-the-icons-dired--display ()
-        "Display the icons of files in a dired buffer."
-        (when dired-subdir-alist
-          (let ((inhibit-read-only t))
-            (save-excursion
-              ;; TRICK: Use TAB to align icons
-              (setq-local tab-width 1)
-              (goto-char (point-min))
-              (while (not (eobp))
-                (when (dired-move-to-filename nil)
-                  (insert " ")
-                  (let ((file (dired-get-filename 'verbatim t)))
-                    (unless (member file '("." ".."))
-                      (let ((filename (dired-get-filename nil t)))
-                        (if (file-directory-p filename)
-                            (insert (all-the-icons-icon-for-dir filename nil ""))
-                          (insert (all-the-icons-icon-for-file file :v-adjust -0.05))))
-                      ;; Align and keep one space for refeshing after some operations
-                      (insert "\t "))))
-                (forward-line 1))))))
-      (advice-add #'all-the-icons-dired--display
-                  :override #'my-all-the-icons-dired--display)))
-
-
-  ;; Extra Dired functionality
-  (use-package dired-aux :ensure nil)
-  (use-package dired-x
-    :ensure nil
-    :demand
-    :config
-    (let ((cmd (cond
-                (*sys/mac-gui* "open")                (*sys/linux-gui* "xdg-open")                (*sys/win32p* "start")                (t ""))))
-      (setq dired-guess-shell-alist-user
-            `(("\\.pdf\\'" ,cmd)
-              ("\\.docx\\'" ,cmd)
-              ("\\.\\(?:djvu\\|eps\\)\\'" ,cmd)
-              ("\\.\\(?:jpg\\|jpeg\\|png\\|gif\\|xpm\\)\\'" ,cmd)
-              ("\\.\\(?:xcf\\)\\'" ,cmd)
-              ("\\.csv\\'" ,cmd)
-              ("\\.tex\\'" ,cmd)
-              ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" ,cmd)
-              ("\\.\\(?:mp3\\|flac\\)\\'" ,cmd)
-              ("\\.html?\\'" ,cmd)
-              ("\\.md\\'" ,cmd))))
-
-    (setq dired-omit-files
-          (concat dired-omit-files
-                  "\\|^.DS_Store$\\|^.projectile$\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.js\\.meta$\\|\\.meta$\\|\\.elc$\\|^.emacs.*"))))
-
-;; `find-dired' alternative using `fd'
-(when (executable-find "fd")
-  (use-package fd-dired))
-
+;; Shows icons
+(use-package all-the-icons-dired
+  :diminish
+  :hook (dired-mode . all-the-icons-dired-mode))
 
 (provide 'init-dired)
-
-
 ;;; init-dired.el ends here

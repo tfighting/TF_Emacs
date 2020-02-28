@@ -8,8 +8,7 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const))
-
+  (require 'init-constant))
 ;;pip install pylint
 (use-package flycheck
   :diminish flycheck-mode

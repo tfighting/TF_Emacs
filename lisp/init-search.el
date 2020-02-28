@@ -8,7 +8,7 @@
 ;; Code
 
 (eval-when-compile
-  (require 'init-const))
+  (require 'init-constant))
 
 ;; A fuzzy match tool
 ;; git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf

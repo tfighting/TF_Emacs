@@ -39,7 +39,7 @@ class AppBuffer(BrowserBuffer):
 
         # Start wetty process.
         self.background_process = subprocess.Popen(
-            "wetty -p {0} --base / --sshuser {1} --sshauth publickey -c bash".format(self.port, getpass.getuser()),
+            "wetty -p {0} --base / --sshuser {1} --sshauth publickey -c {2}".format(self.port, getpass.getuser(), os.environ["SHELL"]),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True)
@@ -58,6 +58,6 @@ class AppBuffer(BrowserBuffer):
             self.change_title(paths[-1])
 
     def handle_destroy(self):
-        os.killpg(os.getpgid(self.background_process.pid), signal.SIGTERM)
+        os.kill(self.background_process.pid, signal.SIGTERM)
 
         super.handle_destroy(self)

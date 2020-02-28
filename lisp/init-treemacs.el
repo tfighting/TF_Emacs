@@ -8,7 +8,7 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const))
+  (require 'init-constant))
 
 ;; A tree layout file explorer
 (use-package treemacs

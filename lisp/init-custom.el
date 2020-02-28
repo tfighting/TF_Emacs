@@ -7,14 +7,9 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'init-const))
+  (require 'init-constant))
 
-;; Unbind unnecessary keys
-(global-set-key (kbd "C-z") nil)
-;; Move up/down paragraph
-(global-set-key (kbd "M-n") #'forward-paragraph)
-(global-set-key (kbd "M-p") #'backward-paragraph)
-;; Persional information
+;; Persional information.
 (defgroup t_fighting nil
   "Centaur Emacs customizations."
   :group 'convenience
@@ -40,31 +35,10 @@
   :group 't_fighting
   :type 'boolean)
 
-(defcustom t_fighting-theme-alist
-  '((default  . doom-one)
-    (classic  . doom-molokai)
-    (colorful . doom-snazzy)
-    (dark     . doom-dark+)
-    (light    . doom-one-light)
-    (day      . doom-acario-light)
-    (night    . doom-city-lights))
-  "The color theme list."
+(defcustom t_fighting-load-theme t
+  "Enable `load-theme' or not."
   :group 't_fighting
-  :type '(alist :key-type (symbol :tag "Theme name")
-                :value-type (symbol :tag "Internal theme name")))
-
-
-(defcustom t_fighting-theme 'default
-  "Set color theme."
-  :group 't_fighting
-  :type `(choice ,@(mapcar
-                    (lambda (item)
-                      (let ((name (car item)))
-                        (list 'const
-                              :tag (capitalize (symbol-name name))
-                              name)))
-                    t_fighting-theme-alist)
-                 symbol))
+  :type 'boolean)
 
 
 (defcustom t_fighting-dashboard t
@@ -73,44 +47,6 @@ If Non-nil, use dashboard, otherwise will restore previous session."
   :group 't_fighting
   :type 'boolean)
 
-(defcustom t_fighting-prettify-symbols-alist
-  '(("lambda" . ?λ)
-    ("<-" . ?←)
-    ("->" . ?→)
-    ("->>" . ?↠)
-    ("=>" . ?⇒)
-    ("map" . ?↦)
-    ("/=" . ?≠)
-    ("!=" . ?≠)
-    ("==" . ?≡)
-    ("<=" . ?≤)
-    (">=" . ?≥)
-    ("=<<" . (?= (Br . Bl) ?≪))
-    (">>=" . (?≫ (Br . Bl) ?=))
-    ("<=<" . ?↢)
-    (">=>" . ?↣)
-    ("&&" . ?∧)
-    ("||" . ?∨)
-    ("not" . ?¬))
-  "Alist of symbol prettifications."
-  :group 't_fighting
-  :type '(alist :key-type string :value-type (choice character sexp)))
-
-
-;; Load `custom-file'
-;; If it doesn't exist, copy from the template, then load it.
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-
-(let ((custom-template-file
-       (expand-file-name "custom-template.el" user-emacs-directory)))
-  (if (and (file-exists-p custom-template-file)
-           (not (file-exists-p custom-file)))
-      (copy-file custom-template-file custom-file)))
-
-(if (file-exists-p custom-file)
-    (load custom-file))
-
 (provide 'init-custom)
-
 
 ;;; init-custom.el ends here

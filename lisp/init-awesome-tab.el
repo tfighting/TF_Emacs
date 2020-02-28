@@ -18,10 +18,22 @@
 
   :config
   (awesome-tab-mode t)
-  (setq awesome-tab-label-max-length 25)
+  (setq awesome-tab-label-max-length 20)
+
   (unless *sys/gui*
     (setq awesome-tab-display-icon nil
           frame-background-mode 'dark))
+  (when *sys/gui*
+    (setq awesome-tab-show-tab-index t)
+    ;; Use s-n switch tab.
+    (global-set-key (kbd "M-1") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-2") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-3") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-4") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-5") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-6") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-7") 'awesome-tab-select-visible-tab)
+    (global-set-key (kbd "M-8") 'awesome-tab-select-visible-tab))
 
   :bind
   ("<f7>" . awesome-tab-ace-jump)

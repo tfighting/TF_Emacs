@@ -41,6 +41,8 @@
                                 (?t string-to-char-backward "")
                                 (?T string-up-to-char-backward ""))))
 
+
+
 (provide 'init-kill-ring)
 
 

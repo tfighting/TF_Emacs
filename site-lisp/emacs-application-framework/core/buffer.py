@@ -147,7 +147,7 @@ qt_text_dict = {
 class Buffer(QGraphicsScene):
     __metaclass__ = abc.ABCMeta
 
-    update_title = QtCore.pyqtSignal(str, str)
+    update_details = QtCore.pyqtSignal(str, str, str)
     open_url_in_new_tab = QtCore.pyqtSignal(str)
     open_url_in_background_tab = QtCore.pyqtSignal(str)
     translate_text = QtCore.pyqtSignal(str)
@@ -222,7 +222,7 @@ class Buffer(QGraphicsScene):
             self.buffer_widget.destroy()
 
     def change_title(self, title):
-        self.update_title.emit(self.buffer_id, title)
+        self.update_details.emit(self.buffer_id, title, self.url)
 
     def request_close_buffer(self):
         self.close_buffer.emit(self.buffer_id)
@@ -298,5 +298,37 @@ class Buffer(QGraphicsScene):
 
         self.fake_key_event_filter(event_string)
 
+    def fake_key_sequence(self, event_string):
+        event_list = event_string.split("-")
+
+        if len(event_list) > 1:
+            for widget in [self.buffer_widget.focusProxy()]:
+                last_key = event_list[-1].lower()
+                modifiers = Qt.NoModifier
+
+                for modifier in event_list[0:-1]:
+                    if modifier == "C":
+                        modifiers |= Qt.ControlModifier
+                    elif modifier == "M":
+                        modifiers |= Qt.AltModifier
+                    elif modifier == "S":
+                        modifiers |= Qt.ShiftModifier
+                    elif modifier == "s":
+                        modifiers |= Qt.MetaModifier
+
+                QApplication.sendEvent(widget, QKeyEvent(QEvent.KeyPress, qt_key_dict[last_key], modifiers, last_key))
+
     def get_url(self):
         return self.url
+
+    def build_widget_method(self, method_name, widget_method_name=None, message=None):
+        if widget_method_name:
+            setattr(self, method_name, getattr(self.buffer_widget, widget_method_name))
+        else:
+            setattr(self, method_name, getattr(self.buffer_widget, method_name))
+
+        if message != None:
+            self.message_to_emacs.emit(message)
+
+    def save_as_bookmark(self):
+        self.eval_in_emacs.emit('''(bookmark-set)''')

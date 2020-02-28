@@ -5,8 +5,7 @@
 ;;; Code
 
 (eval-when-compile
-  (require 'init-const))
-
+  (require 'init-constant))
 (use-package markdown-mode
   :defines flycheck-markdown-markdownlint-cli-config
   :preface
