@@ -83,6 +83,10 @@ FACE defaults to inheriting from default and highlight."
   :diminish
   :hook (after-init . global-auto-revert-mode))
 
+(use-package delete-selection
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
+
 ;; cut text between the point and the character CHAR
 (use-package avy-zap
   :bind (("M-z" . avy-zap-to-char-dwim)
@@ -127,7 +131,7 @@ FACE defaults to inheriting from default and highlight."
    '(and (derived-mode-p 'c-mode 'c++-mode 'csharp-mode
                          'java-mode 'go-mode 'swift-mode)
          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                             (thing-at-point 'line))))))
+                                  (thing-at-point 'line))))))
 
 ;; Show number of matches in mode-line while searching
 (use-package anzu

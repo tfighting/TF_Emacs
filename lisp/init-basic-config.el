@@ -78,12 +78,6 @@ The original function deletes trailing whitespace of the current line."
 ;; Map Alt key to Meta
 (setq x-alt-keysym 'meta)
 
-;; Display time
-(display-time-mode t)
-
-;; Display columns in mode-line.
-(column-number-mode t)
-
 ;; Inhibit startup configuration.
 (setq inhibit-startup-screen t
       inhibit-startup-echo-area-message t)

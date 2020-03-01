@@ -64,23 +64,24 @@
   :init (unless (or *sys/win32p* (font-installed-p "all-the-icons"))
 	      (all-the-icons-install-fonts t))
   :config
-  ;; FIXME: Align the directory icons
-  ;; @see https://github.com/domtronn/all-the-icons.el/pull/173
-  (defun all-the-icons-icon-for-dir (dir &optional chevron padding)
-    "Format an icon for DIR with CHEVRON similar to tree based directories."
-    (let* ((matcher (all-the-icons-match-to-alist (file-name-base (directory-file-name dir)) all-the-icons-dir-icon-alist))
-           (path (expand-file-name dir))
-           (chevron (if chevron (all-the-icons-octicon (format "chevron-%s" chevron) :height 0.8 :v-adjust -0.1) ""))
-           (padding (or padding "\t"))
-           (icon (cond
-                  ((file-symlink-p path)
-                   (all-the-icons-octicon "file-symlink-directory" :height 1.0 :v-adjust 0.0))
-                  ((all-the-icons-dir-is-submodule path)
-                   (all-the-icons-octicon "file-submodule" :height 1.0 :v-adjust 0.0))
-                  ((file-exists-p (format "%s/.git" path))
-                   (format "%s" (all-the-icons-octicon "repo" :height 1.1 :v-adjust 0.0)))
-                  (t (apply (car matcher) (list (cadr matcher) :v-adjust 0.0))))))
-      (format "%s%s%s%s%s" padding chevron padding icon padding)))
+  (with-no-warnings
+    ;; FIXME: Align the directory icons
+    ;; @see https://github.com/domtronn/all-the-icons.el/pull/173
+    (defun all-the-icons-icon-for-dir (dir &optional chevron padding)
+      "Format an icon for DIR with CHEVRON similar to tree based directories."
+      (let* ((matcher (all-the-icons-match-to-alist (file-name-base (directory-file-name dir)) all-the-icons-dir-icon-alist))
+             (path (expand-file-name dir))
+             (chevron (if chevron (all-the-icons-octicon (format "chevron-%s" chevron) :height 0.8 :v-adjust -0.1) ""))
+             (padding (or padding "\t"))
+             (icon (cond
+                    ((file-symlink-p path)
+                     (all-the-icons-octicon "file-symlink-directory" :height 1.0 :v-adjust 0.0))
+                    ((all-the-icons-dir-is-submodule path)
+                     (all-the-icons-octicon "file-submodule" :height 1.0 :v-adjust 0.0))
+                    ((file-exists-p (format "%s/.git" path))
+                     (format "%s" (all-the-icons-octicon "repo" :height 1.1 :v-adjust 0.0)))
+                    (t (apply (car matcher) (list (cadr matcher) :v-adjust 0.0))))))
+        (format "%s%s%s%s%s" padding chevron padding icon padding))))
 
   (defun all-the-icons-reset ()
     "Reset (unmemoize/memoize) the icons."
@@ -204,17 +205,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Mode-line
-(use-package doom-modeline
-  :custom
-  ;; Don't compact font caches during GC. Windows Laggy Issue
-  (inhibit-compacting-font-caches t)
-  (if *sys/gui* (doom-modeline-icon t) nil)
-  (doom-modeline-major-mode-color-icon t)
-  (doom-modeline-height 5)
-  (doom-modeline-mu4e nil)
-  :hook (after-init . doom-modeline-mode))
+;; (use-package doom-modeline
+;;   :custom
+;;   ;; Don't compact font caches during GC. Windows Laggy Issue
+;;   (inhibit-compacting-font-caches t)
+;;   (doom-modeline-icon *sys/gui*)
+;;   (doom-modeline-major-mode-color-icon t)
+;;   (doom-modeline-height 25)
+;;   (doom-modeline-mu4e nil)
+;;   (doom-modeline-buffer-encoding nil)
+;;   :hook (after-init . doom-modeline-mode))
 
-
-  (provide 'init-ui)
+(provide 'init-ui)
 
 ;;; init-ui.el ends here.

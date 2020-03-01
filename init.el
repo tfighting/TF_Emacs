@@ -77,6 +77,7 @@ If you experience freezing,decrease this. If you experience stuttering, increase
 (require 'init-constant)
 (require 'init-custom)
 (require 'init-package)
+(require 'init-modeline)
 (require 'init-basic-config)
 (require 'init-functions)
 (require 'init-fonts)
