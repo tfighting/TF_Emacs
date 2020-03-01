@@ -174,17 +174,27 @@ class EAF(dbus.service.Object):
         # Handle eval form in emacs.
         app_buffer.eval_in_emacs.connect(self.eval_in_emacs)
 
-        # Add create new window callback if module is browser
+        # Handle get_focus_text signal.
+        if getattr(app_buffer, "get_focus_text", False) and getattr(app_buffer.get_focus_text, "connect", False):
+            app_buffer.get_focus_text.connect(self.edit_focus_text)
+
+        if getattr(app_buffer.buffer_widget, "get_focus_text", False) and getattr(app_buffer.buffer_widget.get_focus_text, "connect", False):
+            app_buffer.buffer_widget.get_focus_text.connect(self.edit_focus_text)
+
+        # Handle trigger_focus_event signal.
+        if getattr(app_buffer.buffer_widget, "trigger_focus_event", False) and getattr(app_buffer.buffer_widget.trigger_focus_event, "connect", False):
+            app_buffer.buffer_widget.trigger_focus_event.connect(self.focus_emacs_buffer)
+
+        # Handle export_org_json signal.
+        if getattr(app_buffer, "export_org_json", False) and getattr(app_buffer.export_org_json, "connect", False):
+            app_buffer.export_org_json.connect(self.export_org_json)
+
+        # Add create new window when create_new_browser_window_callback is call.
         if module_path == "app.browser.buffer":
             app_buffer.buffer_widget.create_new_browser_window_callback = self.create_new_browser_window
-            app_buffer.get_focus_text.connect(self.edit_focus_text)
-            app_buffer.buffer_widget.trigger_focus_event.connect(self.focus_emacs_buffer)
 
         elif module_path == "app.rss-reader.buffer":
             app_buffer.buffer_widget.browser.create_new_browser_window_callback = self.create_new_browser_window
-
-        elif module_path == "app.pdf-viewer.buffer":
-            app_buffer.buffer_widget.get_focus_text.connect(self.edit_focus_text)
 
         # Restore buffer session.
         self.restore_buffer_session(app_buffer)
@@ -210,7 +220,7 @@ class EAF(dbus.service.Object):
         # Remove old key from view dict and destroy old view.
         for key in list(self.view_dict):
             if key not in view_infos:
-                self.view_dict[key].handle_destroy()
+                self.view_dict[key].destroy_view()
                 self.view_dict.pop(key, None)
 
         # Create new view and udpate in view dict.
@@ -247,6 +257,9 @@ class EAF(dbus.service.Object):
                 else:
                     buffer.buffer_widget.resize(emacs_width, emacs_height)
 
+                # Send resize signal to buffer.
+                buffer.resize_view()
+
     @dbus.service.method(EAF_DBUS_NAME, in_signature="", out_signature="")
     def kill_emacs(self):
         tmp_buffer_dict = {}
@@ -261,7 +274,7 @@ class EAF(dbus.service.Object):
         # Kill all view base on buffer_id.
         for key in list(self.view_dict):
             if buffer_id == self.view_dict[key].buffer_id:
-                self.view_dict[key].handle_destroy()
+                self.view_dict[key].destroy_view()
                 self.view_dict.pop(key, None)
 
         # Clean buffer from buffer dict.
@@ -269,7 +282,7 @@ class EAF(dbus.service.Object):
             # Save buffer session.
             self.save_buffer_session(self.buffer_dict[buffer_id])
 
-            self.buffer_dict[buffer_id].handle_destroy()
+            self.buffer_dict[buffer_id].destroy_buffer()
             self.buffer_dict.pop(buffer_id, None)
 
     @dbus.service.method(EAF_DBUS_NAME, in_signature="sss", out_signature="")
@@ -363,7 +376,7 @@ class EAF(dbus.service.Object):
         pass
 
     @dbus.service.signal(EAF_DBUS_NAME)
-    def input_message(self, buffer_id, message, callback_type, input_type):
+    def input_message(self, buffer_id, message, callback_type, input_type, input_content):
         pass
 
     @dbus.service.signal(EAF_DBUS_NAME)
@@ -388,6 +401,10 @@ class EAF(dbus.service.Object):
 
     @dbus.service.signal(EAF_DBUS_NAME)
     def edit_focus_text(self, buffer_id, focus_text):
+        pass
+
+    @dbus.service.signal(EAF_DBUS_NAME)
+    def export_org_json(self, org_json_content, org_file_path):
         pass
 
     def save_buffer_session(self, buf):
@@ -449,9 +466,6 @@ class EAF(dbus.service.Object):
             print("Session is not restored, as %s cannot be found." % (self.session_file))
 
 if __name__ == "__main__":
-    import faulthandler
-    faulthandler.enable()
-
     import sys
     import signal
 

@@ -43,8 +43,7 @@
   (eaf-bind-key scroll_to_bottom "M-<" eaf-browser-keybinding)
   (eaf-bind-key open_link "M-h" eaf-browser-keybinding)
   (eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
-  :bind ("C-z o" . eaf-open)
-  )
+  :bind ("C-z o" . eaf-open))
 
 
 

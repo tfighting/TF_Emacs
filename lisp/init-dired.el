@@ -14,6 +14,8 @@
 ;; Directory operations
 (use-package dired
   :ensure nil
+  :init
+  (put 'dired-find-alternate-file 'disabled nil)
   :bind (("C-x C-j" . dired-jump)
          :map dired-mode-map
          ("C-c C-p" . wdired-change-to-wdired-mode) ; change names in dired-mode
@@ -24,7 +26,6 @@
   (setq dired-recursive-deletes 'always
         dired-recursive-copies 'always
         dired-dwim-target t)
-
 
   (when *sys/mac*    ;; Suppress the warning: `ls does not support --dired'.
     (setq dired-use-ls-dired nil)
@@ -50,7 +51,6 @@
   (use-package dired-rsync
     :bind (:map dired-mode-map
            ("C-c C-r" . dired-rsync))))
-
 ;; Shows icons
 (use-package all-the-icons-dired
   :diminish

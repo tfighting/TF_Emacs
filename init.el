@@ -94,9 +94,6 @@ If you experience freezing,decrease this. If you experience stuttering, increase
 (require 'init-yasnippet)
 (require 'init-dashboard)
 (require 'init-dired)
-
-
-
 (require 'init-ibuffer)
 (require 'init-kill-ring)
 (require 'init-window)

@@ -42,7 +42,7 @@
         company-require-match nil
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil
-	;; Forbid company mode in some mode.
+	    ;; Forbid company mode in some mode.
         company-global-modes '(not erc-mode message-mode help-mode gud-mode eshell-mode shell-mode eaf-mode)
         company-backends '(company-capf)
         company-frontends '(company-pseudo-tooltip-frontend
@@ -103,7 +103,7 @@
   (advice-add #'company-box-icons--elisp :override #'my-company-box-icons--elisp)
 
   (when (and *sys/gui*
-	     (require 'all-the-icons nil t))
+	         (require 'all-the-icons nil t))
     (declare-function all-the-icons-faicon 'all-the-icons)
     (declare-function all-the-icons-material 'all-the-icons)
     (declare-function all-the-icons-octicon 'all-the-icons)

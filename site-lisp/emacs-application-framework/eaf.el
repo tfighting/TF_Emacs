@@ -7,7 +7,7 @@
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-06-15 14:10:12
 ;; Version: 0.5
-;; Last-Updated: Sat Feb 22 03:07:37 2020 (-0500)
+;; Last-Updated: Tue Feb 25 09:57:21 2020 (-0500)
 ;;           By: Mingde (Matthew) Zeng
 ;; URL: http://www.emacswiki.org/emacs/download/eaf.el
 ;; Keywords:
@@ -72,12 +72,30 @@
 ;;
 
 ;;; Require
+(defun add-subdirs-to-load-path (dir)
+  "Recursive add directories to `load-path'."
+  (let ((default-directory (file-name-as-directory dir)))
+    (add-to-list 'load-path dir)
+    (normal-top-level-add-subdirs-to-load-path)))
+
+(add-subdirs-to-load-path (file-name-directory (locate-library "eaf")))
+
 (require 'dbus)
 (require 'subr-x)
 (require 'map)
 (require 'bookmark)
+(require 'seq)
+(require 'eaf-mindmap)
 
 ;;; Code:
+
+
+;; Remove the relevant environment variables from the process-environment to disable QT scaling,
+;; let EAF qt program follow the system scale.
+(setq process-environment (seq-filter
+                           (lambda(var)
+                             (and (not (string-match-p "QT_SCALE_FACTOR" var))
+                                  (not (string-match-p "QT_SCREEN_SCALE_FACTOR" var)))) process-environment))
 
 (defgroup eaf nil
   "Emacs Application Framework."
@@ -228,6 +246,7 @@ It must defined at `eaf-browser-search-engines'."
     (eaf-browser-aria2-proxy-host . "")
     (eaf-browser-aria2-proxy-port . "")
     (eaf-marker-letters . "ASDFHJKLWEOPCNM")
+    (eaf-mindmap-save-path . "~/Documents")
     )
   "The alist storing user-defined variables that's shared with EAF Python side.
 
@@ -368,7 +387,6 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
     ("C-0" . "zoom_reset")
     ("C-S-c" . "copy_text")
     ("C-S-v" . "yank_text")
-    ("C-c C-c" . "eaf-send-cancel-key-sequence")
     ("C-a" . "eaf-send-key-sequence")
     ("C-e" . "eaf-send-key-sequence")
     ("C-d" . "eaf-send-key-sequence")
@@ -377,9 +395,15 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
     ("C-r" . "eaf-send-key-sequence")
     ("C-y" . "eaf-send-key-sequence")
     ("C-k" . "eaf-send-key-sequence")
+    ("C-o" . "eaf-send-key-sequence")
+    ("C-v" . "eaf-send-key-sequence")
+    ("M-v" . "eaf-send-key-sequence")
     ("M-f" . "eaf-send-key-sequence")
     ("M-b" . "eaf-send-key-sequence")
-    ("M-d" . "eaf-send-key-sequence"))
+    ("M-d" . "eaf-send-key-sequence")
+    ("C-c C-c" . "eaf-send-second-key-sequence")
+    ("C-c C-x" . "eaf-send-second-key-sequence")
+    )
   "The keybinding of EAF Terminal."
   :type 'cons)
 
@@ -418,6 +442,37 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
   "The keybinding of EAF RSS Reader."
   :type 'cons)
 
+(defcustom eaf-mindmap-keybinding
+  '(("TAB" . "add_sub_node")
+    ("RET" . "add_brother_node")
+    ("<deletechar>" . "remove_node")
+    ("M-m" . "update_node_topic")
+    ("M-r" . "refresh_page")
+    ("C--" . "zoom_out")
+    ("C-=" . "zoom_in")
+    ("C-0" . "zoom_reset")
+    ("M-j" . "select_down_node")
+    ("M-k" . "select_up_node")
+    ("M-h" . "select_left_node")
+    ("M-l" . "select_right_node")
+    ("j" . "insert_or_select_down_node")
+    ("k" . "insert_or_select_up_node")
+    ("h" . "insert_or_select_left_node")
+    ("l" . "insert_or_select_right_node")
+    ("-" . "insert_or_zoom_out")
+    ("=" . "insert_or_zoom_in")
+    ("0" . "insert_or_zoom_reset")
+    ("d" . "insert_or_remove_node")
+    ("f" . "insert_or_update_node_topic")
+    ("t" . "insert_or_toggle_node")
+    ("i" . "insert_or_change_node_background")
+    ("1" . "insert_or_save_screenshot")
+    ("2" . "insert_or_save_file")
+    ("3" . "insert_or_save_org_file")
+    )
+  "The keybinding of EAF Mindmap."
+  :type 'cons)
+
 (defcustom eaf-pdf-extension-list
   '("pdf" "xps" "oxps" "cbz" "epub" "fb2" "fbz" "djvu")
   "The extension list of pdf application."
@@ -448,6 +503,16 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
   "The extension list of org previewer application."
   :type 'cons)
 
+(defcustom eaf-mindmap-extension-list
+  '("emm")
+  "The extension list of mindmap application."
+  :type 'cons)
+
+(defcustom eaf-office-extension-list
+  '("docx" "doc" "ppt" "pptx" "xlsx")
+  "The extension list of office application."
+  :type 'cons)
+
 (defcustom eaf-mua-get-html
   '(("^gnus-" . eaf-gnus-get-html)
     ("^mu4e-" . eaf-mu4e-get-html)
@@ -468,6 +533,11 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
   "Proxy Type used by EAF Browser.  The value is either \"http\" or \"socks5\"."
   :type 'string)
 
+(defcustom eaf-enable-debug nil
+  "If you got segfault error, please turn this option.
+Then EAF will start by gdb, please send new issue with `*eaf*' buffer content when next crash."
+  :type 'boolean)
+
 (defvar eaf-app-binding-alist
   '(("browser" . eaf-browser-keybinding)
     ("pdf-viewer" . eaf-pdf-viewer-keybinding)
@@ -477,7 +547,9 @@ Try not to modify this alist directly.  Use `eaf-setq' to modify instead."
     ("terminal" . eaf-terminal-keybinding)
     ("markdown-previewer" . eaf-browser-keybinding)
     ("org-previewer" . eaf-browser-keybinding)
-    ("rss-reader" . eaf-rss-reader-keybinding))
+    ("rss-reader" . eaf-rss-reader-keybinding)
+    ("mindmap" . eaf-mindmap-keybinding)
+    )
   "Mapping app names to keybinding variables.
 
 Any new app should add the its name and the corresponding
@@ -509,7 +581,9 @@ A bookmark handler function is used as
     ("image-viewer" . eaf-image-extension-list)
     ("video-player" . eaf-video-extension-list)
     ("browser" . eaf-browser-extension-list)
-    ("org-previewer" . eaf-org-extension-list))
+    ("org-previewer" . eaf-org-extension-list)
+    ("mindmap" . eaf-mindmap-extension-list)
+    )
   "Mapping app names to extension list variables.
 
 A new app can use this to configure extensions which should
@@ -596,7 +670,10 @@ For now only EAF browser app is supported."
          "com.lazycat.eaf"          ; service name
          "/com/lazycat/eaf"         ; path name
          "com.lazycat.eaf"          ; interface name
-         method args))
+         method
+         :timeout 1000000
+         args)
+  )
 
 (defun eaf-get-emacs-xid (frame)
   (frame-parameter frame 'window-id))
@@ -613,13 +690,16 @@ For now only EAF browser app is supported."
    ((process-live-p eaf-process)
     (message "[EAF] Process is already running."))
    (t
-    (setq eaf-process
-          (apply #'start-process
-                 eaf-name
-                 eaf-name
-                 eaf-python-command (append (list eaf-python-file) (eaf-get-render-size)
-                                            (list eaf-proxy-host eaf-proxy-port eaf-proxy-type eaf-config-location)
-                                            (list (eaf-serialization-var-list)))))
+    (let ((eaf-args (append
+                     (list eaf-python-file)
+                     (eaf-get-render-size)
+                     (list eaf-proxy-host eaf-proxy-port eaf-proxy-type eaf-config-location)
+                     (list (eaf-serialization-var-list))))
+          (gdb-args (list "-batch" "-ex" "run" "-ex" "bt" "--args" eaf-python-command)))
+      (setq eaf-process
+            (if eaf-enable-debug
+                (apply #'start-process eaf-name eaf-name "gdb" (append gdb-args eaf-args))
+              (apply #'start-process eaf-name eaf-name eaf-python-command eaf-args))))
     (set-process-query-on-exit-flag eaf-process nil)
     (set-process-sentinel
      eaf-process
@@ -761,7 +841,7 @@ to edit EAF keybindings!" fun fun)))
                    do (define-key map (kbd key)
                         (cond ((symbolp fun)
                                fun)
-                              ((member fun (list "eaf-send-key-sequence" "eaf-send-cancel-key-sequence"))
+                              ((member fun (list "eaf-send-key-sequence" "eaf-send-second-key-sequence"))
                                (intern fun))
                               (t
                                (eaf--make-proxy-function fun))))
@@ -892,10 +972,12 @@ to edit EAF keybindings!" fun fun)))
   (interactive)
   (eaf-call "send_key_sequence" eaf--buffer-id (key-description (this-command-keys-vector))))
 
-(defun eaf-send-cancel-key-sequence ()
-  "Send C-c to terminal."
+(defun eaf-send-second-key-sequence ()
+  "Send second part of key sequence to terminal."
   (interactive)
-  (eaf-call "send_key_sequence" eaf--buffer-id "C-c"))
+  (eaf-call "send_key_sequence"
+            eaf--buffer-id
+            (nth 1 (split-string (key-description (this-command-keys-vector))))))
 
 (defun eaf-set (sym val)
   "Similar to `set', but store SYM with VAL in EAF Python side, and return VAL.
@@ -1055,18 +1137,18 @@ of `eaf--buffer-app-name' inside the EAF buffer."
  "com.lazycat.eaf" "input_message"
  #'eaf--input-message)
 
-(defun eaf--input-message (input-buffer-id interactive-string callback-type interactive_type)
+(defun eaf--input-message (input-buffer-id interactive-string callback-type interactive_type input_content)
   "Handles input message INTERACTIVE-STRING on the Python side given INPUT-BUFFER-ID and CALLBACK-TYPE."
-  (let* ((input-message (eaf-read-input (concat "[EAF/" eaf--buffer-app-name "] " interactive-string) interactive_type)))
+  (let* ((input-message (eaf-read-input (concat "[EAF/" eaf--buffer-app-name "] " interactive-string) interactive_type input_content)))
     (if input-message
         (eaf-call "handle_input_message" input-buffer-id callback-type input-message)
       (eaf-call "cancel_input_message" input-buffer-id callback-type))))
 
-(defun eaf-read-input (interactive-string interactive_type)
+(defun eaf-read-input (interactive-string interactive_type input_content)
   "Like `read-string' which read an INTERACTIVE-STRING, but return nil if user execute `keyboard-quit' when input."
   (condition-case nil
       (cond ((string-equal interactive_type "string")
-             (read-string interactive-string))
+             (read-string interactive-string input_content))
             ((string-equal interactive_type "file")
              (expand-file-name (read-file-name interactive-string))))
     (quit nil)))
@@ -1190,29 +1272,26 @@ In that way the corresponding function will be called to retrieve the HTML
 
 ;;;###autoload
 (defun eaf-open-browser (url &optional arguments)
-  "Open EAF browser application given a URL and ARGUMENTS.
-
-If URL is an invalid URL, it will use `eaf-browser-default-search-engine' to search URL as string literal."
-  (interactive "M[EAF/browser] Search || URL: ")
-  ;; Validate URL legitimacy
-  (if (eaf-is-valid-url url)
-      (eaf-open (eaf-wrap-url url) "browser" arguments)
-    (eaf-search-it url)))
+  "Open EAF browser application given a URL and ARGUMENTS."
+  (interactive "M[EAF/browser] URL: ")
+  (eaf-open (eaf-wrap-url url) "browser" arguments))
 
 (defun eaf-is-valid-url (url)
-  "Return non-nil if URL is valid."
-  (and
-   ;; URL should not include blank char.
-   (< (length (split-string url)) 2)
-   ;; Use regexp matching URL.
-   (or
-    (and
-     (string-prefix-p "file://" url)
-     (string-suffix-p ".html" url))
-    ;; Normal url address.
-    (string-match "^\\(https?://\\)?[a-z0-9]+\\([-.][a-z0-9]+\\)*.+\\..+[a-z0-9.]\\{1,6\\}\\(:[0-9]{1,5}\\)?\\(/.*\\)?$" url)
-    ;; Localhost url.
-    (string-match "^\\(https?://\\)?\\(localhost\\|127.0.0.1\\):[0-9]+/?" url))))
+  "Return the same URL if it is valid."
+  (when (and
+         url
+         ;; URL should not include blank char.
+         (< (length (split-string url)) 2)
+         ;; Use regexp matching URL.
+         (or
+          (and
+           (string-prefix-p "file://" url)
+           (string-suffix-p ".html" url))
+          ;; Normal url address.
+          (string-match "^\\(https?://\\)?[a-z0-9]+\\([-.][a-z0-9]+\\)*.+\\..+[a-z0-9.]\\{1,6\\}\\(:[0-9]{1,5}\\)?\\(/.*\\)?$" url)
+          ;; Localhost url.
+          (string-match "^\\(https?://\\)?\\(localhost\\|127.0.0.1\\):[0-9]+/?" url)))
+    url))
 
 (defun eaf-wrap-url (url)
   "Wraps URL with prefix http:// if URL does not include it."
@@ -1259,28 +1338,31 @@ If URL is an invalid URL, it will use `eaf-browser-default-search-engine' to sea
 (defun eaf-open-browser-with-history ()
   "A wrapper around `eaf-open-browser' that provides browser history candidates.
 
+If URL is an invalid URL, it will use `eaf-browser-default-search-engine' to search URL as string literal.
+
 This function works best if paired with a fuzzy search package."
   (interactive)
-  (let ((browser-history-file-path
-         (concat eaf-config-location
-                 (file-name-as-directory "browser")
-                 (file-name-as-directory "history")
-                 "log.txt"))
-        (history-pattern "^\\(.+\\)ᛝ\\(.+\\)ᛡ\\(.+\\)$"))
-    (if (file-exists-p browser-history-file-path)
-        (let* ((history-list (mapcar
-                              (lambda (h) (when (string-match history-pattern h)
-                                       (format "[%s] ⇰ %s" (match-string 1 h) (match-string 2 h))))
-                              (with-temp-buffer (insert-file-contents browser-history-file-path)
-                                                (split-string (buffer-string) "\n" t))))
-               (history (completing-read "[EAF/browser] Search || URL || History: " history-list))
-               (history-url (when (string-match "[^\s]+$" history)
-                              (match-string 0 history))))
-          (if (and history-url
-                   (eaf-is-valid-url history-url))
-              (eaf-open-browser history-url)
-            (eaf-open-browser history)))
-      (call-interactively 'eaf-open-browser))))
+  (let* ((browser-history-file-path
+          (concat eaf-config-location
+                  (file-name-as-directory "browser")
+                  (file-name-as-directory "history")
+                  "log.txt"))
+         (history-pattern "^\\(.+\\)ᛝ\\(.+\\)ᛡ\\(.+\\)$")
+         (history-file-exists (file-exists-p browser-history-file-path))
+         (history (completing-read
+                   "[EAF/browser] Search || URL || History: "
+                   (if history-file-exists
+                       (mapcar
+                        (lambda (h) (when (string-match history-pattern h)
+                                      (format "[%s] ⇰ %s" (match-string 1 h) (match-string 2 h))))
+                        (with-temp-buffer (insert-file-contents browser-history-file-path)
+                                          (split-string (buffer-string) "\n" t)))
+                     nil)))
+         (history-url (eaf-is-valid-url (when (string-match "[^\s]+$" history)
+                                          (match-string 0 history)))))
+    (cond (history-url (eaf-open-browser history-url))
+          ((eaf-is-valid-url history) (eaf-open-browser history))
+          (t (eaf-search-it history)))))
 
 ;;;###autoload
 (defun eaf-search-it (&optional search-string search-engine)
@@ -1346,12 +1428,15 @@ choose a search engine defined in `eaf-browser-search-engines'"
 Other files will open normally with `dired-find-file' or `dired-find-alternate-file'"
   (interactive)
   (dolist (file (dired-get-marked-files))
-    (cond ((eaf--get-app-for-extension
-            (eaf-get-file-name-extension file))
-           (eaf-open file))
-          (eaf-find-alternate-file-in-dired
-           (dired-find-alternate-file))
-          (t (dired-find-file)))))
+    (cond
+     ((member (eaf-get-file-name-extension file) eaf-office-extension-list)
+      (eaf-open-office file))
+     ((eaf--get-app-for-extension
+       (eaf-get-file-name-extension file))
+      (eaf-open file))
+     (eaf-find-alternate-file-in-dired
+      (dired-find-alternate-file))
+     (t (dired-find-file)))))
 
 ;;;###autoload
 (define-obsolete-function-alias 'eaf-file-open-in-dired #'eaf-open-this-from-dired)
@@ -1500,6 +1585,37 @@ Make sure that your smartphone is connected to the same WiFi network as this com
   (local-set-key (kbd "C-c C-k") 'eaf-edit-buffer-cancel)
   (eaf--edit-set-header-line))
 
+(defun eaf-create-mindmap ()
+  (interactive)
+  (eaf-open " " "mindmap"))
+
+(defun eaf-open-mindmap (file)
+  (interactive "fOpen EAF Mind Map: ")
+  (eaf-open file "mindmap"))
+
+(defun eaf-get-file-md5 (file)
+  (car (split-string (shell-command-to-string (format "md5sum %s" (file-truename file))) " ")))
+
+(defun eaf-open-office (file)
+  (interactive "fOpen office file: ")
+  (if (executable-find "libreoffice")
+      (let* ((file-md5 (eaf-get-file-md5 file))
+             (convert-file (format "/tmp/%s.pdf" (file-name-base file)))
+             (pdf-file (format "/tmp/%s.pdf" file-md5)))
+        (if (file-exists-p pdf-file)
+            (eaf-open pdf-file "pdf-viewer")
+          (message "Converting %s to PDF format, EAF will start after convert finish." file)
+          (make-process
+           :name ""
+           :buffer " *eaf-open-office*"
+           :command (list "libreoffice" "--headless" "--convert-to" "pdf" (file-truename file) "--outdir" "/tmp")
+           :sentinel (lambda (process event)
+                       (when (string= (substring event 0 -1) "finished")
+                         (rename-file convert-file pdf-file)
+                         (eaf-open pdf-file "pdf-viewer")
+                         )))))
+    (message "Please install libreoffice to convert office file to pdf.")))
+
 (dbus-register-signal
  :session "com.lazycat.eaf" "/com/lazycat/eaf"
  "com.lazycat.eaf" "edit_focus_text"
@@ -1513,7 +1629,9 @@ Make sure that your smartphone is connected to the same WiFi network as this com
     (eaf-edit-mode)
     (eaf--edit-set-header-line)
     (insert focus-text)
-    (beginning-of-buffer)
+    ;; When text line number above
+    (when (> (line-number-at-pos) 30)
+      (beginning-of-buffer))
     ))
 
 (defun eaf--edit-set-header-line ()

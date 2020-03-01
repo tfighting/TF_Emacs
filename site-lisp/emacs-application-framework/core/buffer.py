@@ -151,8 +151,7 @@ class Buffer(QGraphicsScene):
     open_url_in_new_tab = QtCore.pyqtSignal(str)
     open_url_in_background_tab = QtCore.pyqtSignal(str)
     translate_text = QtCore.pyqtSignal(str)
-    before_destroy_hook = QtCore.pyqtSignal()
-    input_message = QtCore.pyqtSignal(str, str, str, str)
+    input_message = QtCore.pyqtSignal(str, str, str, str, str)
     close_buffer = QtCore.pyqtSignal(str)
     message_to_emacs = QtCore.pyqtSignal(str)
     set_emacs_var = QtCore.pyqtSignal(str, str)
@@ -214,12 +213,14 @@ class Buffer(QGraphicsScene):
 
         self.buffer_widget.buffer = self
 
-    def handle_destroy(self):
-        # Record close page before close action.
-        self.before_destroy_hook.emit()
+    def before_destroy_buffer(self):
+        pass
+
+    def destroy_buffer(self):
+        self.before_destroy_buffer()
 
         if self.buffer_widget is not None:
-            self.buffer_widget.destroy()
+            self.buffer_widget.deleteLater()
 
     def change_title(self, title):
         self.update_details.emit(self.buffer_id, title, self.url)
@@ -233,11 +234,14 @@ class Buffer(QGraphicsScene):
     def some_view_show(self):
         pass
 
+    def resize_view(self):
+        pass
+
     def get_key_event_widgets(self):
         return [self.buffer_widget]
 
-    def send_input_message(self, message, callback_type, input_type="string"):
-        self.input_message.emit(self.buffer_id, message, callback_type, input_type)
+    def send_input_message(self, message, callback_type, input_type="string", input_content=""):
+        self.input_message.emit(self.buffer_id, message, callback_type, input_type, input_content)
 
     def handle_input_message(self, result_type, result_content):
         pass

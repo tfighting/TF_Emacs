@@ -28,10 +28,26 @@
 
 ;; Quickly switch windows
 (use-package ace-window
-  :bind ("C-x o" . ace-window)
+  :bind (("C-x o" . ace-window)
+         ("C-c w" . ace-window-hydra/body))
   :custom-face
   (aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
+  :pretty-hydra
+  ((:title (pretty-hydra-title "Window Management" 'faicon "windows")
+    :foreign-keys warn :quit-key "q")
+   ("Actions"
+    (("s" ace-swap-window "swap" :exit t)
+     ("h" shrink-window-horizontally "←")
+     ("j" enlarge-window "↓")
+     ("k" shrink-window "↑")
+     ("l" enlarge-window-horizontally "→")
+     ("n" balance-windows "balance"))
+    "Zoom"
+    (("+" text-scale-increase "increase")
+     ("=" text-scale-increase "increase")
+     ("-" text-scale-decrease "decrease")
+     ("0" (text-scale-increase 0) "reset"))))
   :config
   (ace-window-display-mode t)
   (add-hook 'window-setup-hook #'toggle-frame-maximized)

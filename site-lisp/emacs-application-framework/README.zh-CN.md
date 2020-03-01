@@ -36,27 +36,25 @@ EAF是一个可编程扩展的框架，你可以开发自己的Qt5应用并集�
 | <img src="./screenshot/terminal.gif" width="400"> | <img src="./screenshot/rss_reader.gif" width="400"> |
 |                                                   |                                                     |
 
-| Aria2 下载管理器                               |
-| :--------:                                     |
-| <img src="./screenshot/aria2.gif" width="400"> |
-|                                                |
+| Aria2 下载管理器                               | 思维导图                                         |
+| :--------:                                     | :-------:                                        |
+| <img src="./screenshot/aria2.gif" width="400"> | <img src="./screenshot/mindmap.gif" width="400"> |
+|                                                |                                                  |
 
 ## 安装
-1. 如果是Arch用户，你可以直接安装[emacs-eaf](https://aur.archlinux.org/packages/emacs-eaf/)，并跳到第4步.
-
-2. 先确认系统中已经安装了 ```python3```，然后使用 ```pip3``` 安装EAF依赖库:
+1. 先确认系统中已经安装了 ```python3```，然后使用 ```pip3``` 安装EAF依赖库:
 
 ```Bash
 sudo pip3 install dbus-python python-xlib pyqt5 pyqtwebengine pymupdf grip qrcode feedparser aria2p
 ```
 
-3. 使用 ```git clone``` 下载这个仓库.
+2. 使用 ```git clone``` 下载这个仓库.
 
 ```Bash
 git clone https://github.com/manateelazycat/emacs-application-framework.git --depth=1
 ```
 
-4. 把EAF加入Emacs的 ```load-path```，然后在 `init.el` 中写入:
+3. 把EAF加入Emacs的 ```load-path```，然后在 `init.el` 中写入:
 
 ```Elisp
 (require 'eaf)
@@ -75,7 +73,7 @@ git clone https://github.com/manateelazycat/emacs-application-framework.git --de
   (eaf-bind-key take_photo "p" eaf-camera-keybinding))
 ```
 
-5. 如果你*需要*使用EAF终端模拟器，请按照下面的方法安装配置 ```wetty```:
+4. 如果你*需要*使用EAF终端模拟器，请按照下面的方法安装配置 ```wetty```:
 ```Bash
 # 安装wetty
 sudo yarn global add wetty
@@ -88,7 +86,9 @@ cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
 echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 ```
 
-6. EAF浏览器的下载功能依赖aria2，还需要你额外安装 ```aria2``` 这个工具。
+5. EAF浏览器的下载功能依赖aria2，还需要你额外安装 ```aria2``` 这个工具。
+
+6. EAF办公文档阅读器需要你额外安装 ```libreoffice``` 这个工具。
 
 ### 依赖列表
 **核心** 分类代表必备依赖，这些包必须安装好EAF才能工作。其余依赖都可选，若想其使用对应的应用时，你才需要安装这些依赖。当然我们推荐先把所有依赖都安装好，等到真正使用的时候就不用再次折腾。
@@ -106,6 +106,7 @@ echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 | aria2p        | pip3          | 浏览器                                                               | 发送下载请求给Aria2 Daemon                         |
 | aria2         | pacman (Arch) | 浏览器                                                               | 下载网络文件                                       |
 | wetty         | yarn          | 终端模拟器                                                           | 通过浏览器与本地TTY交互                            |
+| libreoffice   | pacman        | 办公文档阅读器                                                       | 转换doc文件为pdf格式           |
 
 ## EAF应用启动命令
 | 应用名称       | 启动命令                                                                    |
@@ -124,6 +125,8 @@ echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 | 二维码上传文件 | `M-x eaf-file-receiver-qrcode`                                              |
 | 无线分享       | `M-x eaf-open-airshare` 输入要分享给手机的字符串                            |
 | RSS新闻阅读器  | `M-x eaf-open-rss-reader`                                                   |
+| 思维导图       | `M-x eaf-create-mindmap` or `M-x eaf-open-mindmap`                          |
+| 办公文档阅读器 | `M-x eaf-open-office`                                                          |
 | 演示程序       | `M-x eaf-open-demo`                                                         |
 
 - 在`dired`文件管理器中，建议绑定按键到命令 `eaf-open-this-from-dired` ，它会自动用合适的EAF应用来打开文件。
@@ -216,6 +219,11 @@ Markdown预览程序依赖grip，你需要访问[Github Personal access token](h
 如果你遇到任何问题，请先用命令 `emacs -q` 并只添加EAF配置，做一个对比测试，如果 `emacs -q` 的时候可以工作，请检查你个人的配置文件。
 
 如果```emacs -q```环境下问题依旧，请到[这里](https://github.com/manateelazycat/emacs-application-framework/issues/new)反馈。
+
+如果你遇到崩溃的问题, 请用下面的方式来收集崩溃信息:
+1. 先安装gdb并打开选项 `eaf-enable-debug`
+2. 使用命令 `eaf-stop-process` 停止EAF进程
+3. 重新打开EAF, 并在下次崩溃时发送 `*eaf*` 的内容
 
 ## 加入我们
 你想把Emacs开发成一个操作系统吗？

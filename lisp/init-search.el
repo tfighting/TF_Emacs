@@ -46,15 +46,10 @@
     (interactive)
     (snails '(snails-backend-buffer snails-backend-recentf)))
 
-  ;; Some backends for windows or mac.
-  (defun snails-everywhere ()
-    (interactive)
-    (snails '(snails-backend-everything snails-backend-mdfind)))
   :bind
   (("M-s s" . snails)
    ("M-s p" . snails-current-project)
-   ("M-s b" . snails-active-recent-buffers)
-   ("M-s e" . snails-everywhere)))
+   ("M-s b" . snails-active-recent-buffers)))
 
 
 (provide 'init-search)

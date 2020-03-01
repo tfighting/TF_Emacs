@@ -36,29 +36,27 @@ EAF is an extensible framework, one can develop any Qt5 application and integrat
 | <img src="./screenshot/terminal.gif" width="400"> | <img src="./screenshot/rss_reader.gif" width="400"> |
 |                                                   |                                                     |
 
-| Aria2 Download Manager                         |
-| :--------:                                     |
-| <img src="./screenshot/aria2.gif" width="400"> |
-|                                                |
+| Aria2 Download Manager                         | Mind Map  |
+| :--------:                                     | :-------: |
+| <img src="./screenshot/aria2.gif" width="400"> | <img src="./screenshot/mindmap.gif" width="400"> |
+|                                                |           |
 
 
 
 ## Install
-1. For Arch Linux users, one can install [emacs-eaf](https://aur.archlinux.org/packages/emacs-eaf/) in AUR and jump to step 4.
-
-2. Make sure to have ```python3``` installed, and use ```pip3``` to install all EAF dependencies (see below list for details)
+1. Make sure to have ```python3``` installed, and use ```pip3``` to install all EAF dependencies (see below list for details)
 
 ```Bash
 sudo pip3 install dbus-python python-xlib pyqt5 pyqtwebengine pymupdf grip qrcode feedparser aria2p
 ```
 
-3. Clone this repository.
+2. Clone this repository.
 
 ```Bash
 git clone https://github.com/manateelazycat/emacs-application-framework.git --depth=1
 ```
 
-4. Add the full path to the EAF installation directory to your Emacs ```load-path```, then add the following to `init.el`:
+3. Add the full path to the EAF installation directory to your Emacs ```load-path```, then add the following to `init.el`:
 
 ```Elisp
 (require 'eaf)
@@ -77,7 +75,7 @@ If you use [use-package](https://github.com/jwiegley/use-package), a sample conf
   (eaf-bind-key take_photo "p" eaf-camera-keybinding))
 ```
 
-5. For EAF Terminal to work *only*: Install and configure ```wetty```:
+4. For EAF Terminal to work *only*: Install and configure ```wetty```:
 ```Bash
 # Install wetty
 sudo yarn global add wetty
@@ -90,7 +88,9 @@ cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
 echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 ```
 
-6. For EAF Browser download to work, please install ```aria2```.
+5. For EAF Browser download to work, please install ```aria2```.
+
+5. For EAF Doc Viewer to work, please install ```libreoffice```.
 
 ### Dependency List
 Packages listed as **Core** are mandatory for EAF to work, whereas other packages are optional - install if you want to use corresponding EAF Application.
@@ -108,6 +108,7 @@ Packages listed as **Core** are mandatory for EAF to work, whereas other package
 | aria2p        | pip3          | Browser                                                                            | Send download requests to Aria2 daemon    |
 | aria2         | pacman (Arch) | Browser                                                                            | Download files from the web               |
 | wetty         | yarn          | Terminal                                                                           | Communicate between browser and local TTY |
+| libreoffice   | pacman        | Doc Viewer                                                                         | Convert doc file to pdf |
 
 ## Launch EAF Applications
 | Application Name    | Launch                                                                 |
@@ -126,6 +127,8 @@ Packages listed as **Core** are mandatory for EAF to work, whereas other package
 | File Receiver       | `M-x eaf-file-receiver-qrcode`                                         |
 | Airshare            | `M-x eaf-open-airshare`                                                |
 | RSS Reader          | `M-x eaf-open-rss-reader`                                              |
+| Mindmap             | `M-x eaf-create-mindmap` or `M-x eaf-open-mindmap`                     |
+| Doc Viewer          | `M-x eaf-open-office`                                                     |
 | Demo                | `M-x eaf-open-demo` to verify basic functionality                      |
 
 - To open the file under the cursor in `dired` using appropriate EAF Application, use `eaf-open-this-from-dired` instead.
@@ -224,6 +227,11 @@ For any installation and configuration assistance, please read the [Wiki](https:
 If you encounter any problem with EAF, please use command `emacs -q` with a minimal setup that only contains EAF and verify the bug is reproducible. If `emacs -q` works fine, probably something is wrong with your Emacs config.
 
 If the problem persists, please [report bug here](https://github.com/manateelazycat/emacs-application-framework/issues/new).
+
+If you got segfault error, please use the following way to collect crash information:
+1. Install gdb and turn on option `eaf-enable-debug`
+2. Use command `eaf-stop-process` stop current process
+3. Restart eaf, send issue with `*eaf*` buffer content when next crash
 
 ## Join Us
 Do you want to make Emacs a real "operating system"?

@@ -24,13 +24,13 @@ from PyQt5.QtCore import QUrl, Qt, QEvent, QPointF, QEventLoop, QVariant, QTimer
 from PyQt5.QtNetwork import QNetworkCookie
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineContextMenuData, QWebEngineProfile, QWebEngineSettings
 from PyQt5.QtWidgets import QApplication, QWidget
-from core.utils import touch, is_port_in_use
+from core.utils import touch, is_port_in_use, string_to_base64
 from core.buffer import Buffer
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 import os
-import base64
 import subprocess
 import re
+import base64
 
 MOUSE_BACK_BUTTON = 8
 MOUSE_FORWARD_BUTTON = 16
@@ -291,7 +291,7 @@ class BrowserView(QWebEngineView):
         return self.execute_js(self.get_focus_text_js)
 
     def set_focus_text(self, new_text):
-        self.set_focus_text_js = self.set_focus_text_raw.replace("%1", str(base64.b64encode(new_text.encode("utf-8")), "utf-8"));
+        self.set_focus_text_js = self.set_focus_text_raw.replace("%1", string_to_base64(new_text));
         self.eval_js(self.set_focus_text_js)
 
     def clear_focus(self):
@@ -422,20 +422,35 @@ class BrowserBuffer(Buffer):
             self.build_insert_or_do(method_name)
 
     def handle_download_request(self, download_item):
-        self.try_start_aria2_daemon()
+        download_data = download_item.url().toString()
 
-        with open(os.devnull, "w") as null_file:
-            subprocess.Popen(["aria2p", "add", download_item.url().toString()], stdout=null_file)
+        if download_data.startswith("data:image/"):
+            image_path = os.path.join(os.path.expanduser(self.emacs_var_dict["eaf-browser-download-path"]), "image.png")
+            touch(image_path)
+            with open(image_path, "wb") as f:
+                f.write(base64.decodestring(download_data.split(",")[1].encode("utf-8")))
 
-        self.message_to_emacs.emit("Start download: " + download_item.url().toString())
+            self.message_to_emacs.emit("Save image: " + image_path)
+        else:
+            self.try_start_aria2_daemon()
 
-    def handle_destroy(self):
+            download_data = download_item.url().toString()
+            with open(os.devnull, "w") as null_file:
+                subprocess.Popen(["aria2p", "add", download_data], stdout=null_file)
+
+            self.message_to_emacs.emit("Start download: " + download_data)
+
+    def destroy_buffer(self):
+        # Record close page.
         self.close_page.emit(self.buffer_widget.url().toString())
 
         # Load blank page to stop video playing, such as youtube.com.
         self.buffer_widget.open_url("about:blank")
 
-        super.handle_destroy(self)
+        if self.buffer_widget is not None:
+            # NOTE: We need delete QWebEnginePage manual, otherwise QtWebEngineProcess won't quit.
+            self.buffer_widget.web_page.deleteLater()
+            self.buffer_widget.deleteLater()
 
     def get_key_event_widgets(self):
         # We need send key event to QWebEngineView's focusProxy widget, not QWebEngineView.

@@ -34,10 +34,23 @@
     (global-set-key (kbd "M-6") 'awesome-tab-select-visible-tab)
     (global-set-key (kbd "M-7") 'awesome-tab-select-visible-tab)
     (global-set-key (kbd "M-8") 'awesome-tab-select-visible-tab))
+  :pretty-hydra
+  ((:title (pretty-hydra-title "Awesome-Tabs" 'wicon "day-sunny")
+    :foreign-keys warn :quit-key "q")
+   ("Window"
+    (("f" awesome-tab-forward-tab-other-window "window forward")
+     ("b" awesome-tab-backward-tab-other-window "window backward"))
+
+    "Kill"
+    (("o" awesome-tab-kill-other-buffers-in-current-group "kill other" :exit t)
+     ("a" awesome-tab-kill-all-buffers-in-current-group "kill all"))
+
+    "Misc"
+    (("s" awesome-tab-switch-group "switch group")
+     ("j" awesome-tab-ace-jump "jump tab" :exit t))))
 
   :bind
-  ("<f7>" . awesome-tab-ace-jump)
-  ("C-<f7>" . awesome-tab-switch-group))
+  ("<f7>" . awesome-tab-hydra/body))
 
 
 (provide 'init-awesome-tab)
