@@ -31,7 +31,7 @@
 
   ;; Global toggles
   (pretty-hydra-define toggles-hydra (:title (pretty-hydra-title "Toggles" 'faicon "toggle-on")
-                                             :color amaranth :quit-key "q")
+                                      :color amaranth :quit-key "q")
     ("Basic"
      (("n" display-line-numbers-mode "line number" :toggle t)
       ("a" aggressive-indent-mode "aggressive indent" :toggle t)

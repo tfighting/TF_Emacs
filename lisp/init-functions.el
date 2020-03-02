@@ -17,7 +17,6 @@
   "Check if font with FONT-NAME is available."
   (find-font (font-spec :name font-name)))
 
-
 (defun delete-carrage-returns ()
   "Delete `^M' characters in the buffer.
 Same as `replace-string C-q C-m RET RET'."

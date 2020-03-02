@@ -23,8 +23,8 @@
                " "
                (propertize "☕" 'face 'font-lock-string-face)
 
-               '(:eval (propertize "%b" 'face '((font-lock-string-face :bold t))
-                                   'help-echo "buffer-name"))
+               '(:eval (propertize "%b" 'face 'font-lock-string-face
+               'help-echo "buffer-name"))
 
                ;; Display line and columns
                " " "%02l" ":" "%01c" "   "

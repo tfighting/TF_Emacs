@@ -10,6 +10,16 @@
 (eval-when-compile
   (require 'init-constant))
 
+;; Show number of matches in mode-line while searching
+(use-package anzu
+  :diminish
+  :bind (([remap query-replace] . anzu-query-replace)
+         ([remap query-replace-regexp] . anzu-query-replace-regexp)
+         :map isearch-mode-map
+         ([remap isearch-query-replace] . anzu-isearch-query-replace)
+         ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
+  :hook (after-init . global-anzu-mode))
+
 ;; A fuzzy match tool
 ;; git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ;; ~/.fzf/install

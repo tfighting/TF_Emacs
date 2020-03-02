@@ -131,17 +131,8 @@ FACE defaults to inheriting from default and highlight."
    '(and (derived-mode-p 'c-mode 'c++-mode 'csharp-mode
                          'java-mode 'go-mode 'swift-mode)
          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                                  (thing-at-point 'line))))))
+                             (thing-at-point 'line))))))
 
-;; Show number of matches in mode-line while searching
-(use-package anzu
-  :diminish
-  :bind (([remap query-replace] . anzu-query-replace)
-         ([remap query-replace-regexp] . anzu-query-replace-regexp)
-         :map isearch-mode-map
-         ([remap isearch-query-replace] . anzu-isearch-query-replace)
-         ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
-  :hook (after-init . global-anzu-mode))
 
 ;; Redefine M-< and M-> for some modes
 
@@ -157,14 +148,6 @@ FACE defaults to inheriting from default and highlight."
 (use-package comment-dwim-2
   :bind ([remap comment-dwim] . comment-dwim-2)) ;
 
-;; Drag stuff (lines, words, region, etc...) around
-(use-package drag-stuff
-  :diminish
-  :commands drag-stuff-define-keys
-  :hook (after-init . drag-stuff-global-mode)
-  :config
-  (add-to-list 'drag-stuff-except-modes 'org-mode)
-  (drag-stuff-define-keys))
 
 ;; A comprehensive visual interface to diff & patch
 (use-package ediff

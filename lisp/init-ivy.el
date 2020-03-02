@@ -61,7 +61,8 @@
     "Transform CANDS into a string for minibuffer."
     (ivy--format-function-generic
      (lambda (str)
-       (concat (if *sys/gui*                    (all-the-icons-octicon "chevron-right" :height 0.8 :v-adjust -0.05)
+       (concat (if *sys/gui*
+                   (all-the-icons-octicon "chevron-right" :height 0.8 :v-adjust -0.05)
                  ">")
                (propertize " " 'display `(space :align-to 2))
                (ivy--add-face str 'ivy-current-match)))
@@ -108,8 +109,8 @@ This is for use in `ivy-re-builders-alist'."
             (t . ivy-prescient-re-builder))
           ivy-prescient-sort-commands
           '(:not swiper swiper-isearch ivy-switch-buffer
-                 counsel-grep counsel-git-grep counsel-ag counsel-imenu
-                 counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
+            counsel-grep counsel-git-grep counsel-ag counsel-imenu
+            counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
 
     (ivy-prescient-mode 1))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -151,10 +152,12 @@ This is for use in `ivy-re-builders-alist'."
 
   ;; Quick launch apps
   (cond
-   (*sys/linux-gui*    (bind-key "s-<f6>" #'counsel-linux-app counsel-mode-map))
-   (*sys/mac*    (use-package counsel-osx-app
-                   :bind (:map counsel-mode-map
-                               ("s-<f6>" . counsel-osx-app)))))
+   (*sys/linux-gui*
+    (bind-key "s-<f6>" #'counsel-linux-app counsel-mode-map))
+   (*sys/mac*
+    (use-package counsel-osx-app
+      :bind (:map counsel-mode-map
+             ("s-<f6>" . counsel-osx-app)))))
 
 
   ;; More friendly display transformer for Ivy
@@ -168,7 +171,7 @@ This is for use in `ivy-re-builders-alist'."
     :config
     ;; Better experience with icons
     (use-package all-the-icons-ivy-rich
-      :if *sys/gui*
+      :if (and *sys/gui* t_fighting-display-icons)
       :init (all-the-icons-ivy-rich-mode 1))))
 
 (provide 'init-ivy)

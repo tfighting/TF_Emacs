@@ -16,7 +16,7 @@
 (when t_fighting-dashboard
   (use-package dashboard
     :diminish (dashboard-mode page-break-lines-mode)
-    :custom-face (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
+    :custom-face (dashboard-heading ((t (:inherit (font-lock-string-face bold t)))))
     :bind (("<f2>" . open-dashboard)
            :map dashboard-mode-map
            ("H" . browse-homepage)
@@ -38,8 +38,8 @@
                             (agenda . 5))
 
           dashboard-set-init-info t
-          dashboard-set-file-icons t
-          dashboard-set-heading-icons t
+          dashboard-set-file-icons t_fighting-display-icons
+          dashboard-set-heading-icons t_fighting-display-icons
           dashboard-heading-icons '((recents   . "file-text")
                                     (bookmarks . "bookmark")
                                     (agenda    . "calendar")
@@ -49,37 +49,37 @@
           dashboard-set-footer t ;; wheather to display footer
           dashboard-footer-message (format "T_Fighting, %s" (format-time-string "%Y"))
           dashboard-footer-icon (
-                                 cond (*sys/gui*
-                                       (all-the-icons-faicon "apple"
-                                                             :height 1.1
-                                                             :v-adjust -0.05
-                                                             :face 'error))
+                                 cond ( (and *sys/gui* t_fighting-display-icons)
+                                        (all-the-icons-faicon "apple"
+                                                              :height 1.1
+                                                              :v-adjust -0.05
+                                                              :face 'error))
                                  ((char-displayable-p ?☕) "☕ ")
                                  (t (propertize ">" 'face 'font-lock-doc-face)))
 
           dashboard-set-navigator t
           dashboard-navigator-buttons
-          `(((,(when *sys/gui*
+          `(((,(when (and *sys/gui* t_fighting-display-icons)
                  (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
               "Homepage"
               "Browse homepage"
               (lambda (&rest _) (browse-url *t_fighting-homepage*)))
              ;; display previous session
-             (,(when *sys/gui*
+             (,(when (and *sys/gui* t_fighting-display-icons)
                  (all-the-icons-material "restore" :height 1.35 :v-adjust -0.24))
               "Restore"
               "Restore previous session"
               (lambda (&rest _) (restore-session)))
 
              ;; display custom file
-             (,(when *sys/gui*
+             (,(when (and *sys/gui* t_fighting-display-icons)
                  (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
               "Settings"
               "Open custom file"
               (lambda (&rest _) (find-file custom-file)))
 
              ;; display update packages
-             (,(when *sys/gui*
+             (,(when (and *sys/gui* t_fighting-display-icons)
                  (all-the-icons-material "update" :height 1.35 :v-adjust -0.24))
               "Update"
               "Update T_fighting Emacs"

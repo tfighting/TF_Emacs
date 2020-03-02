@@ -51,10 +51,12 @@
   (use-package dired-rsync
     :bind (:map dired-mode-map
            ("C-c C-r" . dired-rsync))))
+
 ;; Shows icons
-(use-package all-the-icons-dired
-  :diminish
-  :hook (dired-mode . all-the-icons-dired-mode))
+(when t_fighting-display-icons
+  (use-package all-the-icons-dired
+    :diminish
+    :hook (dired-mode . all-the-icons-dired-mode)))
 
 (provide 'init-dired)
 ;;; init-dired.el ends here

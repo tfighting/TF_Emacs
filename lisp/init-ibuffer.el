@@ -14,12 +14,13 @@
   :ensure nil
   :bind ("C-x C-b" . ibuffer)
   :config
-  (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold))))
+  (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold t))))
 
 ;; Display buffer icons on GUI
-(use-package all-the-icons-ibuffer
-  :if *sys/gui*
-  :init (all-the-icons-ibuffer-mode 1))
+(when t_fighting-display-icons
+  (use-package all-the-icons-ibuffer
+    :if *sys/gui*
+    :init (all-the-icons-ibuffer-mode 1)))
 
 ;; Ibuffers groups via project.
 (use-package ibuffer-projectile
@@ -30,7 +31,7 @@
                         (ibuffer-do-sort-by-alphabetic)))))
   :config
   (setq ibuffer-projectile-prefix
-        (if *sys/gui*
+        (if (and *sys/gui* t_fighting-display-icons)
             (concat
              (all-the-icons-octicon "file-directory"
                                     :face ibuffer-filter-group-name-face

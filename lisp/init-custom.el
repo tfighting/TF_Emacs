@@ -40,6 +40,10 @@
   :group 't_fighting
   :type 'boolean)
 
+(defcustom t_fighting-display-icons t
+  "Whether to display icons."
+  :group 't_fighting
+  :type 'boolean)
 
 (defcustom t_fighting-dashboard t
   "Use dashboard at startup or not.
