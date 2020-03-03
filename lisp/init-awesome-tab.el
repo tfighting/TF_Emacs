@@ -50,7 +50,8 @@
      ("j" awesome-tab-ace-jump "jump tab" :exit t))))
 
   :bind
-  ("<f7>" . awesome-tab-hydra/body))
+  ("C-<f7>" . awesome-tab-hydra/body)
+  ("<f7>" . awesome-tab-ace-jump))
 
 
 (provide 'init-awesome-tab)

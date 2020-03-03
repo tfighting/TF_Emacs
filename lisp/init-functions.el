@@ -231,8 +231,8 @@ Same as `replace-string C-q C-m RET RET'."
 (defun jump-to-newline ()
   "Jump to the next line."
   (interactive)
-  (mwim-end-of-code-or-line)
-  (newline))
+  (call-interactively  #'mwim-end-of-code-or-line)
+  (call-interactively #'newline))
 (global-set-key (kbd "C-j") 'jump-to-newline)
 
 (provide 'init-functions)

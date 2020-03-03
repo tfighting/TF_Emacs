@@ -42,6 +42,7 @@
   :custom
   (enable-recursive-minibuffers t) ; Allow commands in minibuffers
   (ivy-use-virtual-buffer nil)
+  (ivy-use-selectable-prompt t)
   (iny-height 10)
   (ivy-on-del-error-function nil)
   (ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)

@@ -14,19 +14,6 @@
   ((text-mode . goto-address-mode)
    (prog-mode . goto-address-mode)))
 
-;; Jump to things in Emacs tree-style.
-(use-package avy
-  :bind (("C-:" . avy-goto-char)
-         ("C-'" . avy-goto-char-2)
-         ("M-g f" . avy-goto-line)
-         ("M-g w" . avy-goto-word-1)
-         ("M-g e" . avy-goto-word-0))
-  :hook (after-init . avy-setup-default)
-  :config (setq avy-all-windows nil
-                avy-all-windows-alt t
-                avy-background t
-                avy-style 'pre))
-
 ;; Quickly follow links
 (use-package ace-link
   :defines (org-mode-map
@@ -51,7 +38,7 @@
 (use-package dumb-jump
   :pretty-hydra
   ((:title (pretty-hydra-title "Dump Jump" 'faicon "anchor")
-           :color blue :quit-key "q")
+    :color blue :quit-key "q")
    ("Jump"
     (("j" dumb-jump-go "Go")
      ("o" dumb-jump-go-other-window "Go other window")
@@ -62,12 +49,12 @@
      ("l" dumb-jump-quick-look "Quick look")
      ("b" dumb-jump-back "Back"))))
   :bind (:map dumb-jump-mode-map
-              ("M-g o" . dumb-jump-go-other-window)
-              ("M-g j" . dumb-jump-go)
-              ("M-g i" . dumb-jump-go-prompt)
-              ("M-g x" . dumb-jump-go-prefer-external)
-              ("M-g z" . dumb-jump-go-prefer-external-other-window)
-              ("C-M-j" . dumb-jump-hydra/body))
+         ("M-g o" . dumb-jump-go-other-window)
+         ("M-g j" . dumb-jump-go)
+         ("M-g i" . dumb-jump-go-prompt)
+         ("M-g x" . dumb-jump-go-prefer-external)
+         ("M-g z" . dumb-jump-go-prefer-external-other-window)
+         ("C-M-j" . dumb-jump-hydra/body))
   :hook (after-init . dumb-jump-mode)
   :config
   (setq dumb-jump-prefer-searcher 'rg

@@ -87,11 +87,6 @@ FACE defaults to inheriting from default and highlight."
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
-;; cut text between the point and the character CHAR
-(use-package avy-zap
-  :bind (("M-z" . avy-zap-to-char-dwim)
-         ("M-Z" . avy-zap-up-to-char-dwim)))
-
 ;; Pass a URL to a WWW browser
 (use-package browse-url
   :ensure nil
@@ -161,10 +156,6 @@ FACE defaults to inheriting from default and highlight."
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-merge-split-window-function 'split-window-horizontally))
 
-
-;; Increase selected region by semantic units
-(use-package expand-region
-  :bind ("C-=" . er/expand-region))
 
 ;; Hungry deletion
 (use-package hungry-delete

@@ -21,7 +21,7 @@
   (org-tags-column -80)
   (org-catch-invisible-edits 'smart)
   (org-startup-indented t)
-  (org-ellipsis (if (char-displayable-p ?) "  " nil))
+  (org-ellipsis (if (char-displayable-p ?☕) "  ☕" nil))
   (org-log-done 'time)
   (org-use-speed-commands t)
   (org-confirm-babel-evaluate 'nil)

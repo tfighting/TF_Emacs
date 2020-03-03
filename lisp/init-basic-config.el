@@ -101,7 +101,7 @@ The original function deletes trailing whitespace of the current line."
 ;; Move up/down paragraph
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq-default marjor-mode 'text-mode
 	          fill-column 80
@@ -111,7 +111,6 @@ The original function deletes trailing whitespace of the current line."
 (setq visible-bell t
       inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
       delete-by-moving-to-trash t       ; Deleting files go to OS's trash folder
-      show-trailing-whitespace t        ; Display trailling and whitespace.
       uniquify-buffer-name-style 'post-forward-angle-brackets ; Show path if names are same
       adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
       adaptive-fill-first-line-regexp "^* *$"
