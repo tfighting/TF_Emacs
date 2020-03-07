@@ -19,6 +19,7 @@
   :config
   (defalias 'aweshell 'aweshell-new))
 
+
 ;; `cd' to frequent directory in `eshell',similarity to jump-mode of zsh.
 (use-package eshell-z
   :hook (eshell-mode . (lambda () (require 'eshell-z))))
@@ -34,11 +35,14 @@
   :custom
   (multi-term-program (executable-find "zsh")))
 
+;; Suport 256colors in terminal.
+(use-package xterm-color
+  :init
+  (setenv "TERM" "xterm-256color"))
 
 (use-package term-keys
   :if (not *sys/gui*)
   :config (term-keys-mode t))
 
-
-
 (provide 'init-aweshell)
+;;; init-aweshell.el ends here.

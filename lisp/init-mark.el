@@ -38,7 +38,8 @@
     (interactive)
     (call-interactively #'set-mark-command)
     (call-interactively #'avy-goto-char))
-  (global-set-key (kbd "C-z m") 't_fighting-mark-to-char))
+  (global-set-key (kbd "C-z m") 't_fighting-mark-to-char)
+  (global-set-key (kbd "<C-return>") 't_fighting-mark-to-char))
 
 
 

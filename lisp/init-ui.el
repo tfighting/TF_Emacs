@@ -49,6 +49,12 @@
 (when (boundp 'x-gtk-use-system-tooltips)
   (setq x-gtk-use-system-tooltips nil))
 
+;; Display dividers between windows
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 1
+      window-divider-default-right-width 1)
+(add-hook 'window-setup-hook #'window-divider-mode)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Icons Configuration ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; NOTE: Must run `M-x all-the-icons-install-fonts', and install fonts manually on Windows
@@ -168,33 +174,15 @@
                  '(gfm-mode all-the-icons-octicon "markdown" :face all-the-icons-lblue))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Theme Configuration ;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 (cond (t_fighting-load-theme
        (use-package doom-themes
+         :if t_fighting-load-theme
          :init
-         (load-theme 'doom-vibrant t)
-         :config
-         ;; Global settings (defaults)
-         (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-               doom-themes-enable-italic t) ; if nil, italics is universally disabled
+         (load-theme 'doom-dracula t)))
 
-
-         ;; Enable flashing mode-line on errors
-         (doom-themes-visual-bell-config)
-
-         ;; Enable custom neotree theme (all-the-icons must be installed!)
-         (doom-themes-neotree-config)
-         ;; or for treemacs users
-         (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-         (doom-themes-treemacs-config)
-
-         ;; Corrects (and improves) org-mode's native fontification.
-         (doom-themes-org-config)))
-
-      ((and  *sys/gui* (not t_fighting-load-theme))
-       (set-background-color "#002B36")
-       (set-foreground-color "white")))
+      ((and (not t_fighting-load-theme) *sys/gui*)
+       (set-background-color "#FFFBF0")
+       (set-foreground-color "#392F41")))
 
 (provide 'init-ui)
 

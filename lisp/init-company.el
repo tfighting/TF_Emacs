@@ -43,7 +43,7 @@
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil
 	    ;; Forbid company mode in some mode.
-        company-global-modes '(not erc-mode message-mode help-mode gud-mode eshell-mode shell-mode eaf-mode)
+        company-global-modes '(not erc-mode message-mode help-mode gud-mode shell-mode eaf-mode)
         company-backends '(company-capf)
         company-frontends '(company-pseudo-tooltip-frontend
                             company-echo-metadata-frontend))

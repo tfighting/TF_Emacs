@@ -12,10 +12,17 @@
 ;; use setq-default to set it for /all/ modes
 ;; Keep track of selected window, so we can render the modeline differently
 
-(when (not *sys/gui*)
-  (set-face-attribute 'mode-line nil
-                      :background "003036"
-                      :box '(:color "003036")))
+(cond ((and (not *sys/gui*) (not t_fighting-load-theme))
+       (set-face-attribute 'mode-line nil
+                           :background "003036"
+                           :foreground "white"))
+
+      ((and *sys/gui* (not t_fighting-load-theme))
+       (set-face-attribute 'mode-line nil
+                           :background "003036"
+                           :foreground "black")))
+
+;; Display english month in modeline.
 (setq system-time-locale "C")
 (setq-default mode-line-format
               (list
@@ -24,7 +31,7 @@
                (propertize "☕" 'face 'font-lock-string-face)
 
                '(:eval (propertize "%b" 'face 'font-lock-string-face
-               'help-echo "buffer-name"))
+                                   'help-echo "buffer-name"))
 
                ;; Display line and columns
                " " "%02l" ":" "%01c" "   "

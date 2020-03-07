@@ -98,9 +98,6 @@ The original function deletes trailing whitespace of the current line."
 ;; Delete whole line
 (global-set-key (kbd "C-k") 'kill-whole-line)
 
-;; Move up/down paragraph
-(global-set-key (kbd "M-n") 'forward-paragraph)
-(global-set-key (kbd "M-p") 'backward-paragraph)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq-default marjor-mode 'text-mode

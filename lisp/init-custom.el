@@ -35,7 +35,7 @@
   :group 't_fighting
   :type 'boolean)
 
-(defcustom t_fighting-load-theme t
+(defcustom t_fighting-load-theme nil
   "Enable `load-theme' or not."
   :group 't_fighting
   :type 'boolean)

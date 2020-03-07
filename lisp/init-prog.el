@@ -26,6 +26,17 @@
 (add-hook 'prog-mode-hook 'add-pretty-lambda)
 (add-hook 'org-mode-hook 'add-pretty-lambda)
 
+(use-package format-all
+  :init
+  (defun format-my-buffer ()
+    "Format the current buffer."
+    (interactive)
+    (let ((pos (point)))
+      (format-all-buffer)
+      (goto-char pos)))
+  (define-key prog-mode-map  (kbd "C-'") 'format-my-buffer))
+
+
 ;; Batch Mode eXtras
 (use-package bmx-mode
   :after company
