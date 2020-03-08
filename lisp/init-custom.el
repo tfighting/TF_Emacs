@@ -35,7 +35,7 @@
   :group 't_fighting
   :type 'boolean)
 
-(defcustom t_fighting-load-theme nil
+(defcustom t_fighting-load-theme t
   "Enable `load-theme' or not."
   :group 't_fighting
   :type 'boolean)
@@ -50,6 +50,9 @@
 If Non-nil, use dashboard, otherwise will restore previous session."
   :group 't_fighting
   :type 'boolean)
+
+;; Load 'custom-file'
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
 (provide 'init-custom)
 

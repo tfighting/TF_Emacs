@@ -34,6 +34,7 @@
   (with-eval-after-load 'ert
     (bind-key "o" #'ace-link-help ert-results-mode-map)))
 
+
 ;; Jump to definition
 (use-package dumb-jump
   :pretty-hydra
@@ -56,9 +57,9 @@
          ("M-g z" . dumb-jump-go-prefer-external-other-window)
          ("C-M-j" . dumb-jump-hydra/body))
   :hook (after-init . dumb-jump-mode)
-  :config
-  (setq dumb-jump-prefer-searcher 'rg
-        dumb-jump-selector 'ivy))
+  :custom
+  ;; (dumb-jump-prefer-searcher 'rg)
+  (dumb-jump-selector 'ivy))
 
 (provide 'init-jump)
 ;;; init-jump.el ends here.

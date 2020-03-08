@@ -156,12 +156,20 @@ FACE defaults to inheriting from default and highlight."
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-merge-split-window-function 'split-window-horizontally))
 
-
 ;; Hungry deletion
 (use-package hungry-delete
   :diminish
   :hook (after-init . global-hungry-delete-mode)
   :config (setq-default hungry-delete-chars-to-skip " \t\f\v"))
+
+;; Drag stuff (lines, words, region, etc...) around
+(use-package drag-stuff
+  :diminish
+  :commands drag-stuff-define-keys
+  :hook (after-init . drag-stuff-global-mode)
+  :config
+  (add-to-list 'drag-stuff-except-modes 'org-mode)
+  (drag-stuff-define-keys))
 
 
 ;; Move to the beginning/end of line or code

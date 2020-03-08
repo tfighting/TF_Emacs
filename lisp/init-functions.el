@@ -225,8 +225,6 @@ Same as `replace-string C-q C-m RET RET'."
 (global-set-key (kbd "C-<f4>") 'stop-python-file-running)
 
 
-(buffer-live-p "*interpretation*")
-
 ;; Jump to end and newline.
 (defun jump-to-newline ()
   "Jump to the next line."
@@ -238,4 +236,3 @@ Same as `replace-string C-q C-m RET RET'."
 (provide 'init-functions)
 
 ;;the init-funcs.el ends here.
-(get-buffer "*interpretation*")

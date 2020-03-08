@@ -90,11 +90,6 @@
       (bongo-switch-buffers))
     (bind-key "b" #'bongo-add-dired-files dired-mode-map)))
 
-(use-package color-outline
-  :ensure nil
-  :hook (prog-mode . color-outline-mode))
-
-
 ;; Misc
 (use-package copyit)                    ; copy path, url, etc.
 (use-package list-environment)          ; List all enviroment varialbe.

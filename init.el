@@ -106,7 +106,7 @@ If you experience freezing,decrease this. If you experience stuttering, increase
 (require 'init-org)
 (require 'init-pyim)
 
-;;Programming
+;; ;;Programming
 (require 'init-vcs)
 (require 'init-flycheck)
 (require 'init-projectile)
@@ -119,74 +119,3 @@ If you experience freezing,decrease this. If you experience stuttering, increase
 
 ;; Happy Games
 (require 'init-games)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(auto-save-default nil)
- '(browse-url-browser-function 'eaf-open-browser)
- '(counsel-find-file-at-point t)
- '(counsel-yank-pop-separator "
-────────
-")
- '(custom-safe-themes
-   '("4cf9ed30ea575fb0ca3cff6ef34b1b87192965245776afa9e9e20c17d115f3fb" "939ea070fb0141cd035608b2baabc4bd50d8ecc86af8528df9d41f4d83664c6a" "b89ae2d35d2e18e4286c8be8aaecb41022c1a306070f64a66fd114310ade88aa" "0f0a4dca8bb029dc5139f447ff25bc3c18d31872c30a46d03c6bbc706ded3586" "d71aabbbd692b54b6263bfe016607f93553ea214bc1435d17de98894a5c3a086" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "e1ecb0536abec692b5a5e845067d75273fe36f24d01210bf0aa5842f2a7e029f" default))
- '(eaf-find-alternate-file-in-dired t t)
- '(enable-recursive-minibuffers t)
- '(iny-height 10 t)
- '(ivy-count-format "【%d/%d】")
- '(ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
- '(ivy-on-del-error-function nil)
- '(ivy-use-selectable-prompt t)
- '(ivy-use-virtual-buffer nil t)
- '(ivy-wrap t)
- '(lsp-auto-guess-root t)
- '(lsp-file-watch-threshold 2000)
- '(lsp-keep-workspace-alive nil)
- '(lsp-prefer-flymake nil t)
- '(make-backup-files nil)
- '(multi-term-program "/usr/bin/zsh" t)
- '(org-agenda-window-setup 'other-window)
- '(org-catch-invisible-edits 'smart)
- '(org-confirm-babel-evaluate nil)
- '(org-ellipsis "  ☕")
- '(org-hide-emphasis-markers t)
- '(org-log-done 'time)
- '(org-pretty-entities nil)
- '(org-priority-faces '((65 . error) (66 . warning) (67 . success)))
- '(org-src-fontify-natively t)
- '(org-src-tab-acts-natively t)
- '(org-startup-indented t)
- '(org-tags-column -80)
- '(org-todo-keyword-faces '(("HANGUP" . warning)))
- '(org-todo-keywords
-   '((sequence "TODO(t)" "PROCESS(p)" "HANGUP(h)" "|" "DONE(d)" "CANCEL(c)")))
- '(org-use-speed-commands t)
- '(read-process-output-max 1048576 t)
- '(sp-escape-quotes-after-insert nil)
- '(super-save-auto-save-when-idle t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
- '(aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
- '(dashboard-heading ((t (:inherit (font-lock-string-face bold t)))))
- '(diff-hl-change ((t (:foreground "#7c6f64"))))
- '(git-timemachine-minibuffer-author-face ((t (:inherit success))))
- '(git-timemachine-minibuffer-detail-face ((t (:inherit warning))))
- '(hl-line ((t (:extend t))))
- '(ivy-minibuffer-match-face-1 ((t (:inherit font-lock-doc-face :foreground nil))))
- '(lsp-ui-doc-background ((t (:background "lightyellow"))))
- '(lsp-ui-sideline-code-action ((t (:inherit warning))))
- '(macrostep-expansion-highlight-face ((t (:background "#3c3836"))))
- '(org-ellipsis ((t (:foreground nil))))
- '(org-pomodoro-mode-line ((t (:inherit warning))))
- '(org-pomodoro-mode-line-break ((t (:inherit success))))
- '(org-pomodoro-mode-line-overtime ((t (:inherit error))))
- '(snails-content-buffer-face ((t (:background "#111" :height 110))))
- '(snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
- '(snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
- '(symbol-overlay-default-face ((t (:inherit (region bold))))))
