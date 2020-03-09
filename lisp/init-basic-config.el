@@ -98,6 +98,30 @@ The original function deletes trailing whitespace of the current line."
 ;; Delete whole line
 (global-set-key (kbd "C-k") 'kill-whole-line)
 
+;; If mark active, copy region otherwise,whole line.
+(global-set-key (kbd "M-w")
+                (lambda ()
+                  (interactive)
+                  (if mark-active
+                      (kill-ring-save (region-beginning)
+                                      (region-end))
+                    (progn
+                      (kill-ring-save (line-beginning-position)
+                                      (line-end-position))
+                      (message "copied line")))))
+
+;; If mark active,kill region otherwise, whole line.
+(global-set-key (kbd "C-w")
+                (lambda ()
+                  (interactive)
+                  (if mark-active
+                      (kill-region (region-beginning)
+                                   (region-end))
+                    (progn
+                      (kill-region (line-beginning-position)
+                                   (line-end-position))
+                      (message "killed line")))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq-default marjor-mode 'text-mode
