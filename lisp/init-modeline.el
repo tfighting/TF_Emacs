@@ -11,7 +11,6 @@
 ;; @see https://www.gnu.org/software/emacs/manual/html_node/elisp/
 ;; use setq-default to set it for /all/ modes
 ;; Keep track of selected window, so we can render the modeline differently
-
 (cond ((and (not *sys/gui*) (not t_fighting-load-theme))
        (set-face-attribute 'mode-line nil
                            :background "003036"

@@ -14,7 +14,7 @@
   :ensure nil
   :bind ("C-x C-b" . ibuffer)
   :config
-  (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold t))))
+  (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold))))
 
 ;; Display buffer icons on GUI
 (when t_fighting-display-icons

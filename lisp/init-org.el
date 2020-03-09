@@ -111,13 +111,6 @@ prepended to the element after the #+HEADER: tag."
                        (push '("[X]" . ?☑) prettify-symbols-alist)
                        (push '("[-]" . ?⛝) prettify-symbols-alist)
 
-                       (push '("#+BEGIN_SRC" . ?✎) prettify-symbols-alist)
-                       (push '("#+END_SRC" . ?□) prettify-symbols-alist)
-                       (push '("#+BEGIN_QUOTE" . ?») prettify-symbols-alist)
-                       (push '("#+END_QUOTE" . ?«) prettify-symbols-alist)
-                       (push '("#+HEADERS" . ?☰) prettify-symbols-alist)
-                       (push '("#+RESULTS:" . ?⮮) prettify-symbols-alist)
-
                        (prettify-symbols-mode 1)))
          (org-indent-mode . (lambda()
                               (diminish 'org-indent-mode)
@@ -127,13 +120,18 @@ prepended to the element after the #+HEADER: tag."
                               (setq show-paren-mode nil))))
 
   :config
+
+  ;; Set header fonts' height
   (set-face-attribute 'org-level-1 nil :height 1.20 :bold t)
   (set-face-attribute 'org-level-2 nil :height 1.15 :bold t)
   (set-face-attribute 'org-level-3 nil :height 1.10 :bold t)
   (set-face-attribute 'org-level-4 nil :height 1.05 :bold t)
   (set-face-attribute 'org-level-5 nil :height 1.05 :bold t)
-  (when (file-directory-p "~/org/agenda/")
-    (setq org-agenda-files (list "~/org/agenda/")))
+
+  ;; Code block suport run python file.
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)))
 
   ;; switch markdown
   (use-package ox-gfm)

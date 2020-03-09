@@ -106,6 +106,7 @@ If you experience freezing,decrease this. If you experience stuttering, increase
 (require 'init-org)
 (require 'init-pyim)
 
+
 ;; ;;Programming
 (require 'init-vcs)
 (require 'init-flycheck)
