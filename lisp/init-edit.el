@@ -1,24 +1,18 @@
-;; init-edit.el --- Initialize editing configurations.	-*- lexical-binding: t -*-
+;;; init-edit.el --- Better Edit -*- lexical-binding: t; -*-
 
-;;; Commentary:
-;;
-;; Editing configurations.
-;;
+;; Copyright (C) 2020  T_Fighting
 
-;;; Code:
-
-(eval-when-compile
-  (require 'init-constant))
+;; Author: T_Fighting <545298210@qq.com>
+;; Keywords: Edit
 
 
-;;;;;;;;;;;;;;;;;;;;; some parenthesis configuration ;;;;;;;;;;;;;;;;;;
 (use-package smartparens
   :hook (prog-mode . smartparens-mode)
   :diminish
   :bind
   (:map smartparens-mode-map
-   ("C-M-f" . sp-forward-sexp)
-   ("C-M-b" . sp-backward-sexp))
+				("C-M-f" . sp-forward-sexp)
+				("C-M-b" . sp-backward-sexp))
   :custom
   (sp-escape-quotes-after-insert nil)
   :config
@@ -26,82 +20,87 @@
   (sp-local-pair 'emacs-lisp-mode "'" nil :actions nil)
   (sp-local-pair 'org-mode "[" nil :actions nil))
 
-;; Highlight matching parens
-(use-package paren
-  :ensure nil
-  :hook (after-init . show-paren-mode)
-  :init (setq show-paren-when-point-inside-paren t
-              show-paren-when-point-in-periphery t)
-  :config
-  (with-no-warnings
-    (defun display-line-overlay (pos str &optional face)
-      "Display line at POS as STR with FACE.
-FACE defaults to inheriting from default and highlight."
-      (let ((ol (save-excursion
-                  (goto-char pos)
-                  (make-overlay (line-beginning-position)
-                                (line-end-position)))))
-        (overlay-put ol 'display str)
-        (overlay-put ol 'face
-                     (or face '(:inherit highlight)))
-        ol))
+;; Delete whole line
+(global-set-key (kbd "C-k") 'kill-whole-line)
 
-    (defvar-local show-paren--off-screen-overlay nil)
-    (defun show-paren-off-screen (&rest _args)
-      "Display matching line for off-screen paren."
-      (when (overlayp show-paren--off-screen-overlay)
-        (delete-overlay show-paren--off-screen-overlay))
-      ;; check if it's appropriate to show match info,
-      (when (and (overlay-buffer show-paren--overlay)
-                 (not (or cursor-in-echo-area
-                          executing-kbd-macro
-                          noninteractive
-                          (minibufferp)
-                          this-command))
-                 (and (not (bobp))
-                      (memq (char-syntax (char-before)) '(?\) ?\$)))
-                 (= 1 (logand 1 (- (point)
-                                   (save-excursion
-                                     (forward-char -1)
-                                     (skip-syntax-backward "/\\")
-                                     (point))))))
-        ;; rebind `minibuffer-message' called by
-        ;; `blink-matching-open' to handle the overlay display
-        (cl-letf (((symbol-function #'minibuffer-message)
-                   (lambda (msg &rest args)
-                     (let ((msg (apply #'format-message msg args)))
-                       (setq show-paren--off-screen-overlay
-                             (display-line-overlay
-                              (window-start) msg ))))))
-          (blink-matching-open))))
-    (advice-add #'show-paren-function :after #'show-paren-off-screen)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; If mark active, copy region otherwise,whole line.
+(global-set-key (kbd "M-w")
+                (lambda ()
+                  (interactive)
+                  (if mark-active
+                      (kill-ring-save (region-beginning)
+                                      (region-end))
+                    (progn
+                      (kill-ring-save (line-beginning-position)
+                                      (line-end-position))
+                      (message "copied line")))))
 
-;; Automatically reload files was modified by external program
-(use-package autorevert
-  :ensure nil
+;; If mark active,kill region otherwise, whole line.
+(global-set-key (kbd "C-w")
+                (lambda ()
+                  (interactive)
+                  (if mark-active
+                      (kill-region (region-beginning)
+                                   (region-end))
+                    (progn
+                      (kill-region (line-beginning-position)
+                                   (line-end-position))
+                      (message "killed line")))))
+
+;; Highlight symbols
+(use-package symbol-overlay
   :diminish
-  :hook (after-init . global-auto-revert-mode))
+  :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
+  :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
+  :bind (("M-n" . symbol-overlay-jump-next)
+				 ("M-p" . symbol-overlay-jump-prev)
+				 ([M-f3] . symbol-overlay-remove-all))
+  :hook ((prog-mode . symbol-overlay-mode)
+         (iedit-mode . turn-off-symbol-overlay)
+         (iedit-mode-end . turn-on-symbol-overlay))
+  :init (setq symbol-overlay-idle-time 0.1)
+  :config
+  ;; Disable symbol highlighting while selecting
+  (defun turn-off-symbol-overlay (&rest _)
+    "Turn off symbol highlighting."
+    (interactive)
+    (symbol-overlay-mode -1))
+  (advice-add #'set-mark :after #'turn-off-symbol-overlay)
 
-(use-package delete-selection
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
+  (defun turn-on-symbol-overlay (&rest _)
+    "Turn on symbol highlighting."
+    (interactive)
+    (when (derived-mode-p 'prog-mode)
+      (symbol-overlay-mode 1)))
+  (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay))
 
-;; Pass a URL to a WWW browser
-(use-package browse-url
-  :ensure nil
-  :defines dired-mode-map
-  :bind (("C-c C-z ." . browse-url-at-point)
-         ("C-c C-z b" . browse-url-of-buffer)
-         ("C-c C-z r" . browse-url-of-region)
-         ("C-c C-z u" . browse-url)
-         ("C-c C-z e" . browse-url-emacs)
-         ("C-c C-z v" . browse-url-of-file))
-  :init
-  (with-eval-after-load 'dired
-    (bind-key "C-c C-z f" #'browse-url-of-file dired-mode-map))
-  (when (featurep 'xwidget-internal)
-    (bind-key "C-c C-z w" #'xwidget-webkit-browse-url)))
+
+;; Jump to things in Emacs tree-style
+(use-package avy
+  :bind (("C-;" . avy-goto-char)
+         ("C-'" . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)
+         ("M-g e" . avy-goto-word-0))
+  :hook (after-init . avy-setup-default)
+  :config (setq avy-all-windows nil
+                avy-all-windows-alt t
+                avy-background t
+                avy-style 'pre))
+
+;; Mark to everywhere.
+(defun t_fighting-mark-to-char ()
+  (interactive)
+  (call-interactively #'set-mark-command)
+  (call-interactively #'avy-goto-char))
+(global-set-key (kbd "C-z m") 't_fighting-mark-to-char)
+
+
+;; Kill text between the point and the character CHAR
+(use-package avy-zap
+  :bind (("M-z" . avy-zap-to-char-dwim)
+         ("M-Z" . avy-zap-up-to-char-dwim)))
+
 
 ;; Minor mode to aggressively keep your code always indented
 (use-package aggressive-indent
@@ -113,48 +112,9 @@ FACE defaults to inheriting from default and highlight."
                         (if (> (buffer-size) (* 3000 80))
                             (aggressive-indent-mode -1)))))
   :config
-  ;; Disable in some modes
-  (dolist (mode '(asm-mode web-mode html-mode css-mode go-mode prolog-inferior-mode))
-    (push mode aggressive-indent-excluded-modes))
-
   ;; Disable in some commands
   (add-to-list 'aggressive-indent-protected-commands #'delete-trailing-whitespace t)
-
-  ;; Be slightly less aggressive in C/C++/C#/Java/Go/Swift
-  (add-to-list
-   'aggressive-indent-dont-indent-if
-   '(and (derived-mode-p 'c-mode 'c++-mode 'csharp-mode
-                         'java-mode 'go-mode 'swift-mode)
-         (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                             (thing-at-point 'line))))))
-
-
-;; Redefine M-< and M-> for some modes
-
-(use-package beginend
-  :diminish (beginend-mode beginend-global-mode)
-  :hook (after-init . beginend-global-mode)
-  :config
-  (mapc (lambda (pair)
-          (add-hook (car pair) (lambda () (diminish (cdr pair)))))
-        beginend-modes))
-
-;; An all-in-one comment command to rule them all
-(use-package comment-dwim-2
-  :bind ([remap comment-dwim] . comment-dwim-2)) ;
-
-
-;; A comprehensive visual interface to diff & patch
-(use-package ediff
-  :ensure nil
-  :hook(;; show org ediffs unfolded
-        (ediff-prepare-buffer . outline-show-all)
-        ;; restore window layout when done
-        (ediff-quit . winner-undo))
-  :config
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-  (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-merge-split-window-function 'split-window-horizontally))
+	)
 
 ;; Hungry deletion
 (use-package hungry-delete
@@ -162,31 +122,9 @@ FACE defaults to inheriting from default and highlight."
   :hook (after-init . global-hungry-delete-mode)
   :config (setq-default hungry-delete-chars-to-skip " \t\f\v"))
 
-;; Drag stuff (lines, words, region, etc...) around
-(use-package drag-stuff
-  :diminish
-  :commands drag-stuff-define-keys
-  :hook (after-init . drag-stuff-global-mode)
-  :config
-  (add-to-list 'drag-stuff-except-modes 'org-mode)
-  (drag-stuff-define-keys))
-
-
-;; Move to the beginning/end of line or code
-(use-package mwim
-  :bind (([remap move-beginning-of-line] . mwim-beginning-of-code-or-line)
-         ([remap move-end-of-line] . mwim-end-of-code-or-line)))
-
-;; Undo/Redo
-(use-package undo-fu
-  :bind (([remap undo] . undo-fu-only-undo)
-         ([remap undo-only] . undo-fu-only-undo)
-         ("C-?" . undo-fu-only-redo)
-         ("M-_" . undo-fu-only-redo)))
-
-;; Goto last change
-(use-package goto-last-change
-  :bind ("s-," . goto-last-change))
+;; An all-in-one comment command to rule them all
+(use-package comment-dwim-2
+  :bind ([remap comment-dwim] . comment-dwim-2)) ;
 
 ;; Handling capitalized subwords in a nomenclature
 (use-package subword
@@ -201,11 +139,9 @@ FACE defaults to inheriting from default and highlight."
   :hook (prog-mode . hs-minor-mode)
   :bind ("C-`" . hs-toggle-hiding))
 
-;; Open files as another user
-(unless *sys/win32p*  (use-package sudo-edit))
 
 
 
 (provide 'init-edit)
 
-;;init-edit.el ends here
+;;; init-edit.el ends here.

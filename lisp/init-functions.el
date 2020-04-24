@@ -1,39 +1,10 @@
-;; init-function.el --- Define functions.	-*- lexical-binding: t -*-
+;;; init-fuctions.el --- Helper Fuctions -*- lexical-binding: t; -*-
 
-;;
+;; Copyright (C) 2020  T_Fighting
 
-;;; Commentary:
-;;
-;; Define some neccssary functions.
-;;
+;; Author: T_Fighting <545298210@qq.com>
+;; Keywords: Fuctions
 
-;;; Code:
-
-(eval-when-compile
-  (require 'init-constant))
-
-;;Check whether the font is installed.
-(defun font-installed-p (font-name)
-  "Check if font with FONT-NAME is available."
-  (find-font (font-spec :name font-name)))
-
-(defun delete-carrage-returns ()
-  "Delete `^M' characters in the buffer.
-Same as `replace-string C-q C-m RET RET'."
-  (interactive)
-  (save-excursion
-    (goto-char 0)
-    (while (search-forward "\r" nil :noerror)
-      (replace-match ""))))
-
-;; File and buffer
-(defun revert-this-buffer ()
-  "Revert the current buffer."
-  (interactive)
-  (unless (minibuffer-window-active-p (selected-window))
-    (revert-buffer t t)
-    (message "Reverted this buffer.")))
-(global-set-key (kbd "C-z R") #'revert-this-buffer)
 
 (defun delete-this-file ()
   "Delete the current file, and kill the buffer."
@@ -59,114 +30,31 @@ Same as `replace-string C-q C-m RET RET'."
       (set-visited-file-name new-name)
       (rename-buffer new-name))))
 
-(defun browse-this-file ()
-  "Open the current file as a URL using `browse-url'."
+;; revert the current file.
+(defun revert-this-buffer ()
+  "Revert the current buffer."
   (interactive)
-  (let ((file-name (buffer-file-name)))
-    (if (and (fboundp 'tramp-tramp-file-p)
-             (tramp-tramp-file-p file-name))
-        (error "Cannot open tramp file")
-      (browse-url (concat "file://" file-name)))))
+  (unless (minibuffer-window-active-p (selected-window))
+    (revert-buffer t t)
+    (message "Reverted this buffer.")))
+(global-set-key (kbd "s-r") #'revert-this-buffer)
 
-(defun copy-file-name ()
-  "Copy the current buffer file name to the clipboard."
-  (interactive)
-  (if-let ((filename (if (equal major-mode 'dired-mode)
-                         default-directory
-                       (buffer-file-name))))
-      (progn
-        (kill-new filename)
-        (message "Copied '%s'" filename))
-    (message "WARNING: Current buffer is not attached to a file!")))
+;; Open files via externaly applications
+(defun open-in-external-app ()
+	"Open files via externaly applications."
+	(interactive)
+	(let* ((file-path (if (derived-mode-p 'dired-mode)
+												(dired-get-file-for-visit)
+											(buffer-file-name))))
 
+		(if (string-match "\\(?:\\.\\(?:md\\|pdf\\)\\)" file-path)
+				(w32-shell-execute "open" file-path))))
 
-
-;; Mode line
-(defun mode-line-height ()
-  "Get the height of the mode-line."
-  (- (elt (window-pixel-edges) 3)
-     (elt (window-inside-pixel-edges) 3)))
-
-;; Reload configurations
-(defun reload-init-file ()
-  "Reload Emacs configurations."
-  (interactive)
-  (load-file user-init-file))
-(bind-key "C-c C-l" #'reload-init-file)
-
-;; Browse the homepage
-(defun browse-homepage ()
-  "Browse the Github page of T_Fighting Emacs."
-  (interactive)
-  (browse-url *t_fighting-homepage*))
-;; Open custom file
-(defun open-custom-file()
-  "Open custom.el if exists, otherwise create it."
-  (interactive)
-  (let ((custom-example
-         (expand-file-name "custom-example.el" user-emacs-directory)))
-    (unless (file-exists-p custom-file)
-      (if (file-exists-p custom-example)
-          (copy-file custom-file)
-        (error "Unable to find \"%s\"" custom-example)))
-    (find-file custom-file)))
+(with-eval-after-load 'dired
+	(define-key dired-mode-map (kbd "<C-return>") 'open-in-external-app ))
 
 
-;;Misc
-(defun create-scratch-buffer ()
-  "Create a scratch buffer."
-  (interactive)
-  (switch-to-buffer (get-buffer-create "*scratch*"))
-  (lisp-interaction-mode))
-
-(defun save-buffer-as-utf8 (coding-system)
-  "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
-  (interactive "zCoding system for visited file (default nil):")
-  (revert-buffer-with-coding-system coding-system)
-  (set-buffer-file-coding-system 'utf-8)
-  (save-buffer))
-
-(defun save-buffer-gbk-as-utf8 ()
-  "Revert a buffer with GBK and save as UTF-8."
-  (interactive)
-  (save-buffer-as-utf8 'gbk))
-
-(defun recompile-elpa ()
-  "Recompile packages in elpa directory. Useful if you switch Emacs versions."
-  (interactive)
-  (if (fboundp 'async-byte-recompile-directory)
-      (async-byte-recompile-directory package-user-dir)
-    (byte-recompile-directory package-user-dir 0 t)))
-
-(defun recompile-site-lisp ()
-  "Recompile packages in site-lisp directory."
-  (interactive)
-  (let ((dir (locate-user-emacs-file "site-lisp")))
-    (if (fboundp 'async-byte-recompile-directory)
-        (async-byte-recompile-directory dir)
-      (byte-recompile-directory dir 0 t))))
-
-
-(define-minor-mode t_fighting-read-mode
-  "Minor Mode for better reading experience."
-  :init-value nil
-  :group t_fighting
-  (if t_fighting-read-mode
-      (progn
-        (when (fboundp 'olivetti-mode)
-          (olivetti-mode 1))
-        (when (fboundp 'mixed-pitch-mode)
-          (mixed-pitch-mode 1)))
-    (progn
-      (when (fboundp 'olivetti-mode)
-        (olivetti-mode -1))
-      (when (fboundp 'mixed-pitch-mode)
-        (mixed-pitch-mode -1)))))
-(global-set-key (kbd "M-<f7>") #'t_fighting-read-mode)
-
-;; Update
-;;
-
+;; Update packages
 (defun update-all-packages ()
   "Update all packages right now"
   (interactive)
@@ -181,58 +69,62 @@ Same as `replace-string C-q C-m RET RET'."
   (message "Updating all packages done!"))
 (defalias 't_fighting-update-all-packages 'update-all-packages)
 
-(defun update-org ()
-  "Update Org files to the latest version."
-  (interactive)
-  (let ((dir (expand-file-name "~/org/")))
-    (if (file-exists-p dir)
-        (progn
-          (message "Updating org files...")
-          (cd dir)
-          (shell-command "git pull")
-          (message "Updating org files...done"))
-      (message "\"%s\" doesn't exist." dir))))
-(defalias 't_fighting-update-org 'update-org)
-
 ;;
 ;;python
 ;;
 
-;; Run the current python file.
-(defun python/run-current-file (&optional directory)
+(defun python-run-current-file ()
   "Execute the current python file."
-  (interactive
-   (list (or (and current-prefix-arg
-                  (read-directory-name "Run in directory: " nil nil t))
-             default-directory)))
-  (when (buffer-file-name)
-    (let* ((command (or (and (boundp 'executable-command) executable-command)
-                        (concat "python3 " (buffer-file-name))))
-           (default-directory directory)
-           (compilation-ask-about-save nil))
-      (executable-interpret (read-shell-command "Run: " command)))))
+  (interactive)
+	(python-shell-send-file buffer-file-name))
+
+(defun python-quit-interpreter ()
+  (interactive)
+  (switch-to-buffer "*Python*")
+  (comint-quit-subjob)
+  (kill-buffer-and-window))
+
+(defun python-interrupt-interpreter ()
+  (interactive)
+	(let ((file (file-name-nondirectory buffer-file-name)))
+  (switch-to-buffer "*Python*")
+  (comint-interrupt-subjob)
+  (switch-to-buffer file)))
+
+
 
 (with-eval-after-load 'python
-  (define-key python-mode-map [f4] 'python/run-current-file))
+  (define-key python-mode-map (kbd "C-c C-,")  'python-run-current-file)
+	(define-key python-mode-map (kbd "C-c C-q") 'python-quit-interpreter)
+	(define-key python-mode-map (kbd "C-c C-k") 'python-interrupt-interpreter))
 
-;; Stop the currnet python file running.
-(defun stop-python-file-running ()
-  "Stop the current python file."
-  (interactive)
-  (if (get-buffer "*interpretation*")
-      (kill-buffer "*interpretation*")
-    (message (format "The buffer %s doesn't exist!" "*interpretation*"))))
-(global-set-key (kbd "C-<f4>") 'stop-python-file-running)
 
 
 ;; Jump to end and newline.
 (defun jump-to-newline ()
   "Jump to the next line."
   (interactive)
-  (call-interactively  #'mwim-end-of-code-or-line)
+  (call-interactively  #'move-end-of-line)
   (call-interactively #'newline))
-(global-set-key (kbd "C-j") 'jump-to-newline)
+(global-set-key (kbd "<M-f2>") 'jump-to-newline)
+
+;;
+;; Org
+;;
+
+(defun insert-template ()
+	"Insert keywords template"
+	(interactive)
+	(let (text)
+    (when (region-active-p)
+      (setq text (buffer-substring (region-beginning) (region-end)))
+      (delete-region (region-beginning) (region-end)))
+    (insert "#+")
+		(complete-symbol text)))
+
+(with-eval-after-load 'org
+	(define-key org-mode-map (kbd "C-c k") 'insert-template))
 
 (provide 'init-functions)
 
-;;the init-funcs.el ends here.
+;;; init-functions ends here.

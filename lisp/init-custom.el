@@ -1,22 +1,19 @@
-;; init-custom.el --- Define customizations.	-*- lexical-binding: t -*-
-;;; Commentary:
-;;
-;; Customizations.
-;;
+;;; init-custom.el --- Customize some variables -*- lexical-binding: t; -*-
 
-;;; Code:
+;; Copyright (C) 2020  
 
-(eval-when-compile
-  (require 'init-constant))
+;; Author:  <T_fig@DESKTOP-ALBLEA4>
+;; Keywords: variables
+
 
 ;; Persional information.
-(defgroup t_fighting nil
-  "Centaur Emacs customizations."
-  :group 'convenience
-  :link '(url-link :tag "Homepage" "https://github.com/tfighting/TF_Emacs"))
+(defcustom t_fighting-homepage "https://github.com/tfighting/win-emacs"
+  "T_fighting-homepage."
+  :group 't_fighting
+  :type 'string )
 
-(defcustom t_fighting-logo (expand-file-name "logo.png" user-emacs-directory)
-  "Set Centaur logo. nil means official logo."
+(defcustom t_fighting-logo (expand-file-name "images/KEC_Dark_BK.png" user-emacs-directory)
+  "Set Dashboard logo. nil means official logo."
   :group 't_fighting
   :type 'string)
 
@@ -29,30 +26,6 @@
   "Set user email address."
   :group 't_fighting
   :type 'string)
-
-(defcustom t_fighting-server t
-  "Enable `server-mode' or not."
-  :group 't_fighting
-  :type 'boolean)
-
-(defcustom t_fighting-load-theme t
-  "Enable `load-theme' or not."
-  :group 't_fighting
-  :type 'boolean)
-
-(defcustom t_fighting-display-icons t
-  "Whether to display icons."
-  :group 't_fighting
-  :type 'boolean)
-
-(defcustom t_fighting-dashboard t
-  "Use dashboard at startup or not.
-If Non-nil, use dashboard, otherwise will restore previous session."
-  :group 't_fighting
-  :type 'boolean)
-
-;; Load 'custom-file'
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
 (provide 'init-custom)
 

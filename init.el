@@ -1,17 +1,8 @@
- ;;; init.el --- A Fancy and Fast Emacs Configuration.	-*- lexical-binding: t no-byte-compile: t; -*-
-
-;;; Commentary:
+;; This configuration only for orgmode and latex-mode. -*- lexical-binding: t; -*-
 ;;
-;; T_Fighting Emacs - A Fancy and Fast Emacs Configuration.
-;; Only support emacs27 above.
+;; Code:
 
-
-;;; Code:
-
-;; emacs--version >= 27
-(when (version< emacs-version "27")
-  (warn "T-fighting Emacs requires 27 and above"))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Startup Configuration ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Speed up startup
 (defvar t_fighting-gc-cons-threshold  80000000
   "The default value to use for `gc-cons-threshold'.
@@ -53,6 +44,25 @@ If you experience freezing,decrease this. If you experience stuttering, increase
             (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
             (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Use mirror ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DO NOT copy package-selected-packages to init/custom file forcibly.
+(defun my-save-selected-packages (&optional value)
+  "Set `package-selected-packages' to VALUE but don't save to `custom-file'."
+  (when value
+    (setq package-selected-packages value)))
+(advice-add 'package--save-selected-packages :override #'my-save-selected-packages)
+
+;; Load 'custom-file'
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+;; Use mirror
+(setq package-archives '(
+			 ("gnu" . "http://elpa.emacs-china.org/gnu/")
+			 ("melpa" . "http://elpa.emacs-china.org/melpa/")
+			 ("org"   . "http://elpa.emacs-china.org/org/")
+			 ("melpa-stable" . "http://elpa.emacs-china.org/melpa-stable/")))
+
 ;; Load path
 ;; Optimize: Force "lisp"" and "site-lisp" at the head to reduce the startup time.
 (defun update-load-path (&rest _)
@@ -73,50 +83,21 @@ If you experience freezing,decrease this. If you experience stuttering, increase
 ;;if you set the third libraty,you can cancel the commentary
 (add-subdirs-to-load-path)
 
-;;Constants
-(require 'init-constant)
 (require 'init-custom)
-(require 'init-package)
-(require 'init-modeline)
-(require 'init-basic-config)
-(require 'init-functions)
+(require 'init-basic)
 (require 'init-fonts)
 (require 'init-hydra)
-(require 'init-ivy)
-(require 'init-ui)
-(require 'init-highlight)
+(require 'init-functions)
 (require 'init-edit)
-(require 'init-mark)
-(require 'init-kill)
-(require 'init-jump)
-(require 'init-search)
-(require 'init-eaf)
-(require 'init-awesome-tab)
-(require 'init-aweshell)
-(require 'init-company)
-(require 'init-yasnippet)
-(require 'init-dashboard)
 (require 'init-dired)
-(require 'init-ibuffer)
-(require 'init-window)
-(require 'init-treemacs)
-(require 'init-markdown)
-(require 'init-pdf)
-(require 'init-utils)
+(require 'init-search)
+(require 'init-company)
+(require 'init-awesome-tab)
+;;(require 'init-dashboard)
+(require 'init-latex)
 (require 'init-org)
-(require 'init-pyim)
-
-
-;; ;;Programming
-(require 'init-vcs)
-(require 'init-flycheck)
-(require 'init-projectile)
+(require 'init-markdown)
+(require 'init-windows)
 (require 'init-lsp)
-
-;;script language
-(require 'init-elisp)
 (require 'init-python)
-(require 'init-prog)
-
-;; Happy Games
-(require 'init-games)
+(require 'init-utils)

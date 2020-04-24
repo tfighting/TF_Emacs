@@ -1,19 +1,10 @@
-;; init-python.el --- Initialize python configurations.	-*- lexical-binding: t -*-
+;;; init-python.el --- python -*- lexical-binding: t; -*-
 
-;;; Commentary:
-;;
-;; Python configurations.
-;;
+;; Copyright (C) 2020  T_Fighting
 
-;;; Code:
+;; Author: T_Fighting <545298210@qq.com>
+;; Keywords: Python
 
-(eval-when-compile
-  (require 'init-constant)  (require 'init-custom))
-
-;; Python Mode
-;; Install:
-;;   pip install pyflakes
-;;   pip install autopep8
 (use-package python
   :ensure nil
   :hook (inferior-python-mode . (lambda ()
@@ -21,41 +12,9 @@
                                    (get-process "Python"))))
   :init
   ;; Disable readline based native completion
-  (setq python-shell-completion-native-enable nil)
-  :config
-  ;; Default to Python3 Prefer the versioned Python binaries since some
-  ;; systems stupidly make the unversioned one point at Python 2.
-  (when (and (executable-find "python3")
-             (string= python-shell-interpreter "python"))
-    (setq python-shell-interpreter "python3"))
-
-  ;; Env vars
-  (with-eval-after-load 'exec-path-from-shell
-    (exec-path-from-shell-copy-env "PYTHONPATH")
-    )
-
-  ;; Live Coding in Python
-  (use-package live-py-mode))
-
-
-;;pipenv
-(use-package pipenv
-  :commands (pipenv-activate
-             pipenv-deactivate
-             pipenv-shell
-             pipenv-open
-             pipenv-install
-             pipenv-uninstall))
-
-;;better use virtualenv
-(use-package pyvenv)
-(use-package py-isort)
-(use-package virtualenvwrapper)
-
-
-
+  (setq python-shell-completion-native-enable nil))
 
 (provide 'init-python)
 
-
-;;; init-python.el ends here
+;;; init-python.el ends here.
+  
