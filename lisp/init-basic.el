@@ -12,175 +12,112 @@
 ;; Personal information
 (setq user-full-name t_fighting-full-name)
 (setq user-mail-address t_fighting-mail-address)
-(setq frame-title-format '("T_Finghting Emacs - %b")
-      icon-title-format frame-title-format)
+
+;; Misc
+;; Cancel keybindings
+(global-set-key (kbd "C-z") nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System Coding ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when (fboundp 'set-charset-priority)
   (set-charset-priority 'unicode))
+
+;; Explicitly set the prefered coding systems to avoid annoying prompt
+;; from emacs (especially on Microsoft Windows)
 (prefer-coding-system 'utf-8)
-
-;; Solve python out chinese question.
-;; for python output chinese
-;; Emacs buffer -> python : encoding = utf8
-;; python output -> Eamcs : decoding = chinese-gbk-dos
-(modify-coding-system-alist 'process "python" '(chinese-gbk-dos . utf-8))
-;; format buffer
-;; Emacs buffer -> python : encoding = utf8
-;; python output -> Eamcs : decoding = chinese-gbk-dos
-(modify-coding-system-alist 'process "yapf" '(utf-8 . utf-8))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Inhibit load package at startup.
-(setq package-enable-at-startup nil)
-
-;; Disable some UI configuration.
-(push '(menu-bar-lines . 0) default-frame-alist)
-(push '(tool-bar-lines . 0) default-frame-alist)
-(push '(vertical-scroll-bars) default-frame-alist)
-
-;; Inhibit startup configuration.
-(setq inhibit-startup-screen t
-      inhibit-startup-echo-area-message t)
-
-;; Inhibit resizing frame
-(setq frame-inhibit-implied-resize t)
-
-;; Initial packages
-(package-initialize)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Use-package ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Setup `use-package'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-;; Should set before loading `use-package'
-(eval-and-compile
-(setq use-package-always-ensure t)
-(setq use-package-always-defer t)
-(setq use-package-expand-minimally t)
-(setq use-package-enable-imenu-support t))
-
-(eval-when-compile
-  (require 'use-package))
-
-;; Required by `use-package'
-(use-package diminish)
-(use-package bind-key)
-
-;; Update GPG keyring for GNU ELPA
-(use-package gnu-elpa-keyring-update)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Modify keybindings map
-(setq w32-pass-lwindow-to-system nil
-      w32-lwindow-modifier 'super)  ;; Left windows key
-(w32-register-hot-key [s-])  ;; lock screen
-(w32-register-hot-key [M-])
-;; Cancel keybindings
-(global-set-key (kbd "C-z") nil)
-(global-set-key (kbd "<M-f1>") 'set-mark-command)
-(global-set-key (kbd "<f9>") 'eshell)
-;; Auto save
-(use-package auto-save
-	:demand t
-	:ensure nil
-	:config
-	(auto-save-enable)
-	(setq auto-save-silent t)   ; quietly save
-	(setq auto-save-delete-trailing-whitespace t)  ; automatically delete spaces at the end of the line when saving
-	)
-
-;; Delete selection if you insert
-(use-package delsel
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
-;; Highlight matching parens
-(use-package paren
-  :ensure nil
-  :custom
-  (show-paren-when-point-inside-paren t)
-  (show-paren-when-point-in-periphery t)
-  :hook (after-init . show-paren-mode))
-
-(use-package savehist
-  :ensure nil
-  :hook (after-init . savehist-mode)
-  :init (setq history-length 1000
-							savehist-additional-variables '(mark-ring
-																							global-mark-ring
-																							search-ring
-																							regexp-search-ring
-																							extended-command-history)
-							savehist-autosave-interval 300))
+(set-language-environment 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(set-clipboard-coding-system 'utf-8)
+(set-file-name-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(modify-coding-system-alist 'process "*" 'utf-8)
+(setq locale-coding-system 'utf-8
+      default-process-coding-system '(utf-8 . utf-8))
 
 ;; History
 (use-package saveplace
   :ensure nil
   :hook (after-init . save-place-mode))
 
+(use-package recentf
+  :ensure nil
+  :bind (("C-x C-r" . recentf-open-files))
+  :hook (after-init . recentf-mode)
+  :init (setq recentf-max-saved-items 300
+              recentf-exclude
+              '("\\.?cache" ".cask" "url" "COMMIT_EDITMSG\\'" "bookmarks"
+                "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\|bmp\\|xpm\\)$"
+                "\\.?ido\\.last$" "\\.revive$" "/G?TAGS$" "/.elfeed/"
+                "^/tmp/" "^/var/folders/.+$" ; "^/ssh:"
+                (lambda (file) (file-in-directory-p file package-user-dir))))
+  :config (push (expand-file-name recentf-save-file) recentf-exclude))
+
+(use-package savehist
+  :ensure nil
+  :hook (after-init . savehist-mode)
+  :init (setq enable-recursive-minibuffers t ; Allow commands in minibuffers
+              history-length 1000
+              savehist-additional-variables '(mark-ring
+                                              global-mark-ring
+                                              search-ring
+                                              regexp-search-ring
+                                              extended-command-history)
+              savehist-autosave-interval 300))
+
 (use-package simple
   :ensure nil
-  :hook (after-init . size-indication-mode)
+  :hook ((after-init . size-indication-mode))
+
   :init
   (setq column-number-mode t
-				line-move-visual nil
-				track-eol t))        ; Keep cursor at end of lines. Require line-move-visual is nil
+        line-number-mode t
+        ;; kill-whole-line t               ; Kill line including '\n'
+        line-move-visual nil
+        track-eol t                     ; Keep cursor at end of lines. Require line-move-visual is nil.
+        set-mark-command-repeat-pop t))  ; Repeating C-SPC after popping mark pops it again
 
 ;; Select some mode closed to prevent uninfluently.
 (use-package so-long
   :ensure nil
   :config (global-so-long-mode 1))
 
-(use-package autorevert
-  :ensure nil
-  :hook (after-init . global-auto-revert-mode))
-
-;; Display whitespace in the line end.
-(use-package whitespace
-  :ensure nil
-  :hook ((prog-mode markdown-mode conf-mode) . whitespace-mode)
-  :config
-  (setq whitespace-style '(face trailing)))
-
-
+;; Mouse & Smooth Scroll
 ;; Scroll one line at a time (less "jumpy" than defaults)
-(setq  mouse-wheel-scroll-amount '(1 ((shift) . 1))
-       mouse-wheel-progressive-speed nil
-       scroll-step 1
-       scroll-margin 0
-       scroll-conservatively 100000)
+(when (display-graphic-p)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+        mouse-wheel-progressive-speed nil))
+(setq scroll-step 1
+      scroll-margin 0
+      scroll-conservatively 100000)
 
-;; Mis
+;; Misc
 (fset 'yes-or-no-p 'y-or-n-p)
-
-;; Set fill-column 80
-(setq-default fill-column 80
-	      tab-width 2
-	      )
+(setq-default major-mode 'text-mode
+              fill-column 80
+              tab-width 4
+              indent-tabs-mode nil)     ; Permanently indent with spaces, never with TABs
 
 (setq visible-bell t
-      inhibit-compacting-font-caches t  ;; slove disfluency on windows
-      delete-by-moving-to-trash t
-      make-backup-files nil
-      auto-save-default nil
+      inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
+      delete-by-moving-to-trash t       ; Deleting files go to OS's trash folder
+      make-backup-files nil             ; Forbide to make backup files
+      auto-save-default nil             ; Disable auto save
 
       uniquify-buffer-name-style 'post-forward-angle-brackets ; Show path if names are same
-      sentence-end "\\([。！？]\\|......\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
+      adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
+      adaptive-fill-first-line-regexp "^* *$"
+      sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
       sentence-end-double-space nil)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Some UI Configuration ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Set default theme
-(load-theme 'tango-dark)
-
-;; Hide minor mode
-(use-package minions
-  :hook (after-init . minions-mode))
+(use-package color-rg
+  :ensure nil
+  :bind ("C-M-s" . color-rg-search-input))
 
 
 
 (provide 'init-basic)
 
-;;;; init-basic.el ends here.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; init-basic.el ends here

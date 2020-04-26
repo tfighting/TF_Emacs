@@ -6,6 +6,17 @@
 ;; Keywords: Fuctions
 
 
+;; Dos2Unix/Unix2Dos
+(defun dos2unix ()
+  "Convert the current buffer to UNIX file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-unix nil))
+
+(defun unix2dos ()
+  "Convert the current buffer to DOS file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-dos nil))
+
 (defun delete-this-file ()
   "Delete the current file, and kill the buffer."
   (interactive)
@@ -39,20 +50,35 @@
     (message "Reverted this buffer.")))
 (global-set-key (kbd "s-r") #'revert-this-buffer)
 
-;; Open files via externaly applications
-(defun open-in-external-app ()
-	"Open files via externaly applications."
-	(interactive)
-	(let* ((file-path (if (derived-mode-p 'dired-mode)
-												(dired-get-file-for-visit)
-											(buffer-file-name))))
+;;
+;; Misc
+;;
+(defun save-buffer-as-utf8 (coding-system)
+  "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
+  (interactive "zCoding system for visited file (default nil):")
+  (revert-buffer-with-coding-system coding-system)
+  (set-buffer-file-coding-system 'utf-8)
+  (save-buffer))
 
-		(if (string-match "\\(?:\\.\\(?:md\\|pdf\\)\\)" file-path)
-				(w32-shell-execute "open" file-path))))
+(defun save-buffer-gbk-as-utf8 ()
+  "Revert a buffer with GBK and save as UTF-8."
+  (interactive)
+  (save-buffer-as-utf8 'gbk))
 
-(with-eval-after-load 'dired
-	(define-key dired-mode-map (kbd "<C-return>") 'open-in-external-app ))
+(defun recompile-elpa ()
+  "Recompile packages in elpa directory. Useful if you switch Emacs versions."
+  (interactive)
+  (if (fboundp 'async-byte-recompile-directory)
+      (async-byte-recompile-directory package-user-dir)
+    (byte-recompile-directory package-user-dir 0 t)))
 
+(defun recompile-site-lisp ()
+  "Recompile packages in site-lisp directory."
+  (interactive)
+  (let ((dir (locate-user-emacs-file "site-lisp")))
+    (if (fboundp 'async-byte-recompile-directory)
+        (async-byte-recompile-directory dir)
+      (byte-recompile-directory dir 0 t))))
 
 ;; Update packages
 (defun update-all-packages ()
@@ -99,7 +125,6 @@
 	(define-key python-mode-map (kbd "C-c C-k") 'python-interrupt-interpreter))
 
 
-
 ;; Jump to end and newline.
 (defun jump-to-newline ()
   "Jump to the next line."
@@ -107,6 +132,15 @@
   (call-interactively  #'move-end-of-line)
   (call-interactively #'newline))
 (global-set-key (kbd "<M-f2>") 'jump-to-newline)
+
+
+;; Mark to everywhere.
+(defun t_fighting-mark-to-char ()
+  (interactive)
+  (call-interactively #'set-mark-command)
+  (call-interactively #'avy-goto-char))
+(global-set-key (kbd "C-z m") 't_fighting-mark-to-char)
+
 
 ;;
 ;; Org

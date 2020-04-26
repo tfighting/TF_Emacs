@@ -9,7 +9,7 @@
   :ensure nil
   :hook (inferior-python-mode . (lambda ()
                                   (process-query-on-exit-flag
-                                   (get-process "Python"))))
+                                   (get-process "Python3"))))
   :init
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil))
@@ -17,4 +17,3 @@
 (provide 'init-python)
 
 ;;; init-python.el ends here.
-  

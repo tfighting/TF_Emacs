@@ -7,7 +7,7 @@
 
 
 ;; Persional information.
-(defcustom t_fighting-homepage "https://github.com/tfighting/win-emacs"
+(defcustom t_fighting-homepage "https://github.com/tfighting/TF_Emacs"
   "T_fighting-homepage."
   :group 't_fighting
   :type 'string )

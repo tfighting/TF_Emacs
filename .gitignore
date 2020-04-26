@@ -68,6 +68,7 @@ server/
 session*
 thumbs/
 tldr/
+/librime
 tmp*
 transient/
 tutorial/
